@@ -250,18 +250,13 @@
         ctx.drawImage($BACKGROUND.image, 0, height * 0.7 - data.length * 2, width, (width / w) * h, 0, 0, w, h);
       }
 
-      if (state === 'running' || state === 'stopped' || state === 'waiting' || state === 'loading') {
+      if (state === 'running' || state === 'stopped' || state === 'waiting') {
         drawYAxis(listYAxes(currentMultiplier));
 
         // DRAW CANDLE
         for (let i = 0; i < candles.length; i++) {
           drawCandle(candles[i], state === 'running' && i === candles.length - 1);
         }
-      }
-      if (state === 'running' || state === 'stopped') {
-        // DRAW CURVE
-
-        // drawCurve(data);
       }
 
       // DRAW COUNTDOWN
