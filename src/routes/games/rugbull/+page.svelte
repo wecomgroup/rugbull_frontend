@@ -9,7 +9,7 @@
   export let data;
   let chart = [0];
   let startTime = null;
-  let state: GameState = 'loading';
+  let state: GameState = 'connecting';
   let multiplier = 1;
   let history = [1.01, 2.18, 3.7, 8.5, 5.8, 1.01, 1.78734, 1.347682, 2.7634, 1.98734, 2.34873, 3.8745];
 
@@ -27,6 +27,7 @@
 
     socket.on('connect', () => {
       console.log('CONNECTED', socket.connected);
+      state = 'loading'
     });
     socket.on('message', (e) => {
       const event: RoundEvent = JSON.parse(e);

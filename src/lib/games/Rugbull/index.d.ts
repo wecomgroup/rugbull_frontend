@@ -14,4 +14,4 @@ export interface RoundEvent {
   multiplier: number;
 }
 
-export type GameState = 'loading' | 'waiting' | 'running' | 'stopped' 
+export type GameState = 'connecting' | 'loading' | 'waiting' | 'running' | 'stopped'

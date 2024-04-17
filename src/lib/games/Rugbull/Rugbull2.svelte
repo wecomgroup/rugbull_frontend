@@ -6,13 +6,14 @@
   import duration from 'dayjs/plugin/duration';
   import type {ICandle, GameState} from './index';
   import {spring} from 'svelte/motion';
+  import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
 
 
   dayjs.extend(duration);
 
   // EXPORT
   export let data: number[] = [];
-  export let state: GameState = 'loading';
+  export let state: GameState = 'connecting';
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let history: number[] = [];
@@ -266,6 +267,8 @@
         drawTitles(['CRASHED']);
       } else if (state === 'loading') {
         drawTitles(['WAITING FOR', 'NEXT ROUND']);
+      } else if (state === 'connecting') {
+        drawTitles(['CONNECTING..']);
       }
 
       ctx.restore();
@@ -281,8 +284,12 @@
 <div class="game">
   <Canvas ratio={w / h} bind:value={canvas}/>
   <div class="overlay">
-    {#if state === 'running' || state === 'stopped' || (state === 'loading' && currentMultiplier > 1)}
+    {#if state === 'running' || state === 'stopped'}
       <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
+    {:else if state === 'loading'}
+      <div class="loader">
+        <HamsterLoader/>
+      </div>
     {/if}
   </div>
 </div>
@@ -296,12 +303,26 @@
     pointer-events: none;
   }
 
-  .multiplier {
+  .loader {
     position: absolute;
+    bottom: 20px;
+    left: 0;
+
+    display: flex;
+    width: 100%;
+    justify-content: center;
+
     color: white;
     font-size: 32px;
+  }
+
+  .multiplier {
+    position: absolute;
     top: 20px;
     left: 20px;
+
+    color: white;
+    font-size: 32px;
     font-family: monospace;
     font-weight: 600;
 

@@ -1,5 +1,13 @@
 <script>
   import './global.scss'
+  import Command from "$lib/components/CommandMenu/CommandMenu.svelte";
+
+  const menus = [
+    {label: "Rugbull", href: "/games/rugbull"},
+    {label: "Rugbull (Debug)", href: "/games/rugbull/debug"},
+    {label: "Components", href: "/components"},
+  ]
+
 </script>
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,3 +18,5 @@
 <div data-theme="dark">
   <slot/>
 </div>
+
+<Command menus={ menus }/>
