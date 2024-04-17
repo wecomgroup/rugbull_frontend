@@ -32,10 +32,10 @@
   <button style="padding: 0" on:click={onSettings}>
     <ContainerV2 style="display: flex; gap: 8px; align-items: center">
       <div style="display:grid; gap: 4px; grid-template-columns: 1fr 1fr">
-        <span class:disabled={!auto}>Auto Cashout<br/>
+        <span class="tag" class:disabled={!auto}>Auto Cashout<br/>
           {#if auto}x{cashoutMultiplier}{/if}</span>
-        <span>Bet Amount<br/>${betAmount.toFixed(2)}</span>
-        <span class:hide-value={!showCashout} class:disabled={!showCashout} class="highlight" style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
+        <span class="tag">Bet Amount<br/>${betAmount.toFixed(2)}</span>
+        <span class="tag highlight" class:hide-value={!showCashout} class:disabled={!showCashout} style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
       </div>
 
 
@@ -47,7 +47,9 @@
   <BetButton
       on:click={() => dispatch('bet')}
       style=" font-size: 18px"
-      size="sm">{showCashout ? 'Cashout' : 'Bet'}</BetButton>
+      size="sm">
+    <span class="button-text"> {showCashout ? 'Cashout' : 'Bet'} </span>
+  </BetButton>
 </div>
 
 <Modal showCloseIcon={true} bind:open>
@@ -67,27 +69,24 @@
 
 </Modal>
 
-<style>
+<style lang="scss">
   .bet-module-container {
     display: flex;
     gap: 8px;
 
-    & > button:last-child {
+    .button-text {
       writing-mode: vertical-rl;
+      line-height: 0;
+      margin: 0 12px;
     }
 
     @media (min-width: 470px) {
       display: grid;
-      & > button:last-child {
+      .button-text {
         writing-mode: unset;
       }
     }
 
-  }
-
-  span {
-    background-color: #3b4a60;
-    padding: 4px 8px;
   }
 
   .highlight {
