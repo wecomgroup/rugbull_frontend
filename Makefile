@@ -7,10 +7,10 @@ install:
 	pnpm install
 
 dev:
-	pnpm vite dev --port 3000
+	pnpm vite dev --port 3000 --mode development
 
 deploy:
-	pnpm vite build
+	pnpm vite build --mode production
 	tar -zcf dist.tar.gz build package.json pnpm-lock.yaml
 	ssh $$SERVER "mkdir -p $$DIRECTORY"
 	scp dist.tar.gz $$SERVER:$$DIRECTORY/dist.tar.gz

@@ -7,7 +7,6 @@
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
   import {createEventDispatcher} from 'svelte';
-  import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
 
   export let label = 'Bet 1';
@@ -30,9 +29,9 @@
   }
 </script>
 
-<div class="bet-module-container" style="">
-  <button style="padding: 0" on:click={onSettings}>
-    <ContainerV2 style="display: flex; gap: 8px; align-items: center">
+<div class="bet-module-container">
+  <button style="padding: 0; display: grid; align-items: stretch" on:click={onSettings}>
+    <ContainerV2 style="display: flex; gap: 8px; align-items: center; justify-content: center">
       <div style="display:grid; gap: 4px; grid-template-columns: 1fr 1fr">
         <span class="tag" class:disabled={!auto}>Auto Cashout<br/>
           {#if auto}x{cashoutMultiplier}{/if}</span>

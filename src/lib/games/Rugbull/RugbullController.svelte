@@ -1,14 +1,11 @@
 <script lang="ts">
-  import type {GameState, ICandle, RoundEvent} from '$lib/games/Rugbull';
   import Rugbull from '$lib/games/Rugbull/Rugbull.svelte';
   import {io, type Socket} from 'socket.io-client';
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
-  import BetController from "$lib/components/BetController/BetController.svelte";
   import ShareLink from "$lib/components/ShareLink/ShareLink.svelte";
   import {hashToNumber} from './decrypt'
   import {fly} from 'svelte/transition';
-  import PrimaryContainer from "$lib/components/BetController/PrimaryContainer.svelte";
   import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
   import BetModule from "$lib/components/BetController/BetModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
@@ -16,6 +13,7 @@
   import ZapIcon from "$lib/icons/ZapIcon.svelte";
   import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
   import {spring} from "svelte/motion";
+  import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -36,10 +34,11 @@
   /// STATE
   let chart = [];
   let startTime = null;
-  let state: GameState = 'connecting';
+  let state: Rugbull.GameState = 'connecting';
   let connected = false;
   let multiplier = 1;
-  let history = []
+  let multiplierHistory = []
+  let betHistory: RugbullAPI.UserBet[] = []
   let currentRound: string | null = null;
   let messages: string[] = []
   let errorMessage: string | undefined;
@@ -60,12 +59,27 @@
     log(`> ROUND=${currentRound}`)
   }
 
+  /// HANDLE STATE
+  function updateFromInitEvent(event: RugbullAPI.InitEvent) {
+    energyPerSecond = event.users_energy.energyAccumulationRate;
+    maxEnergy = event.users_energy.energyCapacity;
+    energy = Math.min(maxEnergy, Math.floor(-dayjs(event.users_energy.lastUpdateTime).diff() / 1000 * energyPerSecond + event.users_energy.currentEnergy))
+    bonus.set(parseFloat(event.users_wallet.userBonus));
+  }
+
+
   /// FUNCTIONS
   function log(message: string) {
-    if (!debug) return;
+    const formattedMessage = `${formatTimeMs(Date.now())} - ${message}`;
+    if (!debug) {
+      console.log(formattedMessage)
+      return;
+    }
+
     messages = [
-      `${formatTimeMs(Date.now())} - ${message}`,
-      ...messages,];
+      formattedMessage,
+      ...messages,
+    ];
     if (messages.length > 200) {
       messages = messages.slice(0, 200);
     }
@@ -121,8 +135,7 @@
         data.forEach(i => {
           i.multiplier = hashToNumber(i.encryption)
         })
-
-        history = data.map(i => i.multiplier)
+        multiplierHistory = data.map(i => i.multiplier)
       })
   }
 
@@ -142,80 +155,22 @@
     return false;
   }
 
-  function postMakeBet(socket: Socket, index: number, setting: Setting) {
-    errorMessage = undefined;
-    const payload = {
-      round: currentRound,
-      coinType: 1,
-      auto: setting.auto ? 1 : 0,
-      multiplier: setting.cashoutMultiplier,
-      amount: setting.betAmount,
-    }
-
-    console.log('BET', payload)
-
-    socket
-      .timeout(5000)
-      .emit('/v1/games.php/bet', payload, (err, response) => {
-        console.log('BET RESPONSE', response)
-
-        if (checkError(err, response)) {
-          return
-        }
-
-        if (response.statusCode === 200) {
-          const record = {id: response.data.recordId, auto: setting.auto, amount: setting.betAmount};
-          if (index === 0) {
-            record1 = record;
-          } else {
-            record2 = record;
-          }
-
-          energy = response.data.new_balance;
-        }
-
-      });
-  }
-
-  function postCashOut(socket: Socket, index: number, params: {
-    recordId: string,
-  }) {
-    const payload = {
-      recordId: params.recordId,
-    }
-    console.log('CASHOUT', payload)
-
-    socket
-      .timeout(5000)
-      .emit('/v1/games.php/cashout', payload, (err, response) => {
-        errorMessage = "";
-        console.log('CASHOUT RESPONSE', response)
-
-        if (checkError(err, response)) {
-          return
-        }
-
-        if (response.statusCode === 200) {
-          if (index === 0) {
-            record1 = undefined;
-          } else {
-            record2 = undefined;
-          }
-        }
-
-      });
-  }
-
-  function postInit(socket: Socket){
-    socket.timeout(5000).emit('/v1/users.php/init', {}, (err, event: any) => {
-      if (err){
-        console.error(err)
+  function createSocketHandler<T>(callback: (data: T) => void) {
+    return (err, event: any) => {
+      if (checkError(err, event)) {
         return
       }
-      console.log('EMIT init', event)
-    })
+      if (event.statusCode === 200) {
+        const data: T = event.data
+        callback(data)
+      } else {
+        console.log('UNHANDLED EVENT', event)
+      }
+
+    }
   }
 
+  /// SOCKET HANDLERS
   function initSocket({token}) {
     const socket = io('https://api.rugbull.io', {
       extraHeaders: {
@@ -234,16 +189,13 @@
       getResults(socket);
     });
 
-    socket.on('init', (event: any) => {
+    socket.on('init', (event: RugbullAPI.InitEvent) => {
       log(`[INIT] userId=${event.userId}`)
       console.log('EVENT init', event)
-      energyPerSecond = event.users_energy.energyAccumulationRate;
-      maxEnergy = event.users_energy.energyCapacity;
-      energy = Math.min(maxEnergy, Math.floor(-dayjs(event.users_energy.lastUpdateTime).diff() / 1000 * energyPerSecond + event.users_energy.currentEnergy))
-      bonus.set(parseFloat(event.users_wallet.userBonus));
+      updateFromInitEvent(event)
     })
 
-    socket.on('gameEvent', (event: RoundEvent) => {
+    socket.on('gameEvent', (event: Rugbull.RoundEvent) => {
       if (event.status === 1) {
         startTime = event.startTime;
         state = 'waiting';
@@ -258,7 +210,7 @@
         currentRound = event.round.toString()
         log(`[2] ${event.elapsed} ${event.multiplier.toFixed(2)}`)
       } else if (event.status === 3) {
-        history = [event.multiplier, ...history];
+        multiplierHistory = [event.multiplier, ...multiplierHistory];
         chart = [...chart, 0];
         if (state !== 'loading') {
           state = 'stopped';
@@ -294,6 +246,91 @@
     return socket;
   }
 
+  function postHistory(socket: Socket) {
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/history', {}, createSocketHandler<RugbullAPI.HistoryEvent>(data => {
+        console.log('HISTORY', data)
+      }))
+  }
+
+  function postMakeBet(socket: Socket, index: number, setting: Setting) {
+    errorMessage = undefined;
+    const payload = {
+      round: currentRound,
+      coinType: 1,
+      auto: setting.auto ? 1 : 0,
+      multiplier: setting.cashoutMultiplier,
+      amount: setting.betAmount,
+    }
+
+    console.log('BET', payload)
+
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/bet', payload, (err, response) => {
+        console.log('BET RESPONSE', response)
+
+        if (checkError(err, response)) {
+          return
+        }
+
+        if (response.statusCode === 200) {
+          const record = {id: response.data.recordId, auto: setting.auto, amount: setting.betAmount};
+          if (index === 0) {
+            record1 = record;
+          } else {
+            record2 = record;
+          }
+
+          energy = response.data.new_balance;
+
+          postInit(socket);
+        }
+
+      });
+  }
+
+  function postCashOut(socket: Socket, index: number, params: {
+    recordId: string,
+  }) {
+    const payload = {
+      recordId: params.recordId,
+    }
+    console.log('CASHOUT', payload)
+
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/cashout', payload, (err, response) => {
+        errorMessage = "";
+        console.log('CASHOUT RESPONSE', response)
+
+        if (checkError(err, response)) {
+          return
+        }
+
+        if (response.statusCode === 200) {
+          if (index === 0) {
+            record1 = undefined;
+          } else {
+            record2 = undefined;
+          }
+
+          postInit(socket);
+        }
+
+      });
+  }
+
+  function postInit(socket: Socket) {
+    socket
+      .timeout(5000)
+      .emit('/v1/users.php/init', {}, createSocketHandler<RugbullAPI.InitEvent>(event => {
+        console.log('INIT', event)
+        updateFromInitEvent(event)
+      }))
+  }
+
   onMount(() => {
     fetch('/api/token', {
       method: 'POST'
@@ -302,6 +339,8 @@
       .then(({token}) => {
         console.log('TOKEN', token)
         socket = initSocket({token});
+
+        postHistory(socket);
       })
     const intervalId = setInterval(() => {
       if (energy < maxEnergy) {
@@ -349,30 +388,19 @@
   {/if}
 
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
-  <div style="display: grid; position: relative;">
-    <div class="history-row scrollbar-background">
-      {#if history.length === 0}
-        <div in:fly={{x: -20}} class="history-row-item">Loading...</div>
-      {/if}
-      {#each history as i}
-        <div in:fly={{x: -20}} class="history-row-item"
-             data-variant={i > 10 ? 'brand' : ''}>{i < 10 ? i.toFixed(2) : i.toFixed(0)}</div>
-      {/each}
-    </div>
-    <div class="overlay"/>
-  </div>
+  <HistoryRow {multiplierHistory}/>
 
-  <div style="display: flex; gap: 8px">
-    <ContainerV2 style="display: grid; width: fit-content; justify-items: flex-end">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+    <ContainerV2 style="display: grid">
       <EnergyBar amount={energy} maxAmount={maxEnergy}/>
       <span class="tag"
-            style="margin: -10px 10px 0 0px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
+            style="margin: -10px 5px 0 0px; justify-self: right; border-radius: 10px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
         <ZapIcon style="height: 16px; width: 16px"/></span>
     </ContainerV2>
 
-    <ContainerV2>
+    <ContainerV2 style="display: flex; align-items: center">
       <CoinsIcon/>
-      <span class="bonus-text">{$bonus.toFixed(2)}</span>
+      <span class="bonus-text">{$bonus.toFixed(6)}</span>
     </ContainerV2>
   </div>
 
@@ -452,23 +480,6 @@
     height: 100%;
 
     background: linear-gradient(to right, transparent, var(--background) 100%);
-  }
-
-  .history-row {
-    display: flex;
-    gap: 4px;
-    overflow: auto;
-
-    .history-row-item {
-      padding: 4px 8px;
-      background-color: #3b4a60;
-
-      &[data-variant=brand] {
-        background-color: var(--brand);
-        color: black;
-      }
-    }
-
   }
 
   .console {

@@ -1,8 +1,9 @@
 import type {RequestEvent} from './$types';
-
 import {json} from '@sveltejs/kit';
+import {API_URL} from '$env/static/private'
+
 async function getToken() {
-  const response = await fetch('https://api.rugbull.io/v1/index.php/index', {
+  const response = await fetch(`${API_URL}/v1/index.php/index`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -14,7 +15,6 @@ async function getToken() {
 }
 
 export async function POST({request}: RequestEvent) {
-
   const {token} = await getToken()
   return json({
     token,

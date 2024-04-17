@@ -4,7 +4,6 @@
   import {onMount} from 'svelte';
   import dayjs from 'dayjs';
   import duration from 'dayjs/plugin/duration';
-  import type {ICandle, GameState} from './index';
   import {spring} from 'svelte/motion';
   import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
 
@@ -12,7 +11,7 @@
 
   // EXPORT
   export let data: number[] = [];
-  export let state: GameState = 'connecting';
+  export let state: Rugbull.GameState = 'connecting';
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let debug = false;
@@ -71,7 +70,7 @@
   function candlesFromData(data: number[], interval: number) {
     if (interval < 2) throw new Error('Interval must be greater than 1');
     if (data.length === 0) return [];
-    const candles: ICandle[] = [];
+    const candles: Rugbull.ICandle[] = [];
     let i = 0;
     ///  except for the last one
     for (; i < data.length - interval; i += interval) {
@@ -166,7 +165,7 @@
         ctx.stroke();
       }
 
-      function drawCandle(candle: ICandle, hollow: boolean) {
+      function drawCandle(candle: Rugbull.ICandle, hollow: boolean) {
         const gap = 4;
         const h = yAt(candle.open) - yAt(candle.close);
         const w = xAt(INTERVAL - 1) - xAt(0);

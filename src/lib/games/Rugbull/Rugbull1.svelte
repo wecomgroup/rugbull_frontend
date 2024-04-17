@@ -4,14 +4,13 @@
   import { onMount } from 'svelte';
   import dayjs from 'dayjs';
   import duration from 'dayjs/plugin/duration';
-  import type { ICandle, GameState } from './index';
   import { spring } from 'svelte/motion';
 
   dayjs.extend(duration);
 
   // EXPORT
   export let data: number[] = [];
-  export let state: GameState = 'loading';
+  export let state: Rugbull.GameState = 'loading';
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let history: number[] = [];
@@ -67,7 +66,7 @@
   }
 
   function candlesFromData(data: number[], interval: number = 10) {
-    const candles: ICandle[] = [];
+    const candles: Rugbull.ICandle[] = [];
     for (let i = 0; i < data.length - interval; i += interval) {
       const open = 2;
       const close = data[i + interval];
@@ -148,7 +147,7 @@
         ctx.stroke();
       }
 
-      function drawCandle(index: number, candle: ICandle, hollow: boolean) {
+      function drawCandle(index: number, candle: Rugbull.ICandle, hollow: boolean) {
         const gap = 4;
         const h = yAt(candle.open) - yAt(candle.close);
         const countMax = Math.max(20, candles.length + 1);

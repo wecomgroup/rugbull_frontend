@@ -3,12 +3,13 @@
 
   export let amount = 400;
   export let maxAmount = 1000;
+  export let style = undefined;
 
   const amountS = spring(amount);
   $: amountS.set(amount);
 </script>
 
-<div class="energy-bar">
+<div class="energy-bar" style={style}>
   <div class="filler" style="width: {$amountS / maxAmount * 100}%">
     <div class="background"/>
   </div>
@@ -17,20 +18,24 @@
 <style>
   .energy-bar {
     height: 2em;
-    width: 160px;
+    min-width: 100px;
     border-radius: 0.6em;
     border: 1px solid var(--brand);
     overflow: hidden;
   }
 
   .filler {
+    position: relative;
     height: 100%;
     overflow: hidden;
   }
 
   .background {
-    width: 320px;
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 600px;
+    height: 2em;
     background: repeating-linear-gradient(-45deg, var(--brand) 0 30px, #0000 0 40px) left/200% 100%;
     animation: i3 1s infinite linear;
   }
