@@ -46,7 +46,7 @@
   const BACKGROUND_Y = spring(100, {stiffness: 0.05, damping: 0.08});
 
   // INTERVAL
-  const timeAnimation = createAnimationLoop(({t, dt}) => {
+  const timeAnimation = createAnimationLoop(() => {
     if (state === 'waiting') {
       secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
       if (secondsToStart < 0) {
