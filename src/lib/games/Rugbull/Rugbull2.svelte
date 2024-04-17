@@ -323,7 +323,11 @@
     justify-content: center;
 
     color: white;
-    font-size: 32px;
+    font-size: 2.5vw;
+
+    @media (min-width: 600px) {
+      font-size: 14px;
+    }
   }
 
   .multiplier {

@@ -23,7 +23,6 @@
     position: relative;
     width: 12em;
     height: 12em;
-    font-size: 14px;
   }
 
   .wheel,
