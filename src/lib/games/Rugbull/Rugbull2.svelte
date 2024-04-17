@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { CanvasValue } from '$lib/components/Canvas';
+  import type {CanvasValue} from '$lib/components/Canvas';
   import {Canvas, createAnimationLoop, loadImage} from '$lib';
-  import { onMount } from 'svelte';
+  import {onMount} from 'svelte';
   import dayjs from 'dayjs';
   import duration from 'dayjs/plugin/duration';
-  import type { ICandle, GameState } from './index';
-  import { spring } from 'svelte/motion';
+  import type {ICandle, GameState} from './index';
+  import {spring} from 'svelte/motion';
 
 
   dayjs.extend(duration);
@@ -16,6 +16,7 @@
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let history: number[] = [];
+  export let debug = false;
 
   // STATE
   let canvas: CanvasValue | undefined;
@@ -43,7 +44,7 @@
   const MAX_MUL = spring(2);
 
   // INTERVAL
-  const timeAnimation = createAnimationLoop(({ t, dt }) => {
+  const timeAnimation = createAnimationLoop(({t, dt}) => {
     if (state === 'waiting') {
       secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
       if (secondsToStart < 0) {
@@ -78,11 +79,11 @@
     for (; i < data.length - interval; i += interval) {
       const open = data[i];
       const close = data[i + interval - 1];
-      candles.push({ time: i, open, close });
+      candles.push({time: i, open, close});
     }
 
     /// add the last candle
-    candles.push({ time: i, open: data[i], close: data[data.length - 1] });
+    candles.push({time: i, open: data[i], close: data[data.length - 1]});
     return candles;
   }
 
@@ -110,7 +111,7 @@
   $: {
     if (canvas) {
       renderCount++;
-      const { ctx, w: canvasW, density } = canvas;
+      const {ctx, w: canvasW, density} = canvas;
       const scale = canvasW / w;
       const MIN_MUL = 0;
       const MUL_1 = 20;
@@ -245,7 +246,7 @@
       // DRAW
 
       if ($BACKGROUND.image) {
-        const { width, height } = $BACKGROUND;
+        const {width, height} = $BACKGROUND;
         ctx.drawImage($BACKGROUND.image, 0, height * 0.7 - data.length * 2, width, (width / w) * h, 0, 0, w, h);
       }
 
@@ -277,11 +278,13 @@
   }
 </script>
 
+{#if debug}
 <pre>
   {state} render={renderCount} X_MAX={$X_MAX} MAX_MUL={$MAX_MUL}
 </pre>
+{/if}
 <div class="game">
-  <Canvas ratio={w / h} bind:value={canvas} />
+  <Canvas ratio={w / h} bind:value={canvas}/>
   <div class="overlay">
     {#if state === 'running' || state === 'stopped' || (state === 'loading' && currentMultiplier > 1)}
       <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
@@ -301,7 +304,7 @@
   .multiplier {
     position: absolute;
     color: white;
-    font-size: 40px;
+    font-size: 32px;
     top: 20px;
     left: 20px;
     font-family: monospace;

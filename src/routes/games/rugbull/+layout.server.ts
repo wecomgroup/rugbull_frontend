@@ -12,7 +12,7 @@ async function getToken() {
   return {token}
 }
 
-export const load : types.PageServerLoad = async ({ params }) => {
+export const load : types.LayoutServerLoad = async ({ params }) => {
   const {token} = await getToken()
   return {
     token,
