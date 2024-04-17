@@ -34,12 +34,10 @@
     border: 2px solid $bc-green-light10;
 
     &[data-disabled="true"] {
-      opacity: 0.5;
       pointer-events: none;
     }
 
     &[data-loading="true"] {
-      opacity: 0.5;
       pointer-events: none;
     }
 
@@ -50,9 +48,6 @@
     transition: all 0.3s ease;
     margin-bottom: 8px;
 
-    @media (min-width: 768px) {
-      padding: 24px 40px;
-    }
 
 
     transform: translate(0, 0);
@@ -68,6 +63,9 @@
     }
 
     padding: 16px 16px;
+    @media (min-width: 768px) {
+      padding: 24px 40px;
+    }
 
     &[data-size="sm"] {
       padding: 8px 12px;

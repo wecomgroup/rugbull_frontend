@@ -7,6 +7,8 @@
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
   import {createEventDispatcher} from 'svelte';
+  import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
+  import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
 
   export let label = 'Bet 1';
   export let auto = true;
@@ -35,7 +37,8 @@
         <span class="tag" class:disabled={!auto}>Auto Cashout<br/>
           {#if auto}x{cashoutMultiplier}{/if}</span>
         <span class="tag">Bet Amount<br/>${betAmount.toFixed(2)}</span>
-        <span class="tag highlight" class:hide-value={!showCashout} class:disabled={!showCashout} style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
+        <span class="tag highlight" class:hide-value={!showCashout} class:disabled={!showCashout}
+              style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
       </div>
 
 
@@ -46,9 +49,15 @@
   </button>
   <BetButton
       on:click={() => dispatch('bet')}
-      style=" "
+      disabled={auto && showCashout}
       size="sm">
-    <span class="button-text"> {showCashout ? 'Cashout' : 'Bet'} </span>
+    {#if auto &&  showCashout }
+      <div style="display: grid; justify-items: center">
+        <EyeLoader style="font-size: 0.35px"/>
+      </div>
+    {:else}
+      <span class="button-text"> {showCashout ? 'Cashout' : 'Bet'} </span>
+    {/if}
   </BetButton>
 </div>
 
@@ -71,7 +80,8 @@
 
 <style lang="scss">
   .bet-module-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 60px;
     gap: 8px;
 
     .button-text {
@@ -79,11 +89,14 @@
       writing-mode: vertical-rl;
       line-height: 0;
       margin: 0 12px;
-
     }
 
     @media (min-width: 470px) {
-      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 60px;
+      .button-loader {
+        min-height: 40px;
+      }
       .button-text {
         font-size: 22px;
         writing-mode: unset;

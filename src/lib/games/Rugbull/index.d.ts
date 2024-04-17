@@ -27,7 +27,7 @@ interface BalanceEvent1 {
 
 interface BalanceEvent2 {
   coinType: number,
-  userBonus: number,
+  userBonus: string,
 }
 
 interface WinEvent {

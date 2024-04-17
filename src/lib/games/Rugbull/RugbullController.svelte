@@ -15,6 +15,7 @@
   import EnergyBar from "$lib/components/BetController/EnergyBar.svelte";
   import ZapIcon from "$lib/icons/ZapIcon.svelte";
   import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
+  import {spring} from "svelte/motion";
 
   /// PARAMS
   export let debug = false;
@@ -28,6 +29,7 @@
 
   interface Record {
     id: string,
+    auto: boolean,
     amount: number,
   }
 
@@ -42,13 +44,13 @@
   let messages: string[] = []
   let errorMessage: string | undefined;
   let setting1: Setting = {auto: false, cashoutMultiplier: 1.01, betAmount: 50};
-  let setting2: Setting = {auto: false, cashoutMultiplier: 1.01, betAmount: 50};
+  let setting2: Setting = {auto: true, cashoutMultiplier: 1.01, betAmount: 50};
   let record1: Record | undefined;
   let record2: Record | undefined;
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
-  let bonusString = '0.00';
+  const bonus = spring(0)
 
   /// SOCKET
   let socket: undefined | Socket
@@ -162,7 +164,7 @@
         }
 
         if (response.statusCode === 200) {
-          const record = {id: response.data.recordId, amount: setting.betAmount};
+          const record = {id: response.data.recordId, auto: setting.auto, amount: setting.betAmount};
           if (index === 0) {
             record1 = record;
           } else {
@@ -204,6 +206,16 @@
       });
   }
 
+  function postInit(socket: Socket){
+    socket.timeout(5000).emit('/v1/users.php/init', {}, (err, event: any) => {
+      if (err){
+        console.error(err)
+        return
+      }
+      console.log('EMIT init', event)
+    })
+  }
+
   function initSocket({token}) {
     const socket = io('https://api.rugbull.io', {
       extraHeaders: {
@@ -225,9 +237,10 @@
     socket.on('init', (event: any) => {
       log(`[INIT] userId=${event.userId}`)
       console.log('EVENT init', event)
-      energy = event.users_energy.currentEnergy;
       energyPerSecond = event.users_energy.energyAccumulationRate;
-      bonusString = event.users_wallet.userBonus;
+      maxEnergy = event.users_energy.energyCapacity;
+      energy = Math.min(maxEnergy, Math.floor(-dayjs(event.users_energy.lastUpdateTime).diff() / 1000 * energyPerSecond + event.users_energy.currentEnergy))
+      bonus.set(parseFloat(event.users_wallet.userBonus));
     })
 
     socket.on('gameEvent', (event: RoundEvent) => {
@@ -260,14 +273,21 @@
 
     socket.on('trumpetOfVictory', (event: any) => {
       console.log('EVENT trumpetOfVictory', event)
+      if (event.recordId === record2?.id) {
+        record2 = undefined;
+      }
+      if (event.recordId === record1?.id) {
+        record1 = undefined;
+      }
     })
     socket.on('balanceEvent', (event: any) => {
       console.log('EVENT balanceEvent', event)
       if (event.coinType === 1) {
         energy = event.currentEnergy;
       } else if (event.coinType === 2) {
-        bonusString = event.userBonus
+        bonus.set(parseFloat(event.userBonus))
       }
+
     })
 
 
@@ -280,6 +300,7 @@
     })
       .then(res => res.json())
       .then(({token}) => {
+        console.log('TOKEN', token)
         socket = initSocket({token});
       })
     const intervalId = setInterval(() => {
@@ -344,13 +365,14 @@
   <div style="display: flex; gap: 8px">
     <ContainerV2 style="display: grid; width: fit-content; justify-items: flex-end">
       <EnergyBar amount={energy} maxAmount={maxEnergy}/>
-      <span class="tag" style="margin: -10px 10px 0 0px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
+      <span class="tag"
+            style="margin: -10px 10px 0 0px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
         <ZapIcon style="height: 16px; width: 16px"/></span>
     </ContainerV2>
 
     <ContainerV2>
       <CoinsIcon/>
-      <span class="bonus-text">{bonusString}</span>
+      <span class="bonus-text">{$bonus.toFixed(2)}</span>
     </ContainerV2>
   </div>
 
@@ -361,12 +383,14 @@
         bind:auto={setting1.auto}
         currentMultiplier={multiplier}
         showCashout={record1 != null}
+        available={150}
         on:bet={onBetOrCashout(0)}
     />
     <BetModule
         bind:betAmount={setting2.betAmount}
         bind:cashoutMultiplier={setting2.cashoutMultiplier}
         bind:auto={setting2.auto}
+        available={150}
         currentMultiplier={multiplier}
         showCashout={record2 != null}
         on:bet={onBetOrCashout(1)}

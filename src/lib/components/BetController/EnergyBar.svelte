@@ -1,7 +1,7 @@
 <script>
   import {spring} from 'svelte/motion';
 
-  export let amount = 900;
+  export let amount = 400;
   export let maxAmount = 1000;
 
   const amountS = spring(amount);
@@ -29,7 +29,7 @@
   }
 
   .background {
-    width: 200%;
+    width: 320px;
     height: 100%;
     background: repeating-linear-gradient(-45deg, var(--brand) 0 30px, #0000 0 40px) left/200% 100%;
     animation: i3 1s infinite linear;
