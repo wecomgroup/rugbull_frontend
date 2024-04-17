@@ -5,8 +5,9 @@
   import {io} from 'socket.io-client';
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
+
   export let data;
-  let chart = [0];
+  let chart = [];
   let startTime = null;
   let state: GameState = 'loading';
   let multiplier = 1;
@@ -22,6 +23,7 @@
   function formatTime(v) {
     return dayjs(v).format('HH:mm:ss');
   }
+
   function formatTimeMs(v) {
     return dayjs(v).format('HH:mm:ss.SSS');
   }
@@ -50,9 +52,7 @@
 
         history = [...history.slice(0, history.length - 1), event.multiplier];
 
-        if (state !== 'loading') {
-          state = 'running';
-        }
+        state = 'running';
         log(`2: ${event.elapsed} ${event.multiplier}`)
       } else if (event.status === 3) {
         history = [...history, 2];
@@ -81,6 +81,7 @@
 </script>
 
 <main>
+  <pre>state={state}</pre>
   <Rugbull2 {startTime} {state} data={chart} currentMultiplier={multiplier} {history}/>
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {history}/>
 </main>

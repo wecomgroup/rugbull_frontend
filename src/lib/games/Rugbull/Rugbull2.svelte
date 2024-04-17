@@ -140,8 +140,8 @@
         return at1 - ((v - MIN_MUL - 1) / MUL_H) * CHART_H;
       }
 
-      function xAt(index: number) {
-        return (index / $X_MAX) * CHART_W + CHART_LEFT;
+      function xAt(time: number) {
+        return (time / $X_MAX) * CHART_W + CHART_LEFT;
       }
 
       function drawLine(x1, y1, x2, y2) {
@@ -170,7 +170,7 @@
         const h = yAt(candle.open) - yAt(candle.close);
         const w = xAt(INTERVAL - 1) - xAt(0);
         const x = xAt(candle.time);
-        const negative = h > 0;
+        const negative = h >= 0;
         const yOffset = 0
 
         const gradient = ctx.createLinearGradient(0, 0, 0, h);
@@ -206,6 +206,32 @@
         for (let i = 0; i < texts.length; i++) {
           ctx.fillText(texts[i], 0, 80 * i);
         }
+        ctx.restore();
+      }
+
+      function drawCurrentPriceLine(mul: number, time: number){
+        ctx.save();
+        ctx.strokeStyle = BRAND_COLOR
+        ctx.lineWidth = 3
+        ctx.setLineDash([5,5])
+
+        const y = yAt(mul)
+        const candleW = xAt(INTERVAL - 1) - xAt(0)
+        const x1 = xAt(time)
+        const x2 = w- CHART_RIGHT
+
+        ctx.beginPath()
+        ctx.moveTo(x1 + candleW, y)
+        ctx.lineTo(x2, y)
+        ctx.stroke()
+
+        ctx.font = '14px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.fillStyle = BRAND_COLOR;
+        ctx.translate(w - CHART_RIGHT + 4, yAt(mul));
+        ctx.fillText(`${mul.toFixed(2)}`, 0, 0);
+
         ctx.restore();
       }
 
@@ -256,23 +282,28 @@
         ctx.drawImage($BACKGROUND.image, 0, height * 0.7 - $BACKGROUND_Y, width, (width / w) * h, 0, 0, w, h);
       }
 
-      if (state === 'running' || state === 'stopped' || state === 'waiting') {
+      if (state === 'running' || state === 'stopped') {
         drawYAxis(listYAxes(currentMultiplier));
 
         // DRAW CANDLE
         for (let i = 0; i < candles.length; i++) {
           drawCandle(candles[i], state === 'running' && i === candles.length - 1);
         }
+
+        drawCurrentPriceLine(state === 'stopped' ? 0 :currentMultiplier, candles[candles.length - 1].time)
       }
 
       // DRAW COUNTDOWN
       if (state === 'waiting') {
         drawTitles(['START IN', `${formatDuration(secondsToStart * 1000)}`]);
-      } else if (state === 'stopped') {
+      }
+      if (state === 'stopped') {
         drawTitles(['CRASHED']);
-      } else if (state === 'loading') {
+      }
+      if (state === 'loading') {
         drawTitles(['WAITING FOR', 'NEXT ROUND']);
-      } else if (state === 'connecting') {
+      }
+      if (state === 'connecting') {
         drawTitles(['CONNECTING..']);
       }
 
@@ -318,8 +349,8 @@
     justify-content: center;
 
     color: white;
-    font-size: 2.5vw;
 
+    font-size: 2.5vw;
     @media (min-width: 600px) {
       font-size: 14px;
     }
@@ -331,12 +362,16 @@
     left: 20px;
 
     color: white;
-    font-size: 32px;
     font-family: monospace;
     font-weight: 600;
 
     padding: 12px 20px;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 8px;
+
+    font-size: 5.3vw;
+    @media (min-width: 600px) {
+      font-size: 32px;
+    }
   }
 </style>

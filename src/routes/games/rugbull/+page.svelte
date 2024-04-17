@@ -8,7 +8,7 @@
   import ShareLink from "$lib/components/ShareLink/ShareLink.svelte";
 
   export let data;
-  let chart = [0];
+  let chart = [];
   let startTime = null;
   let state: GameState = 'connecting';
   let multiplier = 1;
@@ -42,9 +42,7 @@
 
         history = [...history.slice(0, history.length - 1), event.multiplier];
 
-        if (state !== 'loading') {
-          state = 'running';
-        }
+        state = 'running';
       } else if (event.status === 3) {
         history = [...history, 2];
         chart = [...chart, 0];
