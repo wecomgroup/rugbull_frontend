@@ -15,3 +15,26 @@ export interface RoundEvent {
 }
 
 export type GameState = 'connecting' | 'reconnecting' | 'loading' | 'waiting' | 'running' | 'stopped'
+
+interface BalanceEvent1 {
+  coinType: number,
+  currentEnergy: number,
+  dailyLimitTime: string, // ISO
+  energyAccumulationRate: number,
+  energyCapacity: number,
+  lastUpdateTime: string,
+}
+
+interface BalanceEvent2 {
+  coinType: number,
+  userBonus: number,
+}
+
+interface WinEvent {
+  amount : string
+  multiplier : "1.20",
+  newBalance : "2471.50000000",
+  recordId : 124,
+  userId : 1,
+}
+

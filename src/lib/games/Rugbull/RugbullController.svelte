@@ -12,6 +12,9 @@
   import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
   import BetModule from "$lib/components/BetController/BetModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import EnergyBar from "$lib/components/BetController/EnergyBar.svelte";
+  import ZapIcon from "$lib/icons/ZapIcon.svelte";
+  import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -36,16 +39,16 @@
   let multiplier = 1;
   let history = []
   let currentRound: string | null = null;
-  let auto = false;
-  let betAmount = 50;
-  let cashoutMultiplier = 1.01;
   let messages: string[] = []
   let errorMessage: string | undefined;
   let setting1: Setting = {auto: false, cashoutMultiplier: 1.01, betAmount: 50};
   let setting2: Setting = {auto: false, cashoutMultiplier: 1.01, betAmount: 50};
   let record1: Record | undefined;
   let record2: Record | undefined;
-  let balance = 1000;
+  let energy = 0;
+  let maxEnergy = 1000;
+  let energyPerSecond = 1;
+  let bonusString = '0.00';
 
   /// SOCKET
   let socket: undefined | Socket
@@ -57,6 +60,7 @@
 
   /// FUNCTIONS
   function log(message: string) {
+    if (!debug) return;
     messages = [
       `${formatTimeMs(Date.now())} - ${message}`,
       ...messages,];
@@ -94,28 +98,30 @@
         state = 'waiting'
         currentRound = data.round
       } else {
-        console.log('INIT', data)
+        console.log('INFO', data)
       }
     });
   }
 
   function getResults(socket: Socket) {
-    socket.timeout(5000).emit('/v1/games.php/result', {
-      limit: 20,
-      page: 1,
-    }, (err, response) => {
-      const data: {
-        encryption: string
-        round: string
-        updatedAt: string,
-        multiplier: number,
-      }[] = response.data.rows;
-      data.forEach(i => {
-        i.multiplier = hashToNumber(i.encryption)
-      })
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/result', {
+        limit: 20,
+        page: 1,
+      }, (err, response) => {
+        const data: {
+          encryption: string
+          round: string
+          updatedAt: string,
+          multiplier: number,
+        }[] = response.data.rows;
+        data.forEach(i => {
+          i.multiplier = hashToNumber(i.encryption)
+        })
 
-      history = data.map(i => i.multiplier)
-    })
+        history = data.map(i => i.multiplier)
+      })
   }
 
   function checkError(err, response) {
@@ -146,25 +152,27 @@
 
     console.log('BET', payload)
 
-    socket.timeout(5000).emit('/v1/games.php/bet', payload, (err, response) => {
-      console.log('BET RESPONSE', response)
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/bet', payload, (err, response) => {
+        console.log('BET RESPONSE', response)
 
-      if (checkError(err, response)) {
-        return
-      }
-
-      if (response.statusCode === 200) {
-        const record = {id: response.data.recordId, amount: setting.betAmount};
-        if (index === 0) {
-          record1 = record;
-        } else {
-          record2 = record;
+        if (checkError(err, response)) {
+          return
         }
 
-        balance = response.data.new_balance;
-      }
+        if (response.statusCode === 200) {
+          const record = {id: response.data.recordId, amount: setting.betAmount};
+          if (index === 0) {
+            record1 = record;
+          } else {
+            record2 = record;
+          }
 
-    });
+          energy = response.data.new_balance;
+        }
+
+      });
   }
 
   function postCashOut(socket: Socket, index: number, params: {
@@ -175,23 +183,25 @@
     }
     console.log('CASHOUT', payload)
 
-    socket.timeout(5000).emit('/v1/games.php/cashout', payload, (err, response) => {
-      errorMessage = "";
-      console.log('CASHOUT RESPONSE', response)
+    socket
+      .timeout(5000)
+      .emit('/v1/games.php/cashout', payload, (err, response) => {
+        errorMessage = "";
+        console.log('CASHOUT RESPONSE', response)
 
-      if (checkError(err, response)) {
-        return
-      }
-
-      if (response.statusCode === 200) {
-        if (index === 0) {
-          record1 = undefined;
-        } else {
-          record2 = undefined;
+        if (checkError(err, response)) {
+          return
         }
-      }
 
-    });
+        if (response.statusCode === 200) {
+          if (index === 0) {
+            record1 = undefined;
+          } else {
+            record2 = undefined;
+          }
+        }
+
+      });
   }
 
   function initSocket({token}) {
@@ -211,6 +221,14 @@
       getInfo(socket);
       getResults(socket);
     });
+
+    socket.on('init', (event: any) => {
+      log(`[INIT] userId=${event.userId}`)
+      console.log('EVENT init', event)
+      energy = event.users_energy.currentEnergy;
+      energyPerSecond = event.users_energy.energyAccumulationRate;
+      bonusString = event.users_wallet.userBonus;
+    })
 
     socket.on('gameEvent', (event: RoundEvent) => {
       if (event.status === 1) {
@@ -240,8 +258,16 @@
       }
     });
 
-    socket.on('userEscapes', (event: any) => {
-      console.log('userEscapes', event)
+    socket.on('trumpetOfVictory', (event: any) => {
+      console.log('EVENT trumpetOfVictory', event)
+    })
+    socket.on('balanceEvent', (event: any) => {
+      console.log('EVENT balanceEvent', event)
+      if (event.coinType === 1) {
+        energy = event.currentEnergy;
+      } else if (event.coinType === 2) {
+        bonusString = event.userBonus
+      }
     })
 
 
@@ -256,10 +282,28 @@
       .then(({token}) => {
         socket = initSocket({token});
       })
+    const intervalId = setInterval(() => {
+      if (energy < maxEnergy) {
+        energy += energyPerSecond;
+      }
+    }, 1000);
     return () => {
       socket.disconnect();
+      clearInterval(intervalId);
     };
   });
+
+
+  let errorMessageTimeoutId;
+  $: {
+    if (errorMessage) {
+      errorMessageTimeoutId = setTimeout(() => {
+        errorMessage = undefined;
+      }, 5000)
+    } else {
+      clearTimeout(errorMessageTimeoutId)
+    }
+  }
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
@@ -286,12 +330,28 @@
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
   <div style="display: grid; position: relative;">
     <div class="history-row scrollbar-background">
+      {#if history.length === 0}
+        <div in:fly={{x: -20}} class="history-row-item">Loading...</div>
+      {/if}
       {#each history as i}
         <div in:fly={{x: -20}} class="history-row-item"
              data-variant={i > 10 ? 'brand' : ''}>{i < 10 ? i.toFixed(2) : i.toFixed(0)}</div>
       {/each}
     </div>
     <div class="overlay"/>
+  </div>
+
+  <div style="display: flex; gap: 8px">
+    <ContainerV2 style="display: grid; width: fit-content; justify-items: flex-end">
+      <EnergyBar amount={energy} maxAmount={maxEnergy}/>
+      <span class="tag" style="margin: -10px 10px 0 0px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
+        <ZapIcon style="height: 16px; width: 16px"/></span>
+    </ContainerV2>
+
+    <ContainerV2>
+      <CoinsIcon/>
+      <span class="bonus-text">{bonusString}</span>
+    </ContainerV2>
   </div>
 
   <div class="bet-modules-row">
@@ -322,10 +382,6 @@
       </ErrorContainer>
     </div>
   {/if}
-
-  <ContainerV2>
-    <span class="tag">Balance: ${balance}</span>
-  </ContainerV2>
 
   <ShareLink/>
 
@@ -407,6 +463,19 @@
 
     @media (min-width: 800px) {
       max-height: 600px;
+    }
+  }
+
+  .bonus-text {
+    font-size: 18px;
+    @media (min-width: 400px) {
+      font-size: 22px
+    }
+    @media (min-width: 480px) {
+      font-size: 32px
+    }
+    @media (min-width: 570px) {
+      font-size: 40px
     }
   }
 </style>

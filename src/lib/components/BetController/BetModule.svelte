@@ -46,7 +46,7 @@
   </button>
   <BetButton
       on:click={() => dispatch('bet')}
-      style=" font-size: 18px"
+      style=" "
       size="sm">
     <span class="button-text"> {showCashout ? 'Cashout' : 'Bet'} </span>
   </BetButton>
@@ -75,14 +75,17 @@
     gap: 8px;
 
     .button-text {
+      font-size: 15px;
       writing-mode: vertical-rl;
       line-height: 0;
       margin: 0 12px;
+
     }
 
     @media (min-width: 470px) {
       display: grid;
       .button-text {
+        font-size: 22px;
         writing-mode: unset;
       }
     }

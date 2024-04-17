@@ -41,7 +41,7 @@
   // REACTIVE STATE
   const X_MAX = spring(128);
   const MAX_MUL = spring(2);
-  const BACKGROUND_Y = spring(10000, {stiffness: 0.05, damping: 0.08, precision: 0.1});
+  const BACKGROUND_Y = spring(200, {stiffness: 0.05, damping: 0.08, precision: 0.1});
 
   // MOUNT
   onMount(() => {
@@ -75,13 +75,13 @@
     let i = 0;
     ///  except for the last one
     for (; i < data.length - interval; i += interval) {
-      const open = data[i];
+      const open = i > 1 ? data[i-1] : 1.0;
       const close = data[i + interval - 1];
       candles.push({time: i, open, close});
     }
 
     /// add the last candle
-    candles.push({time: i, open: data[i], close: data[data.length - 1]});
+    candles.push({time: i, open: i > 1 ? data[i-1] : 1.0, close: data[data.length - 1]});
     return candles;
   }
 
@@ -103,7 +103,8 @@
       X_MAX.set(Math.ceil((data.length + 128) / 128) * 128);
     }
   }
-  $: MAX_MUL.set(ceilPow2(currentMultiplier, 2));
+  $: maxMul = Math.max(0, ...data);
+  $: MAX_MUL.set(ceilPow2(maxMul, 2));
 
   $: {
     if (state === 'waiting' || state === 'connecting' || state === 'stopped') {
@@ -200,7 +201,7 @@
         fontSize: number,
       }) {
         ctx.save();
-        ctx.translate(w / 2, h / 2 - 80);
+        ctx.translate(w / 2, h / 2 - 60);
         ctx.fillStyle = BRAND_COLOR;
         ctx.font = `bold ${options?.fontSize ?? 80}px monospace`;
         ctx.textAlign = 'center';
@@ -288,7 +289,7 @@
       }
 
       if (state === 'running' || state === 'stopped') {
-        drawYAxis(listYAxes(currentMultiplier));
+        drawYAxis(listYAxes($MAX_MUL));
 
         // DRAW CANDLE
         for (let i = 0; i < candles.length; i++) {
