@@ -360,7 +360,7 @@
 
     color: white;
 
-    font-size: 2.5vw;
+    font-size: 2.333vw;
     @media (min-width: 600px) {
       font-size: 14px;
     }
@@ -373,19 +373,20 @@
 
     border-radius: 50%;
     background-color: red;
-    width: 24px;
-    height: 24px;
+    width: 4vw;
+    height: 4vw;
 
     &[data-connected=true]{
       background-color: greenyellow;
-
+    }
+    @media (min-width: 600px) {
+      width: 24px;
+      height: 24px;
     }
   }
 
   .multiplier {
     position: absolute;
-    top: 20px;
-    left: 20px;
 
     color: white;
     font-family: monospace;
@@ -395,8 +396,12 @@
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 8px;
 
+    top: 3.3vw;
+    left: 3.3vw;
     font-size: 5.3vw;
     @media (min-width: 600px) {
+      top: 20px;
+      left: 20px;
       font-size: 32px;
     }
   }

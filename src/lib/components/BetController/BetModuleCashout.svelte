@@ -6,14 +6,11 @@
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
 
   export let checked: boolean = false;
-  export let size: 'xs' | 'sm' | 'md' = 'md';
   export let disabled = false;
-  export let style: string | undefined = undefined;
   export let value: number = 1.01;
   export let t: (v) => void = (a) => a;
   export let min: number = 1.01;
-  export let max: number = 10;
-  export let lock: boolean = false;
+  export let max: number = 100;
 
   const dispatch = createEventDispatcher();
 
@@ -23,13 +20,6 @@
     }
     return Math.min(max, Math.max(min, value));
   };
-
-  function onChange(e: any) {
-    value = parseInt(e?.target?.value || 0);
-    if (value <= 0) {
-      value = 10;
-    }
-  }
 
   function increase() {
     value = minmax(value + 1);
@@ -58,7 +48,7 @@
           <div class="input-group">
             <div class="input-container">
               <span style="font-weight: 700; font-family: monospace; font-size: 20px">x</span>
-              <input class="input" {value} on:change={(e) => onChange(e)}/>
+              <input type="number" class="input" bind:value/>
             </div>
           </div>
           <button class="button" on:click={decrease} {disabled}>-</button>
@@ -89,7 +79,8 @@
         outline-offset: 2px;
         text-align: left;
         background-color: transparent;
-        border-style: none;
+        border: 1px solid currentColor;
+        padding-left: 4px;
       }
 
     }

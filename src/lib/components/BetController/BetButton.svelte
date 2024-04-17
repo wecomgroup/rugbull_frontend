@@ -55,10 +55,10 @@
     }
 
 
-    transform: translate(0, -4px);
+    transform: translate(0, 0);
     box-shadow: 0px 6px 0px 0px $bc-green-dark10;
     &:hover {
-      transform: translate(0, -6px);
+      transform: translate(0, -2px);
       box-shadow: 0px 8px 0px 0px $bc-green-dark10;
     }
 

@@ -3,7 +3,7 @@
   export let label = "Check Mate";
 </script>
 
-<div class="checkbox-wrapper-4">
+<div class="checkbox-container">
   <input class="inp-cbx" id="morning" type="checkbox" bind:checked>
   <label class="cbx" for="morning" style="display: flex; align-items: center">
     <span style="margin-right: 8px;"> </span>
@@ -17,12 +17,15 @@
 </div>
 
 <style>
-  .checkbox-wrapper-4 * {
+  .checkbox-container {
+    display: flex;
+  }
+  .checkbox-container * {
     box-sizing: border-box;
     color: white;
   }
 
-  .checkbox-wrapper-4 .cbx {
+  .checkbox-container .cbx {
     -webkit-user-select: none;
     user-select: none;
     cursor: pointer;
@@ -34,17 +37,17 @@
     padding: 4px 0;
   }
 
-  .checkbox-wrapper-4 .cbx:hover {
+  .checkbox-container .cbx:hover {
     background: rgba(0,119,255,0.06);
   }
 
-  .checkbox-wrapper-4 .cbx span:first-child {
+  .checkbox-container .cbx span:first-child {
     float: left;
     vertical-align: middle;
     transform: translate3d(0, 0, 0);
   }
 
-  .checkbox-wrapper-4 .cbx span:first-child {
+  .checkbox-container .cbx span:first-child {
     position: relative;
     width: 18px;
     min-width: 18px;
@@ -56,7 +59,7 @@
     box-shadow: 0 1px 1px rgba(0,16,75,0.05);
   }
 
-  .checkbox-wrapper-4 .cbx span:first-child svg {
+  .checkbox-container .cbx span:first-child svg {
     position: absolute;
     top: 3px;
     left: 2px;
@@ -72,26 +75,26 @@
     transform: translate3d(0, 0, 0);
   }
 
-  .checkbox-wrapper-4 .cbx:hover span:first-child {
+  .checkbox-container .cbx:hover span:first-child {
     border-color: var(--brand);
   }
 
-  .checkbox-wrapper-4 .inp-cbx {
+  .checkbox-container .inp-cbx {
     position: absolute;
     visibility: hidden;
   }
 
-  .checkbox-wrapper-4 .inp-cbx:checked + .cbx span:first-child {
+  .checkbox-container .inp-cbx:checked + .cbx span:first-child {
     background: var(--brand);
     border-color: var(--brand);
     animation: wave-4 0.4s ease;
   }
 
-  .checkbox-wrapper-4 .inp-cbx:checked + .cbx span:first-child svg {
+  .checkbox-container .inp-cbx:checked + .cbx span:first-child svg {
     stroke-dashoffset: 0;
   }
 
-  .checkbox-wrapper-4 .inline-svg {
+  .checkbox-container .inline-svg {
     position: absolute;
     width: 0;
     height: 0;
@@ -100,7 +103,7 @@
   }
 
   @media screen and (max-width: 640px) {
-    .checkbox-wrapper-4 .cbx {
+    .checkbox-container .cbx {
       width: 100%;
       display: inline-block;
     }

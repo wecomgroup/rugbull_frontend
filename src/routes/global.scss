@@ -52,8 +52,15 @@ button, input[type="submit"], input[type="reset"] {
   }
 }
 
+.tag {
+  background-color: #3b4a60;
+  padding: 4px 8px;
+}
+
 :root {
   --background: #14141b;
   --text: white;
   --brand: #F9BB4B;
+  --brand-hover: #F6CD84;
+  --gray: gray;
 }
