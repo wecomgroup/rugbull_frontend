@@ -1,5 +1,5 @@
 <script>
-  import InputContainer from "$lib/components/BetController/InputContainer.svelte";
+  import InputContainer from "$lib/components/BetController/PrimaryContainer.svelte";
   import Share2Icon from "$lib/icons/Share2Icon.svelte";
 
   const link = "telegram.me/TGBetOfficialBot?start=513739291";
@@ -7,7 +7,7 @@
 
 <InputContainer>
   <div class="row">
-    <span>{link}</span>
+    <span style="word-break: break-all">{link}</span>
     <div style="flex:1"/>
     <button>
       <Share2Icon/>

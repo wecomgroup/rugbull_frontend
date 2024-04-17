@@ -5,12 +5,16 @@
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import {createEventDispatcher} from "svelte";
 
-  let betMax = 1000;
-  let betAmount = 10;
-  let cashout = 10;
-  let lockbet = false;
-  let disableBetButton = false;
-  let remainBets = 1;
+  let maxBet = 1000;
+  export let betAmount = 10;
+  export let cashoutMultiplier = 1.01;
+  export let showCashout = false;
+  export let lock= false;
+
+  const maxCashout = 1000000;
+  const minCashout = 1.01;
+  let loading = false;
+  let remainBets = null;
 
   const dispatch = createEventDispatcher();
 
@@ -18,28 +22,35 @@
     return v;
   }
 
-  function triggerBet(){
-    dispatch('bet', {betAmount, cashout});
+  function onClick() {
+    dispatch('click');
   }
 </script>
 
 <div class="bet-controller">
   <div class="cashout">
-    <Cashout bind:value={cashout} {t} lock={lockbet}/>
+    <Cashout bind:value={cashoutMultiplier} {t} lock={showCashout}/>
   </div>
   <div class="bet-group">
     <div class="bet-amount">
-      <BetAmount bind:value={betAmount} max={betMax} {t} lock={false}/>
+      <BetAmount bind:value={betAmount} max={maxBet} {t} lock={false}/>
     </div>
     <div class="bet-btn">
-      <BetButton size={'sm'} loading={disableBetButton} disabled={disableBetButton} on:click={triggerBet}
+      <BetButton size={'sm'} loading={loading} disabled={loading}
+                 on:click={onClick}
                  style="height: calc(100% - 6px); width: 100%">
-        {#if disableBetButton}
+        {#if loading}
           <SimpleLoader variant="sm"/>
         {:else}
           <div class="bet-info">
-            <span>{t('Bet')}</span>
-            <span style="font-size: 12px">{remainBets > 0 ? `(${remainBets})` : ''}</span>
+            {#if showCashout}
+              <span>{t('Cashout')}</span>
+            {:else}
+              <span>{t('Bet')}</span>
+            {/if}
+            {#if remainBets != null}
+              <span style="font-size: 12px">{remainBets}</span>
+            {/if}
           </div>
         {/if}
       </BetButton>

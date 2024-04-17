@@ -16,7 +16,7 @@
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let debug = false;
-  export let history: number[] = [];
+  export let connected = false;
 
   // CONST
   const w = 600;
@@ -328,9 +328,11 @@
 <div class="game">
   <Canvas ratio={w / h} bind:value={canvas}/>
   <div class="overlay">
+    <div class="connection-status" data-connected={connected}/>
     {#if state === 'running' || state === 'stopped'}
       <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
-    {:else if state === 'loading' || state === 'waiting'}
+    {/if}
+    {#if state === 'loading' || state === 'waiting'}
       <div class="loader">
         <HamsterLoader/>
       </div>
@@ -361,6 +363,22 @@
     font-size: 2.5vw;
     @media (min-width: 600px) {
       font-size: 14px;
+    }
+  }
+
+  .connection-status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+
+    border-radius: 50%;
+    background-color: red;
+    width: 24px;
+    height: 24px;
+
+    &[data-connected=true]{
+      background-color: greenyellow;
+
     }
   }
 

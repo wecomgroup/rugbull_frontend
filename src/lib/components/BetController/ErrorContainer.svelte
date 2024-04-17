@@ -7,9 +7,10 @@
     height: calc(100% - 12px);
     padding: 6px;
     border-radius: 6px;
-    border: 1px solid #6f767e;
-    background: #f2f2f2;
     box-shadow: 0px 4.417391777038574px 4.417391777038574px 0px rgba(0, 0, 0, 0.25);
+    border-color: #a42525;
+    background: #b64444;
+
     transition-duration: 0.4s;
     -webkit-transition-duration: 0.4s;
     position: relative;
@@ -39,9 +40,10 @@
 
   :global([data-theme='dark']) {
     .input-wrapper {
-      border-color: #364358;
-      background: #1b1b23;
+      border-color: #ff0000;
+      background: #b64444;
       color: #d4d4d4;
     }
   }
+
 </style>

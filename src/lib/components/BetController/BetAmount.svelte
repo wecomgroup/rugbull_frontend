@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import InputContainer from './InputContainer.svelte';
+  import PrimaryContainer from './PrimaryContainer.svelte';
 
   export let size: 'xs' | 'sm' | 'md' = 'md';
   export let disabled = false;
@@ -39,7 +39,7 @@
   }
 </script>
 
-<InputContainer>
+<PrimaryContainer>
   {#if !lock}
     <div class="function-btns">
       <button class="button" on:click={() => (value = min)} {disabled}>{t('Min')}</button>
@@ -63,7 +63,7 @@
       <button class="button" on:click={double} {disabled}>2x</button>
     </div>
   {/if}
-</InputContainer>
+</PrimaryContainer>
 
 <style lang="scss">
   .function-btns {

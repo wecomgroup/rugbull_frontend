@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import InputContainer from './InputContainer.svelte';
+  import PrimaryContainer from './PrimaryContainer.svelte';
 
   export let size: 'xs' | 'sm' | 'md' = 'md';
   export let disabled = false;
@@ -42,7 +42,7 @@
   }
 </script>
 
-<InputContainer>
+<PrimaryContainer>
   {#if !lock}
     <button class="button mobile" on:click={decrease} {disabled}>-</button>
   {/if}
@@ -59,7 +59,7 @@
     </div>
     <button class="button mobile" on:click={decrease} {disabled}>-</button>
   {/if}
-</InputContainer>
+</PrimaryContainer>
 
 <style lang="scss">
   .input-group {
