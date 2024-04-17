@@ -8,7 +8,6 @@
   import {spring} from 'svelte/motion';
   import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
 
-
   dayjs.extend(duration);
 
   // EXPORT
@@ -16,15 +15,7 @@
   export let state: GameState = 'connecting';
   export let startTime: number;
   export let currentMultiplier: number = 1;
-  export let history: number[] = [];
   export let debug = false;
-
-  // STATE
-  let canvas: CanvasValue | undefined;
-  let secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
-  let renderCount = 0;
-
-  const BACKGROUND = loadImage('/images/rugbull/background.webp');
 
   // CONST
   const w = 600;
@@ -39,24 +30,28 @@
   const CHART_TOP = 40;
   const CHART_H = h - CHART_BOTTOM - CHART_TOP;
   const CHART_W = w - CHART_LEFT - CHART_RIGHT;
+  const BACKGROUND = loadImage('/images/rugbull/background.webp');
+
+  // STATE
+  let canvas: CanvasValue | undefined;
+  let secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
+  let renderCount = 0;
 
   // REACTIVE STATE
   const X_MAX = spring(128);
   const MAX_MUL = spring(2);
   const BACKGROUND_Y = spring(100, {stiffness: 0.05, damping: 0.08});
 
-  // INTERVAL
-  const timeAnimation = createAnimationLoop(() => {
-    if (state === 'waiting') {
-      secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
-      if (secondsToStart < 0) {
-        secondsToStart = 0;
-      }
-    }
-  });
-
   // MOUNT
   onMount(() => {
+    const timeAnimation = createAnimationLoop(() => {
+      if (state === 'waiting') {
+        secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
+        if (secondsToStart < 0) {
+          secondsToStart = 0;
+        }
+      }
+    });
     timeAnimation.startLoop();
     return () => {
       timeAnimation.stopLoop();
