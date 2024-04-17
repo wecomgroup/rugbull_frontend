@@ -14,6 +14,7 @@
   import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
+  import ActionButton from "$lib/components/buttons/ActionButton.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -49,6 +50,7 @@
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
+  let notLogin = false;
   const bonus = spring(0)
 
   /// SOCKET
@@ -189,11 +191,11 @@
       getResults(socket);
     });
 
-    socket.on('init', (event: RugbullAPI.InitEvent) => {
-      log(`[INIT] userId=${event.userId}`)
-      console.log('EVENT init', event)
-      updateFromInitEvent(event)
-    })
+    // socket.on('init', (event: RugbullAPI.InitEvent) => {
+    //   log(`[INIT] userId=${event.userId}`)
+    //   console.log('EVENT init', event)
+    //   updateFromInitEvent(event)
+    // })
 
     socket.on('gameEvent', (event: Rugbull.RoundEvent) => {
       if (event.status === 1) {
@@ -332,23 +334,24 @@
   }
 
   onMount(() => {
-    fetch('/api/token', {
-      method: 'POST'
-    })
-      .then(res => res.json())
-      .then(({token}) => {
-        console.log('TOKEN', token)
-        socket = initSocket({token});
+    const token = localStorage.getItem('token');
+    if (token) {
+      console.log('TOKEN', token)
+      socket = initSocket({token});
+      postInit(socket);
 
-        postHistory(socket);
-      })
+      postHistory(socket);
+    } else {
+      notLogin = true;
+    }
+
     const intervalId = setInterval(() => {
       if (energy < maxEnergy) {
         energy += energyPerSecond;
       }
     }, 1000);
     return () => {
-      socket.disconnect();
+      socket?.disconnect();
       clearInterval(intervalId);
     };
   });
@@ -390,19 +393,29 @@
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
   <HistoryRow {multiplierHistory}/>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
-    <ContainerV2 style="display: grid">
-      <EnergyBar amount={energy} maxAmount={maxEnergy}/>
-      <span class="tag"
-            style="margin: -10px 5px 0 0px; justify-self: right; border-radius: 10px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
-        <ZapIcon style="height: 16px; width: 16px"/></span>
+  {#if notLogin}
+    <ContainerV2 style="display: flex; align-items: center; justify-content: center">
+      <a href="/login">
+        <ActionButton>
+          Login to play
+        </ActionButton>
+      </a>
     </ContainerV2>
+  {:else}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+      <ContainerV2 style="display: grid">
+        <EnergyBar amount={energy} maxAmount={maxEnergy}/>
+        <span class="tag"
+              style="margin: -10px 5px 0 0px; justify-self: right; border-radius: 10px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
+          <ZapIcon style="height: 16px; width: 16px"/></span>
+      </ContainerV2>
 
-    <ContainerV2 style="display: flex; align-items: center">
-      <CoinsIcon/>
-      <span class="bonus-text">{$bonus.toFixed(6)}</span>
-    </ContainerV2>
-  </div>
+      <ContainerV2 style="display: flex; align-items: center">
+        <CoinsIcon/>
+        <span class="bonus-text">{$bonus.toFixed(6)}</span>
+      </ContainerV2>
+    </div>
+  {/if}
 
   <div class="bet-modules-row">
     <BetModule

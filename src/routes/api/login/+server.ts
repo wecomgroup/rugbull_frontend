@@ -29,5 +29,5 @@ export async function POST({request}: RequestEvent) {
     return error(data.statusCode, data);
   }
 
-  return json(data)
+  return json(data.data)
 }
