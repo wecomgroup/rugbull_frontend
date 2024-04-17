@@ -15,7 +15,18 @@ a {
   color: var(--text);
 }
 
+button, input[type="submit"], input[type="reset"] {
+  background: none;
+  color: inherit;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+
 :root {
   --background: #14141b;
   --text: white;
+  --brand: #F9BB4B;
 }

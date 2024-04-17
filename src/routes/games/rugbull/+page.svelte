@@ -5,6 +5,7 @@
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
   import BetController from "$lib/components/BetController/BetController.svelte";
+  import ShareLink from "$lib/components/ShareLink/ShareLink.svelte";
 
   export let data;
   let chart = [0];
@@ -72,6 +73,7 @@
 <main>
   <Rugbull2 {startTime} {state} data={chart} currentMultiplier={multiplier} {history}/>
   <BetController/>
+  <ShareLink/>
 </main>
 
 <style>
@@ -80,6 +82,7 @@
     gap: 16px;
     display: grid;
     margin: 0px auto 32px auto;
+    padding: 16px;
   }
 
 </style>
