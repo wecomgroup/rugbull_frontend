@@ -1,7 +1,7 @@
 <script lang="ts">
   import type {GameState, ICandle, RoundEvent} from '$lib/games/Rugbull';
-  import Rugbull2 from '$lib/games/Rugbull/Rugbull2.svelte';
-  import Rugbull from '$lib/games/Rugbull/Rugbull.svelte';
+  import Rugbull2 from '$lib/games/Rugbull/Rugbull.svelte';
+  import Rugbull from '$lib/games/Rugbull/Rugbull1.svelte';
   import {io} from 'socket.io-client';
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
