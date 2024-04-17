@@ -1,5 +1,6 @@
-import type types from './$types'
+import type {RequestEvent} from './$types';
 
+import {json} from '@sveltejs/kit';
 async function getToken() {
   const response = await fetch('https://api.rugbull.io/v1/index.php/index', {
     method: 'POST',
@@ -12,9 +13,10 @@ async function getToken() {
   return {token}
 }
 
-export const load : types.LayoutServerLoad = async ({ params }) => {
+export async function POST({request}: RequestEvent) {
+
   const {token} = await getToken()
-  return {
+  return json({
     token,
-  };
+  })
 }

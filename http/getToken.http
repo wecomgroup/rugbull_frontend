@@ -1,0 +1,10 @@
+#
+POST https://api.rugbull.io/v1/index.php/index
+
+###
+
+# curl --location --request POST 'https://api.rugbull.io/v1/index.php/index'
+POST https://api.rugbull.io/v1/index.php/index
+
+###
+

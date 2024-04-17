@@ -14,7 +14,6 @@
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
 
   /// PARAMS
-  export let token;
   export let debug = false;
 
   /// TYPE
@@ -23,7 +22,8 @@
     cashoutMultiplier: number;
     betAmount: number;
   }
-  interface Record  {
+
+  interface Record {
     id: string,
     amount: number,
   }
@@ -183,7 +183,7 @@
         return
       }
 
-      if (response.statusCode === 200){
+      if (response.statusCode === 200) {
         if (index === 0) {
           record1 = undefined;
         } else {
@@ -194,7 +194,7 @@
     });
   }
 
-  function initSocket() {
+  function initSocket({token}) {
     const socket = io('https://api.rugbull.io', {
       extraHeaders: {
         Authorization: `${token}`,
@@ -249,7 +249,13 @@
   }
 
   onMount(() => {
-    socket = initSocket();
+    fetch('/api/token', {
+      method: 'POST'
+    })
+      .then(res => res.json())
+      .then(({token}) => {
+        socket = initSocket({token});
+      })
     return () => {
       socket.disconnect();
     };
@@ -257,7 +263,7 @@
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
-    return function (){
+    return function () {
       if (socket) {
         const record = index === 0 ? record1 : record2;
         const setting = index === 0 ? setting1 : setting2;
@@ -349,6 +355,7 @@
       }
     }
   }
+
   .bet-modules-row {
     display: grid;
     gap: 8px;
