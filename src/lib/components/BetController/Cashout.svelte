@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import {createEventDispatcher} from 'svelte';
   import PrimaryContainer from './PrimaryContainer.svelte';
+  import SimpleCheckbox from "$lib/components/buttons/SimpleCheckbox.svelte";
+  import {fly} from 'svelte/transition';
+  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
 
+  export let checked: boolean = false;
   export let size: 'xs' | 'sm' | 'md' = 'md';
   export let disabled = false;
   export let style: string | undefined = undefined;
@@ -37,43 +41,44 @@
 
   $: {
     if (value) {
-      dispatch('onChange', { value: value });
+      dispatch('onChange', {value: value});
     }
   }
 </script>
 
-<PrimaryContainer>
-  {#if !lock}
-    <button class="button mobile" on:click={decrease} {disabled}>-</button>
-  {/if}
-  <div class="input-group">
-    <div class="input-container">
-      <input class="input" {value} on:change={(e) => onChange(e)} />
-      <div style="text-align: center">{t('Cash Out')}</div>
+<div style="display: flex; gap: 8px">
+  <ContainerV2 style="flex: 1; display: grid; align-items: center;">
+    <SimpleCheckbox bind:checked label={t('Auto Cash Out')}/>
+  </ContainerV2>
+  {#if checked}
+    <div transition:fly={{x:20}}>
+
+      <ContainerV2>
+        <div style="display: flex; margin: auto; gap:4px">
+          <div class="input-group">
+            <div class="input-container">
+              <span style="font-weight: 700; font-family: monospace; font-size: 20px">x</span>
+              <input class="input" {value} on:change={(e) => onChange(e)}/>
+            </div>
+          </div>
+          <button class="button" on:click={decrease} {disabled}>-</button>
+          <button class="button" on:click={increase} {disabled}>+</button>
+        </div>
+      </ContainerV2>
     </div>
-  </div>
-  {#if !lock}
-    <div class="button-desktop">
-      <button class="button" on:click={increase} {disabled}>+</button>
-      <button class="button" on:click={decrease} {disabled}>-</button>
-    </div>
-    <button class="button mobile" on:click={decrease} {disabled}>-</button>
   {/if}
-</PrimaryContainer>
+</div>
 
 <style lang="scss">
   .input-group {
-    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
+
     .input-container {
       position: relative;
       padding-left: 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
 
       .input {
         color: black;
@@ -82,28 +87,23 @@
         font-weight: 700;
         outline: 2px solid transparent;
         outline-offset: 2px;
-        text-align: center;
-        padding-left: 16px;
+        text-align: left;
         background-color: transparent;
         border-style: none;
       }
-      .dolar-symbol {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-      }
+
     }
   }
 
   .button {
+    padding: 4px 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     color: black;
     background: #d4d4d4;
     border-radius: 4.733px;
     box-shadow: -1.104px -1.104px 4.41px 0px rgba(0, 0, 0, 0.5) inset, 2.208695888519287px 2.208695888519287px 4.417391777038574px 0px #d4d4d4 inset,
-      0px 3.3130438327789307px 3.3130438327789307px 0px rgba(255, 255, 255, 0.25);
+    0px 3.3130438327789307px 3.3130438327789307px 0px rgba(255, 255, 255, 0.25);
 
     &:hover {
       transform: translate(0, -1px);
@@ -114,28 +114,6 @@
       border-radius: 4.286px;
       background: #eee;
       box-shadow: -1px -1px 4px 0px rgba(0, 0, 0, 0.5) inset, 1px 1px 4px 0px #000 inset;
-    }
-  }
-
-  .button-desktop {
-    display: none;
-  }
-  @media (min-width: 768px) {
-    .mobile {
-      display: none;
-    }
-
-    .button {
-      min-width: 28px;
-      min-height: 24px;
-    }
-
-    .button-desktop {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
     }
   }
 

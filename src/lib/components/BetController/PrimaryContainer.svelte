@@ -1,4 +1,7 @@
-<div class="input-wrapper">
+<script>
+  export let style = undefined;
+</script>
+<div class="input-wrapper" style={style}>
   <div class="input-view-wrapper"><slot /></div>
 </div>
 
@@ -14,6 +17,7 @@
     -webkit-transition-duration: 0.4s;
     position: relative;
     color: black;
+    display: grid;
 
     .input-view-wrapper {
       display: flex;

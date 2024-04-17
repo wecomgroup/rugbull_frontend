@@ -5,11 +5,12 @@
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import {createEventDispatcher} from "svelte";
 
-  let maxBet = 1000;
+  export let maxBet = 1000;
   export let betAmount = 10;
   export let cashoutMultiplier = 1.01;
   export let showCashout = false;
   export let lock= false;
+  export let auto = false;
 
   const maxCashout = 1000000;
   const minCashout = 1.01;
@@ -29,7 +30,7 @@
 
 <div class="bet-controller">
   <div class="cashout">
-    <Cashout bind:value={cashoutMultiplier} {t} lock={showCashout}/>
+    <Cashout bind:checked={auto} bind:value={cashoutMultiplier} {t} lock={showCashout || !auto}/>
   </div>
   <div class="bet-group">
     <div class="bet-amount">
@@ -66,9 +67,9 @@
     width: 100%;
     flex-direction: column;
 
-    @media (min-width: 768px) {
-      flex-direction: row;
-    }
+    //@media (min-width: 530px) {
+    //  flex-direction: row;
+    //}
   }
 
   .bet-group {

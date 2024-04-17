@@ -23,12 +23,14 @@
   let multiplier = 1;
   let history = []
   let currentRound: string | null = null;
+  let auto = false;
   let showCashout: boolean;
   let betAmount = 50;
   let cashoutMultiplier = 1.01;
   let messages: string[] = []
   let errorMessage: string | undefined;
   let recordId: string | undefined;
+  let balance = 1000;
 
   /// SOCKET
   let socket: undefined | Socket
@@ -123,6 +125,7 @@
     multiplier: number,
     amount: number,
   }) {
+    errorMessage = undefined;
     const payload = {
       round: params.round,
       coinType: 1,
@@ -140,10 +143,10 @@
         return
       }
 
-      if (response.status === 200) {
-        errorMessage = "";
+      if (response.statusCode === 200) {
         showCashout = true;
         recordId = response.data.recordId;
+        balance = response.data.new_balance;
       }
 
     });
@@ -158,14 +161,19 @@
     console.log('CASHOUT', payload)
 
     socket.timeout(5000).emit('/v1/games.php/cashout', payload, (err, response) => {
+      errorMessage = "";
       console.log('CASHOUT RESPONSE', response)
 
       if (checkError(err, response)) {
         return
       }
 
-      errorMessage = "";
-      console.log('CASHOUT RESPONSE', response)
+      if (response.statusCode === 200){
+        console.log('CASHOUT RESPONSE', response)
+        showCashout = false;
+        recordId = undefined;
+      }
+
     });
   }
 
@@ -228,11 +236,10 @@
     if (socket) {
       if (showCashout) {
         postCashOut(socket, {recordId});
-        showCashout = false;
       } else {
         postMakeBet(socket, {
           round: currentRound,
-          auto: false,
+          auto,
           multiplier: cashoutMultiplier,
           amount: betAmount,
         });
@@ -244,12 +251,12 @@
 
 <main data-debug={debug}>
   {#if debug}
-    <pre>round={currentRound}</pre>
+    <pre>round={currentRound} record={recordId}</pre>
   {/if}
 
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
   <div style="display: grid; position: relative;">
-    <div class="history-row">
+    <div class="history-row scrollbar-background">
       {#each history as i}
         <div in:fly={{x: -20}} class="history-row-item"
              data-variant={i > 10 ? 'brand' : ''}>{i < 10 ? i.toFixed(2) : i.toFixed(0)}</div>
@@ -261,6 +268,8 @@
   <BetController
       bind:betAmount
       bind:cashoutMultiplier
+      bind:auto
+      maxBet={balance}
       {showCashout}
       on:click={onBetOrCashout}/>
   {#if errorMessage}
