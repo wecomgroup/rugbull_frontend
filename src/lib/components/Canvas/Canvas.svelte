@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-  import type { CanvasValue } from './Canvas.d.ts';
+  import type { CanvasValue } from './index.d.ts';
 
   const dispatch = createEventDispatcher();
 

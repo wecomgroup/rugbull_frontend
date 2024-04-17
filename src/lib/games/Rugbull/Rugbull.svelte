@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { CanvasValue } from '$lib/components/Canvas/Canvas';
+  import type { CanvasValue } from '$lib/components/Canvas';
   import {Canvas, createAnimationLoop, loadImage} from '$lib';
   import { onMount } from 'svelte';
   import dayjs from 'dayjs';
   import duration from 'dayjs/plugin/duration';
-  import type { ICandle, GameState } from './Rugbull';
+  import type { ICandle, GameState } from './index';
   import { spring } from 'svelte/motion';
 
   dayjs.extend(duration);
