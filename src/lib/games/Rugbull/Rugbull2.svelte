@@ -43,6 +43,7 @@
   // REACTIVE STATE
   const X_MAX = spring(128);
   const MAX_MUL = spring(2);
+  const BACKGROUND_Y = spring(100, {stiffness: 0.05, damping: 0.08});
 
   // INTERVAL
   const timeAnimation = createAnimationLoop(({t, dt}) => {
@@ -107,6 +108,15 @@
     }
   }
   $: MAX_MUL.set(ceilPow2(currentMultiplier, 2));
+
+  $: {
+    if (state === 'waiting' || state === 'connecting' || state === 'stopped'){
+      BACKGROUND_Y.set(0)
+    }
+    else {
+      BACKGROUND_Y.set(data.length * 2)
+    }
+  }
 
   // DRAW
   $: {
@@ -248,7 +258,7 @@
 
       if ($BACKGROUND.image) {
         const {width, height} = $BACKGROUND;
-        ctx.drawImage($BACKGROUND.image, 0, height * 0.7 - data.length * 2, width, (width / w) * h, 0, 0, w, h);
+        ctx.drawImage($BACKGROUND.image, 0, height * 0.7 - $BACKGROUND_Y, width, (width / w) * h, 0, 0, w, h);
       }
 
       if (state === 'running' || state === 'stopped' || state === 'waiting') {
@@ -286,7 +296,7 @@
   <div class="overlay">
     {#if state === 'running' || state === 'stopped'}
       <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
-    {:else if state === 'loading'}
+    {:else if state === 'loading' || state === 'waiting'}
       <div class="loader">
         <HamsterLoader/>
       </div>
