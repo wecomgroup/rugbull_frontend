@@ -21,7 +21,8 @@ declare global {
     }
 
     interface HistoryEvent {
-
+      count: number,
+      rows: UserBet[]
     }
 
     interface UserWallet {
@@ -39,11 +40,14 @@ declare global {
 
     interface UserBet {
       auto: number,
-      betTime: string,
       coinType: number,
       multiplier: string,
       recordId: number,
       round: number,
+      isWin?: number,
+      amount: string,
+      createdAt: string,
+      updatedAt: string,
     }
   }
 

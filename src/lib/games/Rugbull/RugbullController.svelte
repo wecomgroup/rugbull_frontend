@@ -15,6 +15,7 @@
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
+  import BetHistory from "$lib/components/BetController/BetHistory.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -251,8 +252,12 @@
   function postHistory(socket: Socket) {
     socket
       .timeout(5000)
-      .emit('/v1/games.php/history', {}, createSocketHandler<RugbullAPI.HistoryEvent>(data => {
+      .emit('/v1/games.php/history', {
+        limit: 100,
+        page: 1,
+      }, createSocketHandler<RugbullAPI.HistoryEvent>(data => {
         console.log('HISTORY', data)
+        betHistory = data.rows;
       }))
   }
 
@@ -449,6 +454,8 @@
   {/if}
 
   <ShareLink/>
+
+  <BetHistory {betHistory}/>
 
   {#if debug}
     <div class="console">

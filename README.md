@@ -1,5 +1,9 @@
 # Rugbull 
 
+## TODOs
+
+- [ ] Show current on reload
+
 ## Install
 
 ```bash
