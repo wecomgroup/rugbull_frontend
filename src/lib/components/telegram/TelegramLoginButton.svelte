@@ -5,8 +5,6 @@
   import { TELEGRAM_SUPPORT_BOT_DEEP_LINK, TELEGRAM_BOT_NAME } from '$lib/utils/constants';
   import isEmpty from '$lib/utils/isEmpty';
   import getOrigin from '$lib/utils/getOrigin';
-  import {onMount} from "svelte";
-  import {isBrowser} from "$lib";
 
   /// https://oauth.telegram.org/embed/tgbetcom_bot?origin=https%3A%2F%2Frg.games&return_to=https%3A%2F%2Frg.games%2Fen%2Flogin%2Fold&size=large&userpic=true&request_access=write&radius=20&lang=en
   const origin = getOrigin();
@@ -15,13 +13,7 @@
   const Telegram = typeof window !== 'undefined' ? window.Telegram : null;
   const WebApp = Telegram?.WebApp || null;
 
-
 </script>
-
-<div>
-  {TELEGRAM_BOT_NAME}
-  {origin}
-</div>
 
 <div class="box-telegram__container" >
   <div class="show-only-desktop">

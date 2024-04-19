@@ -20,6 +20,12 @@ declare global {
       users_wallet: UserWallet,
     }
 
+    interface WebConfigEvent {
+      clientSeed: string,
+      "sharedCommission:1": string,
+      telegramBotAccount: string,
+    }
+
     interface HistoryEvent {
       count: number,
       rows: UserBet[]
@@ -30,12 +36,12 @@ declare global {
     }
 
     interface UserEnergy {
-      currentEnergy : number
-      dailyLimitTime : string,
-      energyAccumulationRate : number,
-      energyCapacity : number,
-      lastUpdateTime : string,
-      rowId : number,
+      currentEnergy: number
+      dailyLimitTime: string,
+      energyAccumulationRate: number,
+      energyCapacity: number,
+      lastUpdateTime: string,
+      rowId: number,
     }
 
     interface UserBet {
@@ -48,6 +54,34 @@ declare global {
       amount: string,
       createdAt: string,
       updatedAt: string,
+    }
+
+    interface VictoryEvent {
+      amount: string,
+      multiplier: string,
+      newBalance: string,
+      recordId: number,
+      userId: number,
+    }
+
+    interface ResultEvent {
+      count: number,
+      rows: GameResult[],
+    }
+
+    interface GameResult {
+      id: number,
+      encryption: string,
+      round: number,
+      updatedAt: string,
+      multiplier?: number,
+    }
+
+    interface GameEvent {
+      status: string,
+      multiplier: string;
+      startTime: string;
+      round: string,
     }
   }
 

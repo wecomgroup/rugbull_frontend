@@ -2,7 +2,10 @@
 
 ## TODOs
 
-- [ ] Show current on reload
+- [ ] Show current bet on reload
+- [ ] Show when user cashout
+- [ ] Store settings on localstorage 
+- [ ] Add pagination
 
 ## Install
 

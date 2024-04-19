@@ -2,16 +2,20 @@
   import dayjs from 'dayjs'
   import relativeTime from 'dayjs/plugin/relativeTime'
   import {ONE_DAY} from "$lib/utils/date";
-  import TrophyIcon from "$lib/icons/TrophyIcon.svelte";
+  import {fly} from 'svelte/transition'
+  import Pagination from "$lib/components/BetController/Pagination.svelte";
 
   dayjs.extend(relativeTime)
 
   export let betHistory: RugbullAPI.UserBet[] = [];
+  export let totalCount = 0;
+  export let limit = 10;
+  export let page = 1;
 
   function formatTime(v: string) {
     const d = dayjs(v)
     const diff = d.diff();
-    console.log(diff)
+
     if (diff < -ONE_DAY) {
       return d.fromNow()
     }
@@ -23,8 +27,8 @@
 <table>
   <thead>
   <tr>
-    <th>Win</th>
-    <th>Amount</th>
+    <th></th>
+    <th>Win Amount</th>
     <th>Multiplier</th>
     <th>Bet on</th>
     <th class="show-only-desktop">Cashout</th>
@@ -32,17 +36,17 @@
   </thead>
   <tbody>
   {#each betHistory as bet}
-    <tr>
+    <tr in:fly={{y: 20}}>
       <td>
         {#if bet.isWin}
           <img alt="Win" src="/images/rugbull/win-image.webp" height="32"/>
-          {:else}
+        {:else}
           <img alt="Lost" src="/images/rugbull/lose-image.webp" height="32"
                style="filter: grayscale()"
           />
         {/if}
       </td>
-      <td>{bet.amount}</td>
+      <td>{(parseFloat(bet.amount) * parseFloat(bet.multiplier)).toFixed(6)}</td>
       <td>{bet.multiplier}</td>
       <td>{formatTime(bet.createdAt)}</td>
       <td class="show-only-desktop">{formatTime(bet.updatedAt)}</td>
@@ -50,6 +54,9 @@
   {/each}
   </tbody>
 </table>
+<div style="display: grid; justify-items: center">
+  <Pagination total={Math.ceil(totalCount / limit)} bind:page/>
+</div>
 
 <style lang="scss">
   .show-only-desktop {
@@ -64,13 +71,15 @@
     border-collapse: collapse;
   }
 
-  th, td {
+  td {
     padding: 4px 8px;
     text-align: right;
   }
 
   th {
+    padding: 4px 8px;
     background-color: #432E09;
+    text-align: right;
   }
 
   tr:nth-child(even) {

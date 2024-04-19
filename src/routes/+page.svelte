@@ -1,10 +1,6 @@
-<main>
+<script>
+  import RugbullController from "$lib/games/Rugbull/RugbullController.svelte";
 
-  <a href="/games/rugbull">Rugbull</a>
-</main>
+</script>
 
-<style>
-  main {
-    padding: 16px;
-  }
-</style>
+<RugbullController/>

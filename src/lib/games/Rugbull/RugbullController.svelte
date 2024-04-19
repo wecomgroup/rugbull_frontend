@@ -16,6 +16,7 @@
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import BetHistory from "$lib/components/BetController/BetHistory.svelte";
+  import FairnessVerification from "$lib/components/BetController/FairnessVerification.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -28,12 +29,15 @@
   }
 
   interface Record {
-    id: string,
+    id: number,
     auto: boolean,
     amount: number,
   }
 
   /// STATE
+  let clientSeed = undefined;
+  let serverHash = undefined;
+  let userId = undefined;
   let chart = [];
   let startTime = null;
   let state: Rugbull.GameState = 'connecting';
@@ -41,6 +45,9 @@
   let multiplier = 1;
   let multiplierHistory = []
   let betHistory: RugbullAPI.UserBet[] = []
+  let betHistoryPage = 1;
+  let betHistoryCount = 0;
+  let betHistoryLimit = 10;
   let currentRound: string | null = null;
   let messages: string[] = []
   let errorMessage: string | undefined;
@@ -68,6 +75,7 @@
     maxEnergy = event.users_energy.energyCapacity;
     energy = Math.min(maxEnergy, Math.floor(-dayjs(event.users_energy.lastUpdateTime).diff() / 1000 * energyPerSecond + event.users_energy.currentEnergy))
     bonus.set(parseFloat(event.users_wallet.userBonus));
+    userId = event.userId;
   }
 
 
@@ -96,50 +104,33 @@
     return dayjs(v).format('HH:mm:ss.SSS');
   }
 
-  function getInfo(socket: Socket) {
-    socket.timeout(5000).emit('/v1/games.php/info', {}, (err, response) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-
-      const data: {
-        status: string,
-        multiplier: string;
-        startTime: string;
-        round: string,
-      } = response.data;
-
-      log(`[INFO] received ${data.status}`)
-
-      if (data.status === '1') {
-        startTime = parseInt(data.startTime);
-        state = 'waiting'
-        currentRound = data.round
-      } else {
-        console.log('INFO', data)
-      }
-    });
+  function getGameInfo(socket: Socket) {
+    socket.timeout(5000)
+      .emit('/v1/games.php/info', {},
+        createSocketHandler<RugbullAPI.GameEvent>((data) => {
+          console.log('INFO', data)
+          if (data.status === '1') {
+            startTime = parseInt(data.startTime);
+            state = 'waiting'
+            currentRound = data.round
+          }
+        }));
   }
 
-  function getResults(socket: Socket) {
+  function getGameResults(socket: Socket) {
     socket
       .timeout(5000)
       .emit('/v1/games.php/result', {
         limit: 20,
         page: 1,
-      }, (err, response) => {
-        const data: {
-          encryption: string
-          round: string
-          updatedAt: string,
-          multiplier: number,
-        }[] = response.data.rows;
+      }, createSocketHandler<RugbullAPI.ResultEvent>((event) => {
+        const data = event.rows;
+        serverHash = data[0].encryption;
         data.forEach(i => {
           i.multiplier = hashToNumber(i.encryption)
         })
         multiplierHistory = data.map(i => i.multiplier)
-      })
+      }))
   }
 
   function checkError(err, response) {
@@ -188,8 +179,8 @@
     socket.on('connect', () => {
       state = 'loading'
       connected = true;
-      getInfo(socket);
-      getResults(socket);
+      getGameInfo(socket);
+      getGameResults(socket);
     });
 
     // socket.on('init', (event: RugbullAPI.InitEvent) => {
@@ -222,19 +213,26 @@
         currentRound = event.round.toString()
         record1 = undefined
         record2 = undefined
+        postHistory(socket)
         log(`[3] stopped ${event.multiplier.toFixed(2)}`)
       }
     });
 
-    socket.on('trumpetOfVictory', (event: any) => {
+    socket.on('trumpetOfVictory', (event: RugbullAPI.VictoryEvent) => {
       console.log('EVENT trumpetOfVictory', event)
       if (event.recordId === record2?.id) {
         record2 = undefined;
+        postHistory(socket)
       }
       if (event.recordId === record1?.id) {
         record1 = undefined;
+        postHistory(socket)
+      }
+      if (event.userId === userId) {
+
       }
     })
+
     socket.on('balanceEvent', (event: any) => {
       console.log('EVENT balanceEvent', event)
       if (event.coinType === 1) {
@@ -253,10 +251,11 @@
     socket
       .timeout(5000)
       .emit('/v1/games.php/history', {
-        limit: 100,
-        page: 1,
+        limit: betHistoryLimit,
+        page: betHistoryPage,
       }, createSocketHandler<RugbullAPI.HistoryEvent>(data => {
         console.log('HISTORY', data)
+        betHistoryCount = data.count;
         betHistory = data.rows;
       }))
   }
@@ -275,31 +274,30 @@
 
     socket
       .timeout(5000)
-      .emit('/v1/games.php/bet', payload, (err, response) => {
-        console.log('BET RESPONSE', response)
+      .emit('/v1/games.php/bet', payload,
+        createSocketHandler<any>(
+          (data) => {
+            console.log('BET RESPONSE', data)
+            const record = {
+              id: data.recordId,
+              auto: setting.auto,
+              amount: setting.betAmount
+            };
+            if (index === 0) {
+              record1 = record;
+            } else {
+              record2 = record;
+            }
 
-        if (checkError(err, response)) {
-          return
-        }
+            energy = data.new_balance;
 
-        if (response.statusCode === 200) {
-          const record = {id: response.data.recordId, auto: setting.auto, amount: setting.betAmount};
-          if (index === 0) {
-            record1 = record;
-          } else {
-            record2 = record;
-          }
+            postUserInit(socket);
 
-          energy = response.data.new_balance;
-
-          postInit(socket);
-        }
-
-      });
+          }));
   }
 
   function postCashOut(socket: Socket, index: number, params: {
-    recordId: string,
+    recordId: number,
   }) {
     const payload = {
       recordId: params.recordId,
@@ -308,34 +306,38 @@
 
     socket
       .timeout(5000)
-      .emit('/v1/games.php/cashout', payload, (err, response) => {
-        errorMessage = "";
-        console.log('CASHOUT RESPONSE', response)
+      .emit('/v1/games.php/cashout', payload,
+        createSocketHandler<any>(
+          (data) => {
+            console.log('CASHOUT RESPONSE', data)
+            if (index === 0) {
+              record1 = undefined;
+            } else {
+              record2 = undefined;
+            }
 
-        if (checkError(err, response)) {
-          return
-        }
+            postUserInit(socket);
 
-        if (response.statusCode === 200) {
-          if (index === 0) {
-            record1 = undefined;
-          } else {
-            record2 = undefined;
-          }
-
-          postInit(socket);
-        }
-
-      });
+          }));
   }
 
-  function postInit(socket: Socket) {
+  function postUserInit(socket: Socket) {
     socket
       .timeout(5000)
-      .emit('/v1/users.php/init', {}, createSocketHandler<RugbullAPI.InitEvent>(event => {
-        console.log('INIT', event)
-        updateFromInitEvent(event)
-      }))
+      .emit('/v1/users.php/init', {},
+        createSocketHandler<RugbullAPI.InitEvent>(event => {
+          console.log('INIT', event)
+          updateFromInitEvent(event)
+        }))
+  }
+
+  function postWebConfig(socket: Socket) {
+    socket
+      .timeout(5000)
+      .emit('/v1/index.php/webconfig', {},
+        createSocketHandler<RugbullAPI.WebConfigEvent>(event => {
+          clientSeed = event.clientSeed;
+        }))
   }
 
   onMount(() => {
@@ -343,7 +345,8 @@
     if (token) {
       console.log('TOKEN', token)
       socket = initSocket({token});
-      postInit(socket);
+      postUserInit(socket);
+      postWebConfig(socket)
 
       postHistory(socket);
     } else {
@@ -370,6 +373,12 @@
       }, 5000)
     } else {
       clearTimeout(errorMessageTimeoutId)
+    }
+  }
+
+  $: {
+    if (betHistoryPage && socket) {
+      postHistory(socket)
     }
   }
 
@@ -444,18 +453,23 @@
   </div>
 
   {#if errorMessage}
-    <div transition:fly={{y: -20}}
+    <button transition:fly={{y: -20}}
          on:click={() => errorMessage = undefined}
+            style="padding: 0"
     >
       <ErrorContainer>
         {errorMessage}
       </ErrorContainer>
-    </div>
+    </button>
   {/if}
 
   <ShareLink/>
+  <FairnessVerification
+      {clientSeed}
+      {serverHash}
+  />
 
-  <BetHistory {betHistory}/>
+  <BetHistory {betHistory} totalCount={betHistoryCount} bind:page={betHistoryPage} limit={betHistoryLimit}/>
 
   {#if debug}
     <div class="console">

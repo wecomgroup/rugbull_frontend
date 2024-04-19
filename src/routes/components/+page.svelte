@@ -4,13 +4,14 @@
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
   import BetButton from "$lib/components/BetController/BetButton.svelte";
+  import Pagination from "$lib/components/BetController/Pagination.svelte";
 
   let open = false;
 </script>
 
 <BetController/>
 <HamsterLoader/>
-<SimpleLoader variant="sm"/>
+<SimpleLoader/>
 
 <BetButton size="sm" on:click={() => open = true}>Open Modal</BetButton>
 
@@ -20,3 +21,6 @@
     Test
   </div>
 </Modal>
+
+<br/>
+<Pagination/>

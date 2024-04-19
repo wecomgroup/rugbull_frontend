@@ -8,9 +8,8 @@
   let tgUserData;
   let loginResult;
 
-
   $: {
-    if ($page.data.token){
+    if ($page.data.token) {
       localStorage.setItem('token', $page.data.token)
       goto('/games/rugbull')
     }
@@ -35,7 +34,7 @@
         tgUserData = data.auth_data
 
         loginResult = await postLogin(tgUserData)
-        if (loginResult?.token){
+        if (loginResult?.token) {
           localStorage.setItem('token', loginResult.token)
           goto('/games/rugbull')
         }
@@ -45,7 +44,7 @@
 
 
   onMount(() => {
-    if (browser && localStorage.getItem('token')){
+    if (browser && localStorage.getItem('token')) {
       goto('/games/rugbull')
     }
     window.addEventListener('message', handleTelegramLogin)
@@ -56,11 +55,20 @@
 
 </script>
 
-<div>
-</div>
-<TelegramLoginButton/>
+<main>
+  <TelegramLoginButton/>
+</main>
 
-TG User Data
-<pre>{JSON.stringify(tgUserData, null, 2)}</pre>
-Login Result
-<pre>{JSON.stringify(loginResult, null, 2)}</pre>
+{#if $page.data.debug}
+  TG User Data
+  <pre>{JSON.stringify(tgUserData, null, 2)}</pre>
+  Login Result
+  <pre>{JSON.stringify(loginResult, null, 2)}</pre>
+{/if}
+
+
+<style>
+  main {
+    padding: 20px 16px;
+  }
+</style>
