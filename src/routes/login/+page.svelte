@@ -4,9 +4,11 @@
   import {page} from "$app/stores";
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
+  import {PUBLIC_TELEGRAM_BOT_NAME, PUBLIC_TELEGRAM_APP_NAME} from '$env/static/public'
+  import {postLogin} from "$lib/api/postLogin";
 
-  let tgUserData;
-  let loginResult;
+  let loginResult : AuthAPI.LoginResult | undefined;
+  let userData;
 
   $: {
     if ($page.data.token) {
@@ -15,30 +17,16 @@
     }
   }
 
-  async function postLogin(tgUserData) {
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(tgUserData)
-    })
-    return await res.json();
-  }
-
-  async function handleTelegramLogin(e: MessageEvent) {
-    if (e.origin === 'https://oauth.telegram.org') {
-      const data = JSON.parse(e.data)
-      console.log('telegram auth', data)
-      if (data.event === 'auth_user') {
-        tgUserData = data.auth_data
-
-        loginResult = await postLogin(tgUserData)
-        if (loginResult?.token) {
-          localStorage.setItem('token', loginResult.token)
-          goto('/games/rugbull')
-        }
-      }
+  $: {
+    if (userData) {
+      postLogin(userData)
+        .then(data => {
+          loginResult = data
+          if (loginResult?.token) {
+            localStorage.setItem('token', loginResult.token)
+            goto('/games/rugbull')
+          }
+        })
     }
   }
 
@@ -47,21 +35,21 @@
     if (browser && localStorage.getItem('token')) {
       goto('/games/rugbull')
     }
-    window.addEventListener('message', handleTelegramLogin)
-    return () => {
-      window.removeEventListener('message', handleTelegramLogin)
-    }
   })
 
 </script>
 
 <main>
-  <TelegramLoginButton/>
+  <TelegramLoginButton
+      bind:userData
+      botName={PUBLIC_TELEGRAM_BOT_NAME}
+      appName={PUBLIC_TELEGRAM_APP_NAME}
+  />
 </main>
 
 {#if $page.data.debug}
   TG User Data
-  <pre>{JSON.stringify(tgUserData, null, 2)}</pre>
+  <pre>{JSON.stringify(userData, null, 2)}</pre>
   Login Result
   <pre>{JSON.stringify(loginResult, null, 2)}</pre>
 {/if}

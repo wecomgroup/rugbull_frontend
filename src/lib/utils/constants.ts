@@ -1,2 +1,0 @@
-export const TELEGRAM_SUPPORT_BOT_DEEP_LINK = import.meta.env.VITE_TELEGRAM_SUPPORT_BOT_DEEP_LINK;
-export const TELEGRAM_BOT_NAME = import.meta.env.VITE_TELEGRAM_BOT_NAME;
