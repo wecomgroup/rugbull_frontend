@@ -64,3 +64,23 @@ button, input[type="submit"], input[type="reset"] {
   --brand-hover: #F6CD84;
   --gray: gray;
 }
+
+
+.table-primary {
+  width: 100%;
+  border-collapse: collapse;
+
+  td {
+    padding: 4px 8px;
+  }
+
+  th {
+    padding: 4px 8px;
+    background-color: #432E09;
+  }
+
+  tr:nth-child(even) {
+    background-color: #252525;
+  }
+
+}

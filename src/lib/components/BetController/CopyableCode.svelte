@@ -22,9 +22,11 @@
   .CopyableCode {
     display: grid;
     grid-template-columns: 1fr auto;
-    padding: 8px 8px 8px 8px;
+
+    padding: 8px;
     background: var(--brand);
     color: black;
+    border-radius: 6px;
 
     align-items: center;
   }

@@ -16,7 +16,6 @@
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import BetHistory from "$lib/components/BetController/BetHistory.svelte";
-  import FairnessVerification from "$lib/components/BetController/FairnessVerification.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -37,6 +36,7 @@
   /// STATE
   let clientSeed = undefined;
   let serverHash = undefined;
+  let lastRound = undefined;
   let userId = undefined;
   let chart = [];
   let startTime = null;
@@ -62,11 +62,43 @@
   const bonus = spring(0)
 
   /// SOCKET
-  let socket: undefined | Socket
+  let socket: Socket | undefined
 
   /// REACTIVE
   $: {
     log(`> ROUND=${currentRound}`)
+  }
+
+  /// COMMON FUNCTIONS
+  function checkError(err, response) {
+    if (err) {
+      console.error(err)
+      return true
+    }
+    if (response.ok === 0) {
+      errorMessage = response.error;
+      return true
+    }
+    if (response.output?.payload?.statusCode > 300) {
+      errorMessage = response.output.payload.message;
+      return true
+    }
+    return false;
+  }
+
+  function createSocketHandler<T>(callback: (data: T) => void) {
+    return (err, event: any) => {
+      if (checkError(err, event)) {
+        return
+      }
+      if (event.statusCode === 200) {
+        const data: T = event.data
+        callback(data)
+      } else {
+        console.log('UNHANDLED EVENT', event)
+      }
+
+    }
   }
 
   /// HANDLE STATE
@@ -124,51 +156,21 @@
         limit: 20,
         page: 1,
       }, createSocketHandler<RugbullAPI.ResultEvent>((event) => {
+        console.log('RESULTS', event)
         const data = event.rows;
         serverHash = data[0].encryption;
+        lastRound = data[0].round;
         data.forEach(i => {
           i.multiplier = hashToNumber(i.encryption)
         })
         multiplierHistory = data.map(i => i.multiplier)
       }))
   }
-
-  function checkError(err, response) {
-    if (err) {
-      console.error(err)
-      return true
-    }
-    if (response.ok === 0) {
-      errorMessage = response.error;
-      return true
-    }
-    if (response.output?.payload?.statusCode > 300) {
-      errorMessage = response.output.payload.message;
-      return true
-    }
-    return false;
-  }
-
-  function createSocketHandler<T>(callback: (data: T) => void) {
-    return (err, event: any) => {
-      if (checkError(err, event)) {
-        return
-      }
-      if (event.statusCode === 200) {
-        const data: T = event.data
-        callback(data)
-      } else {
-        console.log('UNHANDLED EVENT', event)
-      }
-
-    }
-  }
-
   /// SOCKET HANDLERS
   function initSocket({token}) {
     const socket = io('https://api.rugbull.io', {
       extraHeaders: {
-        Authorization: `${token}`,
+        Authorization: token,
       },
     });
     socket.on('disconnect', () => {
@@ -204,7 +206,7 @@
         currentRound = event.round.toString()
         log(`[2] ${event.elapsed} ${event.multiplier.toFixed(2)}`)
       } else if (event.status === 3) {
-        multiplierHistory = [event.multiplier, ...multiplierHistory];
+        getGameResults(socket)
         chart = [...chart, 0];
         if (state !== 'loading') {
           state = 'stopped';
@@ -331,23 +333,14 @@
         }))
   }
 
-  function postWebConfig(socket: Socket) {
-    socket
-      .timeout(5000)
-      .emit('/v1/index.php/webconfig', {},
-        createSocketHandler<RugbullAPI.WebConfigEvent>(event => {
-          clientSeed = event.clientSeed;
-        }))
-  }
 
   onMount(() => {
     const token = localStorage.getItem('token');
     if (token) {
       console.log('TOKEN', token)
       socket = initSocket({token});
-      postUserInit(socket);
-      postWebConfig(socket)
 
+      postUserInit(socket);
       postHistory(socket);
     } else {
       notLogin = true;
@@ -464,10 +457,9 @@
   {/if}
 
   <ShareLink/>
-  <FairnessVerification
-      {clientSeed}
-      {serverHash}
-  />
+  <ContainerV2 style="display: grid; justify-items: center">
+    <a href="/games/rugbull/fairness" style="color:var(--brand)"> Provable Fairness</a>
+  </ContainerV2>
 
   <BetHistory {betHistory} totalCount={betHistoryCount} bind:page={betHistoryPage} limit={betHistoryLimit}/>
 

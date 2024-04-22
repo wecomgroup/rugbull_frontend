@@ -1,16 +1,15 @@
-// import {createHmac} from 'crypto';
-import hmacSHA256 from 'crypto-js/hmac-sha256.js'
+import CryptoJS from 'crypto-js'
 
-export function hash(clientSeed, nonce, serverSeed) {
-  // const hash = createHmac('sha256', serverSeed).update(clientSeed + ':' + nonce).digest('hex');
-  const hash = hmacSHA256(serverSeed).update(clientSeed + ':' + nonce).digest('hex');
-  return hash;
-}
+export function hash(clientSeed, serverSeed) {
+  const hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, serverSeed);
+  hmac.update(clientSeed);
+
+  const hash = CryptoJS.enc.Hex.stringify(hmac.finalize());
+  return hash;}
 
 export function hashToNumber(hash) {
   const hex = hash.substr(0, 8);
   const int = parseInt(hex, 16);
-  // 0.01 will result in 1% house edge with a lowest crashpoint of 1
   const crashpoint = Math.max(1, (2 ** 32 / (int + 1)) * (1 - 0.01));
   return crashpoint;
 }

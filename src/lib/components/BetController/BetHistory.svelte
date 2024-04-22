@@ -24,7 +24,7 @@
 
 </script>
 
-<table>
+<table class="table-primary">
   <thead>
   <tr>
     <th></th>
@@ -66,23 +66,4 @@
     }
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  td {
-    padding: 4px 8px;
-    text-align: right;
-  }
-
-  th {
-    padding: 4px 8px;
-    background-color: #432E09;
-    text-align: right;
-  }
-
-  tr:nth-child(even) {
-    background-color: #252525;
-  }
 </style>
