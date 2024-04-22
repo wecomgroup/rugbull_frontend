@@ -9,9 +9,7 @@
 </script>
 
 <div class="CopyableCode">
-  <pre>
-    {text}
-  </pre>
+  <pre>{text}</pre>
   <button class="icon" on:click={copyToClipboard}>
     <CopyIcon/>
   </button>
@@ -23,15 +21,17 @@
     grid-template-columns: 1fr auto;
 
     padding: 8px;
-    background: var(--brand);
-    color: black;
+    background: #333;
+    color: white;
     border-radius: 6px;
 
     align-items: center;
   }
-  code {
-    word-break: break-all;
+
+  pre {
     font-size: 16px;
+    white-space: pre-wrap;
+    word-break: break-all;
   }
 
   .icon {

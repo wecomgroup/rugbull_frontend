@@ -6,14 +6,15 @@
    */
   import getOrigin from '$lib/utils/getOrigin';
   import {retrieveLaunchParams} from '@tma.js/sdk'
-  import {onMount} from "svelte";
+  import {createEventDispatcher, onMount} from "svelte";
   import {browser} from "$app/environment";
-  import {postLogin} from "$lib/api/postLogin";
-  import {goto} from "$app/navigation";
 
   export let botName = undefined;
   export let appName = undefined;
-  export let userData = undefined;
+
+  const dispatch = createEventDispatcher<{
+    'user': Telegram.UserData
+  }>()
 
   /// https://oauth.telegram.org/embed/tgbetcom_bot?origin=https%3A%2F%2Frg.games&return_to=https%3A%2F%2Frg.games%2Fen%2Flogin%2Fold&size=large&userpic=true&request_access=write&radius=20&lang=en
   const origin = getOrigin();
@@ -27,7 +28,8 @@
       const data = JSON.parse(e.data)
       if (data.event === 'auth_user') {
         console.log('window.message from telegram', data)
-        userData = data.auth_data
+        const userData = data.auth_data
+        dispatch('user', userData)
       }
     }
   }
@@ -40,7 +42,7 @@
         /**
          * @type {Telegram.UserData}
          */
-        userData = {
+        const userData = {
           auth_date: launchParams.initData.authDate.getTime(),
           hash: launchParams.initData.hash,
           first_name: launchParams.initData.user.firstName || undefined,
@@ -49,7 +51,7 @@
           username: launchParams.initData.user.username,
           photo_url: launchParams.initData.user.photoUrl || undefined,
         }
-
+        dispatch('user', userData)
       } catch (e) {
         console.log('Telegram not detected.')
         launchParams = null
