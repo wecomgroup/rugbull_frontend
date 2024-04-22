@@ -22,14 +22,14 @@
     }
   }
   $: {
-    if (results.length > 0){
+    if (results.length > 0) {
       serverHash = results[0].encryption
     }
   }
 
   function onKeyDown(e) {
     console.log(e)
-    if (!e.metaKey && !e.ctrlKey && isNaN(parseInt(e.key, 16))){
+    if (!e.metaKey && !e.ctrlKey && isNaN(parseInt(e.key, 16))) {
       e.preventDefault()
     }
   }
@@ -39,7 +39,7 @@
   <label for="client-seed">Client Seed</label>
   <CopyableCode text={clientSeed ?? 'loading...'}/>
   <label for="server-hash" style="word-break: break-all">Server Seed</label>
-<!--  <CopyableCode text={serverHash ?? 'loading...'}/>-->
+  <!--  <CopyableCode text={serverHash ?? 'loading...'}/>-->
   <textarea id="server-hash" bind:value={serverHash} on:keydown={onKeyDown}/>
 
   <label for="next-server-hash">Result</label>
@@ -62,7 +62,11 @@
     {#each results as {round, encryption}}
       <tr>
         <td>{round}</td>
-        <td style="word-break: break-all;text-decoration: underline" on:click={() => serverHash = encryption}>{encryption}</td>
+        <td>
+          <button class="encryption" on:click={() => serverHash = encryption}>
+            {encryption}
+          </button>
+        </td>
         <td style="text-align: right">{hashToNumber(encryption).toFixed(6)}</td>
       </tr>
     {/each}
@@ -85,10 +89,15 @@
     color: var(--brand);
   }
 
+  .encryption {
+    word-break: break-all;
+    text-align: left;
+  }
+
   textarea {
     padding: 8px;
     color: black;
-    font-size:16px;
+    font-size: 16px;
     border-radius: 6px;
   }
 

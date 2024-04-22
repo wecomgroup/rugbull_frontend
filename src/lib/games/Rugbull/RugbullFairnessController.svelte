@@ -115,5 +115,7 @@
 <style>
   main {
     padding: 16px;
+    max-width: 720px;
+    margin: 0 auto;
   }
 </style>
