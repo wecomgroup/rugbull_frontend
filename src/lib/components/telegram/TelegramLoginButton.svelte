@@ -5,23 +5,23 @@
    * If Mobile and Mini App, show loading
    */
   import getOrigin from '$lib/utils/getOrigin';
-  import {retrieveLaunchParams} from '@tma.js/sdk'
   import {createEventDispatcher, onMount} from "svelte";
   import {browser} from "$app/environment";
 
   export let botName = undefined;
   export let appName = undefined;
+  export let launchParams = undefined;
+
 
   const dispatch = createEventDispatcher<{
     'user': Telegram.UserData
+    'initData': string,
   }>()
 
   /// https://oauth.telegram.org/embed/tgbetcom_bot?origin=https%3A%2F%2Frg.games&return_to=https%3A%2F%2Frg.games%2Fen%2Flogin%2Fold&size=large&userpic=true&request_access=write&radius=20&lang=en
   const origin = getOrigin();
   const iframeSrc = `https://oauth.telegram.org/embed/${botName}?` + ['origin=' + encodeURIComponent(origin)].join('&');
-
   const launchLink = `tg://resolve?domain=${botName}&appname=${appName}`
-  let launchParams;
 
   async function handleTelegramLogin(e: MessageEvent) {
     if (e.origin === 'https://oauth.telegram.org') {
@@ -37,21 +37,29 @@
   onMount(() => {
     if (browser) {
       try {
-        launchParams = retrieveLaunchParams();
 
-        /**
-         * @type {Telegram.UserData}
-         */
-        const userData = {
-          auth_date: launchParams.initData.authDate.getTime(),
-          hash: launchParams.initData.hash,
-          first_name: launchParams.initData.user.firstName || undefined,
-          last_name: launchParams.initData.user.lastName || undefined,
-          id: launchParams.initData.user.id,
-          username: launchParams.initData.user.username,
-          photo_url: launchParams.initData.user.photoUrl || undefined,
-        }
-        dispatch('user', userData)
+        launchParams = window.Telegram?.WebApp.initDataUnsafe
+        const initData = window.Telegram.WebApp.initData
+
+        console.log('Telegram detected', window.Telegram.WebApp)
+        console.log('launchParams',launchParams)
+        console.log('initData',initData)
+
+        // /**
+        //  * @type {Telegram.UserData}
+        //  */
+        // const userData = {
+        //   auth_date: launchParams.auth_date,
+        //   hash: launchParams.hash,
+        //   first_name: launchParams.user.firstName || undefined,
+        //   last_name: launchParams.user.lastName || undefined,
+        //   id: launchParams.user.id,
+        //   username: launchParams.user.username,
+        //   photo_url: launchParams.user.photoUrl || undefined,
+        // }
+        // dispatch('launchParams', userData)
+
+        dispatch('initData', initData)
       } catch (e) {
         console.log('Telegram not detected.')
         launchParams = null
@@ -66,6 +74,10 @@
 
 
 </script>
+
+<svelte:head>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</svelte:head>
 
 <div class="box-telegram__container">
   <div class="show-only-desktop">

@@ -5,9 +5,10 @@
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
   import {PUBLIC_TELEGRAM_BOT_NAME, PUBLIC_TELEGRAM_APP_NAME} from '$env/static/public'
-  import {postLogin} from "$lib/api/postLogin";
+  import {postLogin, postWebappLogin} from "$lib/api/postLogin";
+  import CopyablePre from "$lib/components/BetController/CopyablePre.svelte";
 
-  let loginResult, userData;
+  let loginResult, userData, initData;
 
   $: {
     if ($page.data.token) {
@@ -35,30 +36,51 @@
       goto('/games/rugbull')
     }
   }
+
+
+  /**
+   * @param {{ detail: string; }} e
+   */
+  async function onInitData(e) {
+    initData = e.detail
+    loginResult = await postWebappLogin(initData)
+
+    if (loginResult?.token) {
+      localStorage.setItem('token', loginResult.token)
+      goto('/games/rugbull')
+    }
+  }
 </script>
 
 <main>
   <TelegramLoginButton
       on:user={onUser}
+      on:initData={onInitData}
       botName={PUBLIC_TELEGRAM_BOT_NAME}
       appName={PUBLIC_TELEGRAM_APP_NAME}
   />
+
+  {#if $page.data.debug}
+    <div style="display: grid">
+      Version: 0.0.1+7
+      BotName <code>{PUBLIC_TELEGRAM_BOT_NAME}</code>
+      AppName <code>{PUBLIC_TELEGRAM_APP_NAME}</code>
+    </div>
+    TG User Data
+    <CopyablePre text={JSON.stringify(userData, null, 2)}/>
+    Init Data
+    <CopyablePre text={initData}/>
+    Login Result
+    <CopyablePre text={JSON.stringify(loginResult, null, 2)}/>
+  {/if}
 </main>
 
-{#if $page.data.debug}
-  <div style="display: grid">
-    BotName <code>{PUBLIC_TELEGRAM_BOT_NAME}</code>
-    AppName <code>{PUBLIC_TELEGRAM_APP_NAME}</code>
-  </div>
-  TG User Data
-  <pre>{JSON.stringify(userData, null, 2)}</pre>
-  Login Result
-  <pre>{JSON.stringify(loginResult, null, 2)}</pre>
-{/if}
 
 
 <style>
   main {
     padding: 20px 16px;
+    max-width: 600px;
+    margin: 0 auto;
   }
 </style>

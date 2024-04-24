@@ -142,7 +142,31 @@ declare global {
       auth_date: number,
       hash: string,
     }
+
+  }
+
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        initData: string,
+        initDataUnsafe: {
+          auth_date: string,
+          chat_instance: string,
+          chat_type: string,
+          hash: string,
+          user: {
+            id: number,
+            username: string,
+            language_code: string,
+            first_name?: string,
+            last_name?: string,
+            photo_url?: string,
+          }
+        }
+      }
+    }
   }
 }
+
 
 export {};

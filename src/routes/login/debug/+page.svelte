@@ -3,14 +3,11 @@
   import {onMount} from "svelte";
   import {page} from "$app/stores";
   import {goto} from "$app/navigation";
-  import {browser} from "$app/environment";
   import {PUBLIC_TELEGRAM_BOT_NAME, PUBLIC_TELEGRAM_APP_NAME} from '$env/static/public'
   import {postLogin} from "$lib/api/postLogin";
-  import ActionButton from "$lib/components/buttons/ActionButton.svelte";
-  import CopyableCode from "$lib/components/BetController/CopyableCode.svelte";
   import CopyablePre from "$lib/components/BetController/CopyablePre.svelte";
 
-  let loginResult, loginResult2, userData;
+  let loginResult, loginResult2, userData, telegramWebapp;
 
   $: {
     if ($page.data.token) {
@@ -42,6 +39,7 @@
   <h1>Debug Login</h1>
   <TelegramLoginButton
       on:user={onUser}
+      bind:launchParams={telegramWebapp}
       botName={PUBLIC_TELEGRAM_BOT_NAME}
       appName={PUBLIC_TELEGRAM_APP_NAME}
   />
@@ -52,6 +50,9 @@ AppName {PUBLIC_TELEGRAM_APP_NAME}`}/>
 
   TG User Data:
   <CopyablePre text={JSON.stringify(userData, null, 2)} />
+
+  TG WebApp data:
+  <CopyablePre text={JSON.stringify(telegramWebapp, null, 2)} />
 
   <button on:click={loginWithPhotoUrl}>Login with photo_url</button>
   <CopyablePre text={JSON.stringify(loginResult, null, 2)}/>
