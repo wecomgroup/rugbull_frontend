@@ -5,10 +5,11 @@
 
   export let energy = 30;
   export let maxEnergy = 100;
+  export let glow = undefined;
 </script>
 
-<ContainerV2 style="display: grid">
-  <EnergyBar amount={energy} maxAmount={maxEnergy}/>
+<ContainerV2 style="display: grid" {glow}>
+  <EnergyBar amount={energy} maxAmount={maxEnergy} inactive={!glow}/>
   <span class="tag"
         style="margin: -10px 5px 0 0px; justify-self: right; border-radius: 10px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
     <ZapIcon style="height: 16px; width: 16px"/></span>

@@ -1,7 +1,8 @@
 <script>
   export let style = undefined;
+  export let glow = undefined
 </script>
-<div class="container-v2" style={style}>
+<div class="container-v2" data-glow={glow || undefined} style={style}>
   <slot/>
 </div>
 
@@ -28,5 +29,10 @@
       background: #1b1b23;
       color: #d4d4d4;
     }
+  }
+
+  .container-v2[data-glow]{
+    border-color: var(--brand);
+    box-shadow: inset 0 0 10px var(--brand);
   }
 </style>

@@ -6,25 +6,56 @@
   import BetButton from "$lib/components/BetController/BetButton.svelte";
   import Pagination from "$lib/components/BetController/Pagination.svelte";
   import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
+  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
 
   let open = false;
 </script>
 
-<BetController/>
-<HamsterLoader/>
-<SimpleLoader/>
+<main>
+  <BetController/>
+  <HamsterLoader/>
+  <SimpleLoader/>
 
-<BetButton size="sm" on:click={() => open = true}>Open Modal</BetButton>
+  <BetButton size="sm" on:click={() => open = true}>Open Modal</BetButton>
 
-<Modal bind:open>
-  <div slot="title">Title</div>
-  <div slot="body">
-    Test
+  <Modal bind:open>
+    <div slot="title">Title</div>
+    <div slot="body">
+      Test
+    </div>
+  </Modal>
+
+  <br/>
+  <ContainerV2>
+    <Pagination/>
+  </ContainerV2>
+
+  <div class="col-2">
+    <EnergyModule glow="1"/>
+    <EnergyModule/>
   </div>
-</Modal>
 
-<br/>
-<Pagination/>
+</main>
 
-<EnergyModule/>
+<style>
+  main{
+    display: grid;
 
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+    max-width: 600px;
+
+    margin: 0 20px;
+
+    @media (min-width: 700px) {
+      grid-template-columns: 1fr 1fr;
+      margin: 0 auto;
+    }
+  }
+
+  .col-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+</style>

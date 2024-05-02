@@ -8,6 +8,7 @@
 - [ ] Add animation when live cashout
 - [x] Store settings on localstorage 
 - [x] Add pagination for history
+- [ ] Handle bet amount boundary
 
 ## Install
 

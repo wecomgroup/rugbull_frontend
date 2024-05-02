@@ -9,14 +9,13 @@
   import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
   import BetModule, {getSetting} from "$lib/components/BetController/BetModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
-  import EnergyBar from "$lib/components/BetController/EnergyBar.svelte";
-  import ZapIcon from "$lib/icons/ZapIcon.svelte";
   import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import BetHistory from "$lib/components/BetController/BetHistory.svelte";
   import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
+  import BonusModule from "$lib/components/BetController/BonusModule.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -58,6 +57,7 @@
   let energyPerSecond = 1;
   let notLogin = false;
   let userEscapes, useCashout;
+  let useBonus = false;
   const bonus = spring(0)
 
   /// SOCKET
@@ -66,6 +66,10 @@
   /// REACTIVE
   $: {
     log(`> ROUND=${currentRound}`)
+  }
+
+  $: {
+    useBonus = !energy || energy < 150;
   }
 
   /// COMMON FUNCTIONS
@@ -78,8 +82,13 @@
       errorMessage = response.error;
       return true
     }
-    if (response.output?.payload?.statusCode > 300) {
+    if (response.output?.payload?.statusCode >= 300) {
       errorMessage = response.output.payload.message;
+      return true
+    }
+    if (response.statusCode >= 300) {
+      console.log('ERROR', response)
+      errorMessage = response.message;
       return true
     }
     return false;
@@ -188,12 +197,6 @@
       getGameResults(socket);
     });
 
-    // socket.on('init', (event: RugbullAPI.InitEvent) => {
-    //   log(`[INIT] userId=${event.userId}`)
-    //   console.log('EVENT init', event)
-    //   updateFromInitEvent(event)
-    // })
-
     socket.on('gameEvent', (event: RugbullAPI.RoundEvent) => {
       if (event.status === 1) {
         startTime = event.startTime;
@@ -266,9 +269,10 @@
 
   function postMakeBet(socket: Socket, index: number, setting: Setting) {
     errorMessage = undefined;
+    const coinType =  useBonus ? 2 : 1;
     const payload = {
       round: currentRound,
-      coinType: 1,
+      coinType,
       auto: setting.auto ? 1 : 0,
       multiplier: setting.cashoutMultiplier,
       amount: setting.betAmount,
@@ -288,7 +292,9 @@
               amount: setting.betAmount
             };
 
-            energy = data.new_balance;
+            if (coinType === 1){
+              energy = data.newBalance;
+            }
 
             postUserInit(socket);
 
@@ -401,12 +407,9 @@
     </ContainerV2>
   {:else}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
-      <EnergyModule energy={energy} maxEnergy={maxEnergy}/>
+      <EnergyModule energy={energy} maxEnergy={maxEnergy} glow={!useBonus}/>
 
-      <ContainerV2 style="display: flex; align-items: center">
-        <CoinsIcon/>
-        <span class="bonus-text">{$bonus.toFixed(6)}</span>
-      </ContainerV2>
+      <BonusModule bonus={$bonus} glow={useBonus}/>
     </div>
   {/if}
 
@@ -496,19 +499,6 @@
 
     @media (min-width: 800px) {
       max-height: 600px;
-    }
-  }
-
-  .bonus-text {
-    font-size: 18px;
-    @media (min-width: 400px) {
-      font-size: 22px
-    }
-    @media (min-width: 480px) {
-      font-size: 32px
-    }
-    @media (min-width: 570px) {
-      font-size: 40px
     }
   }
 </style>
