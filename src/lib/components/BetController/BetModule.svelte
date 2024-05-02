@@ -1,3 +1,34 @@
+<script context="module" lang="ts">
+  import {writable} from "svelte/store";
+  import {browser} from "$app/environment";
+
+  interface Setting {
+    auto: boolean,
+    cashoutMultiplier: number,
+    betAmount: number,
+  }
+
+  function createStore(id: string) {
+    const init = {
+      auto: true,
+      cashoutMultiplier: 1.01,
+      betAmount: 50,
+      ...JSON.parse(browser && localStorage.getItem(id))
+    }
+    const store = writable<Setting>(init);
+
+    store.subscribe((value) => {
+      browser && localStorage.setItem(id, JSON.stringify(value))
+    })
+
+    return store;
+  }
+
+  export function getSetting(id: string) : Setting {
+    return JSON.parse(browser && localStorage.getItem(id))
+  }
+</script>
+
 <script>
   import BetButton from "$lib/components/BetController/BetButton.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
@@ -6,19 +37,20 @@
   import BetModuleCashout from "$lib/components/BetController/BetModuleCashout.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
-  import {createEventDispatcher} from 'svelte';
+  import {createEventDispatcher, onMount} from 'svelte';
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
 
+  export let id = 'setting-1'
   export let label = 'Bet 1';
-  export let auto = true;
-  export let cashoutMultiplier = 1.01;
-  export let betAmount = 50;
   export let available = 1000;
   export let minBet = 50;
   export let showCashout = true;
   export let currentMultiplier = 1.2;
 
+  const setting = createStore(id);
   let open = false;
+
+  $: ({auto, cashoutMultiplier, betAmount} = $setting)
 
   const dispatch = createEventDispatcher();
 
@@ -27,6 +59,8 @@
       open = true;
     }
   }
+
+
 </script>
 
 <div class="bet-module-container">
@@ -50,7 +84,7 @@
       on:click={() => dispatch('bet')}
       disabled={auto && showCashout}
       size="sm">
-    {#if auto &&  showCashout }
+    {#if auto && showCashout }
       <div style="display: grid; justify-items: center">
         <EyeLoader style="font-size: 0.35px"/>
       </div>
@@ -64,13 +98,13 @@
   <div slot="title">{label}</div>
   <div slot="body" style="display: flex; flex-direction: column; gap: 8px">
     <BetModuleCashout
-        bind:checked={auto}
-        bind:value={cashoutMultiplier}
+        bind:checked={$setting.auto}
+        bind:value={$setting.cashoutMultiplier}
     />
     <BetModuleAmount
         max={available}
         min={minBet}
-        bind:value={betAmount}
+        bind:value={$setting.betAmount}
     />
     <ActionButton on:click={() => open = false}>Close</ActionButton>
   </div>

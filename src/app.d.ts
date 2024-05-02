@@ -56,6 +56,15 @@ declare global {
       updatedAt: string,
     }
 
+    interface RoundEvent {
+      status : number,
+      elapsed : number,
+      multiplier : number,
+      pushTime : number,
+      round : number,
+      startTime : number,
+    }
+
     interface VictoryEvent {
       amount: string,
       multiplier: string,
@@ -83,47 +92,14 @@ declare global {
       startTime: string;
       round: string,
     }
-  }
 
-  namespace Rugbull {
-    interface ICandle {
-      time: number,
-      open: number,
-      close: number,
-      low?: number,
-      high?: number,
-    }
-
-    interface RoundEvent {
-      round: number;
-      elapsed: number;
-      status: number;
-      startTime: number;
-      multiplier: number;
-    }
-
-    type GameState = 'connecting' | 'reconnecting' | 'loading' | 'waiting' | 'running' | 'stopped'
-
-    interface BalanceEvent1 {
-      coinType: number,
-      currentEnergy: number,
-      dailyLimitTime: string, // ISO
-      energyAccumulationRate: number,
-      energyCapacity: number,
-      lastUpdateTime: string,
-    }
-
-    interface BalanceEvent2 {
-      coinType: number,
-      userBonus: string,
-    }
-
-    interface WinEvent {
-      amount: string
-      multiplier: "1.20",
-      newBalance: "2471.50000000",
-      recordId: 124,
-      userId: 1,
+    export interface UserEscapeEvent {
+      multiplier: number,
+      userList: {
+        amount: string,
+        multiplier: string,
+        nickName: string,
+      }[]
     }
   }
 

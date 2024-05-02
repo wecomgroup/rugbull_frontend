@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Rugbull from '$lib/games/Rugbull/Rugbull.svelte';
+  import Rugbull, {type IRugbull} from '$lib/games/Rugbull/Rugbull.svelte';
   import {io, type Socket} from 'socket.io-client';
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
@@ -7,7 +7,7 @@
   import {hashToNumber} from './decrypt'
   import {fly} from 'svelte/transition';
   import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
-  import BetModule from "$lib/components/BetController/BetModule.svelte";
+  import BetModule, {getSetting} from "$lib/components/BetController/BetModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
   import EnergyBar from "$lib/components/BetController/EnergyBar.svelte";
   import ZapIcon from "$lib/icons/ZapIcon.svelte";
@@ -16,6 +16,7 @@
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import BetHistory from "$lib/components/BetController/BetHistory.svelte";
+  import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
 
   /// PARAMS
   export let debug = false;
@@ -40,7 +41,7 @@
   let userId = undefined;
   let chart = [];
   let startTime = null;
-  let state: Rugbull.GameState = 'connecting';
+  let state: IRugbull.GameState = 'connecting';
   let connected = false;
   let multiplier = 1;
   let multiplierHistory = []
@@ -51,14 +52,12 @@
   let currentRound: string | null = null;
   let messages: string[] = []
   let errorMessage: string | undefined;
-  let setting1: Setting = {auto: false, cashoutMultiplier: 1.01, betAmount: 50};
-  let setting2: Setting = {auto: true, cashoutMultiplier: 1.01, betAmount: 50};
-  let record1: Record | undefined;
-  let record2: Record | undefined;
+  let records: [Record?, Record?]=[];
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
   let notLogin = false;
+  let userEscapes, useCashout;
   const bonus = spring(0)
 
   /// SOCKET
@@ -94,6 +93,10 @@
       if (event.statusCode === 200) {
         const data: T = event.data
         callback(data)
+      } else if (event.statusCode === 401){
+        console.log('TOKEN EXPIRED');
+        localStorage.removeItem('token')
+        notLogin = true;
       } else {
         console.log('UNHANDLED EVENT', event)
       }
@@ -191,7 +194,7 @@
     //   updateFromInitEvent(event)
     // })
 
-    socket.on('gameEvent', (event: Rugbull.RoundEvent) => {
+    socket.on('gameEvent', (event: RugbullAPI.RoundEvent) => {
       if (event.status === 1) {
         startTime = event.startTime;
         state = 'waiting';
@@ -199,12 +202,13 @@
         currentRound = event.round.toString()
         log(`[1] ROUND(${event.round}) starts=${formatTime(event.startTime)}`)
       } else if (event.status === 2) {
+        state === 'waiting' && log(`[2] START`)
         chart = [...chart, event.multiplier];
         multiplier = event.multiplier;
 
         state = 'running';
         currentRound = event.round.toString()
-        log(`[2] ${event.elapsed} ${event.multiplier.toFixed(2)}`)
+        // log(`[2] ${event.elapsed} ${event.multiplier.toFixed(2)}`)
       } else if (event.status === 3) {
         getGameResults(socket)
         chart = [...chart, 0];
@@ -213,8 +217,7 @@
         }
         multiplier = 1;
         currentRound = event.round.toString()
-        record1 = undefined
-        record2 = undefined
+        records = []
         postHistory(socket)
         log(`[3] stopped ${event.multiplier.toFixed(2)}`)
       }
@@ -222,17 +225,16 @@
 
     socket.on('trumpetOfVictory', (event: RugbullAPI.VictoryEvent) => {
       console.log('EVENT trumpetOfVictory', event)
-      if (event.recordId === record2?.id) {
-        record2 = undefined;
+      const index = records.findIndex(r => r?.id === event.recordId);
+      if (index > -1){
+        records[index] = undefined;
         postHistory(socket)
       }
-      if (event.recordId === record1?.id) {
-        record1 = undefined;
-        postHistory(socket)
-      }
-      if (event.userId === userId) {
+    })
 
-      }
+    socket.on('userEscapes', (event: RugbullAPI.UserEscapeEvent) => {
+      console.log('EVENT userEscapes', event)
+
     })
 
     socket.on('balanceEvent', (event: any) => {
@@ -280,16 +282,11 @@
         createSocketHandler<any>(
           (data) => {
             console.log('BET RESPONSE', data)
-            const record = {
+            records[index] = {
               id: data.recordId,
               auto: setting.auto,
               amount: setting.betAmount
             };
-            if (index === 0) {
-              record1 = record;
-            } else {
-              record2 = record;
-            }
 
             energy = data.new_balance;
 
@@ -312,12 +309,7 @@
         createSocketHandler<any>(
           (data) => {
             console.log('CASHOUT RESPONSE', data)
-            if (index === 0) {
-              record1 = undefined;
-            } else {
-              record2 = undefined;
-            }
-
+            records[index] = undefined;
             postUserInit(socket);
 
           }));
@@ -337,7 +329,6 @@
   onMount(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      console.log('TOKEN', token)
       socket = initSocket({token});
 
       postUserInit(socket);
@@ -379,8 +370,8 @@
   function onBetOrCashout(index: number) {
     return function () {
       if (socket) {
-        const record = index === 0 ? record1 : record2;
-        const setting = index === 0 ? setting1 : setting2;
+        const record = records[index];
+        const setting = getSetting(`setting-${index}`)
         if (record) {
           postCashOut(socket, index, {recordId: record.id});
         } else {
@@ -394,7 +385,7 @@
 
 <main data-debug={debug}>
   {#if debug}
-    <pre>round={currentRound} r1={record1?.id} r2={record2?.id}</pre>
+    <pre>round={currentRound}</pre>
   {/if}
 
   <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
@@ -410,12 +401,7 @@
     </ContainerV2>
   {:else}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
-      <ContainerV2 style="display: grid">
-        <EnergyBar amount={energy} maxAmount={maxEnergy}/>
-        <span class="tag"
-              style="margin: -10px 5px 0 0px; justify-self: right; border-radius: 10px; height: fit-content; z-index: 1;display: flex;align-items: center">Energy: {energy}
-          <ZapIcon style="height: 16px; width: 16px"/></span>
-      </ContainerV2>
+      <EnergyModule energy={energy} maxEnergy={maxEnergy}/>
 
       <ContainerV2 style="display: flex; align-items: center">
         <CoinsIcon/>
@@ -426,21 +412,17 @@
 
   <div class="bet-modules-row">
     <BetModule
-        bind:betAmount={setting1.betAmount}
-        bind:cashoutMultiplier={setting1.cashoutMultiplier}
-        bind:auto={setting1.auto}
+        id="setting-0"
         currentMultiplier={multiplier}
-        showCashout={record1 != null}
+        showCashout={records[0] != null}
         available={150}
         on:bet={onBetOrCashout(0)}
     />
     <BetModule
-        bind:betAmount={setting2.betAmount}
-        bind:cashoutMultiplier={setting2.cashoutMultiplier}
-        bind:auto={setting2.auto}
+        id="setting-1"
         available={150}
         currentMultiplier={multiplier}
-        showCashout={record2 != null}
+        showCashout={records[1] != null}
         on:bet={onBetOrCashout(1)}
     />
   </div>
@@ -496,16 +478,6 @@
     @media (min-width: 470px) {
       grid-template-columns: 1fr 1fr;
     }
-  }
-
-  .overlay {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 200px;
-    height: 100%;
-
-    background: linear-gradient(to right, transparent, var(--background) 100%);
   }
 
   .console {

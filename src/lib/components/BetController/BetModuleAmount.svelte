@@ -3,14 +3,11 @@
   import PrimaryContainer from './PrimaryContainer.svelte';
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
 
-  export let size: 'xs' | 'sm' | 'md' = 'md';
   export let disabled = false;
-  export let style: string | undefined = undefined;
   export let max: number = 10;
   export let min: number = 1;
   export let value: number = 10;
   export let t: (v) => void = (a) => a;
-  export let lock: boolean = false;
 
   const dispatch = createEventDispatcher();
 

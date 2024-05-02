@@ -5,6 +5,7 @@
   import Modal from "$lib/components/Modal/Modal.svelte";
   import BetButton from "$lib/components/BetController/BetButton.svelte";
   import Pagination from "$lib/components/BetController/Pagination.svelte";
+  import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
 
   let open = false;
 </script>
@@ -24,3 +25,6 @@
 
 <br/>
 <Pagination/>
+
+<EnergyModule/>
+

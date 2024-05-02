@@ -25,15 +25,15 @@
   })
 
   /**
-     * @param {{ detail: Telegram.UserData; }} e
-     */
+   * @param {{ detail: Telegram.UserData; }} e
+   */
   async function onUser(e) {
     userData = e.detail
     loginResult = await postLogin(userData)
 
     if (loginResult?.token) {
       localStorage.setItem('token', loginResult.token)
-      goto('/games/rugbull')
+      await goto('/games/rugbull')
     }
   }
 
@@ -47,7 +47,7 @@
 
     if (loginResult?.token) {
       localStorage.setItem('token', loginResult.token)
-      goto('/games/rugbull')
+      await goto('/games/rugbull')
     }
   }
 </script>

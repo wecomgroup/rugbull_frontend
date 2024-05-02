@@ -1,3 +1,23 @@
+<script context="module" lang="ts">
+  export namespace IRugbull {
+    export interface ICandle {
+      time: number,
+      open: number,
+      close: number,
+      low?: number,
+      high?: number,
+      escapes?: UserEscape[],
+    }
+
+    export type GameState = 'connecting' | 'reconnecting' | 'loading' | 'waiting' | 'running' | 'stopped'
+
+    export interface UserEscape {
+      multiplier: number,
+      userName: string,
+      time: number,
+    }
+  }
+</script>
 <script lang="ts">
   import type {CanvasValue} from '$lib/components/Canvas';
   import {Canvas, createAnimationLoop, loadImage} from '$lib';
@@ -6,16 +26,19 @@
   import duration from 'dayjs/plugin/duration';
   import {spring} from 'svelte/motion';
   import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
+  import {fly} from 'svelte/transition';
 
   dayjs.extend(duration);
 
   // EXPORT
   export let data: number[] = [];
-  export let state: Rugbull.GameState = 'connecting';
+  export let state: IRugbull.GameState = 'connecting';
   export let startTime: number;
   export let currentMultiplier: number = 1;
   export let debug = false;
   export let connected = false;
+  export let escapes: IRugbull.UserEscape[] = [];
+  export let cashout: IRugbull.UserEscape[] = [];
 
   // CONST
   const w = 600;
@@ -31,6 +54,8 @@
   const CHART_H = h - CHART_BOTTOM - CHART_TOP;
   const CHART_W = w - CHART_LEFT - CHART_RIGHT;
   const BACKGROUND = loadImage('/images/rugbull/background.webp');
+  const WIN1 = loadImage('/images/rugbull/dog-win-1.webp')
+
 
   // STATE
   let canvas: CanvasValue | undefined;
@@ -70,17 +95,22 @@
   function candlesFromData(data: number[], interval: number) {
     if (interval < 2) throw new Error('Interval must be greater than 1');
     if (data.length === 0) return [];
-    const candles: Rugbull.ICandle[] = [];
+    const candles: IRugbull.ICandle[] = [];
     let i = 0;
-    ///  except for the last one
+
+    /// except for the last one
     for (; i < data.length - interval; i += interval) {
-      const open = i > 1 ? data[i-1] : 1.0;
+      const open = i > 1 ? data[i - 1] : 1.0;
       const close = data[i + interval - 1];
       candles.push({time: i, open, close});
     }
 
     /// add the last candle
-    candles.push({time: i, open: i > 1 ? data[i-1] : 1.0, close: data[data.length - 1]});
+    candles.push({time: i, open: i > 1 ? data[i - 1] : 1.0, close: data[data.length - 1]});
+
+    candles.forEach((candle, index) => {
+      candle.escapes = escapes.filter(e => e.multiplier <= candle.close && e.multiplier > candle.open);
+    })
     return candles;
   }
 
@@ -100,6 +130,9 @@
   $: {
     if (data.length > 128) {
       X_MAX.set(Math.ceil((data.length + 128) / 128) * 128);
+    } else {
+      X_MAX.set(128)
+
     }
   }
   $: maxMul = Math.max(0, ...data);
@@ -111,6 +144,10 @@
     } else {
       BACKGROUND_Y.set(data.length * 2)
     }
+  }
+
+  function xAt(time: number) {
+    return (time / $X_MAX) * CHART_W + CHART_LEFT;
   }
 
   // DRAW
@@ -140,9 +177,6 @@
         return at1 - ((v - MIN_MUL - 1) / MUL_H) * CHART_H;
       }
 
-      function xAt(time: number) {
-        return (time / $X_MAX) * CHART_W + CHART_LEFT;
-      }
 
       function drawLine(x1, y1, x2, y2) {
         ctx.strokeStyle = BRAND_COLOR;
@@ -165,7 +199,7 @@
         ctx.stroke();
       }
 
-      function drawCandle(candle: Rugbull.ICandle, hollow: boolean) {
+      function drawCandle(candle: IRugbull.ICandle, hollow: boolean) {
         const gap = 4;
         const h = yAt(candle.open) - yAt(candle.close);
         const w = xAt(INTERVAL - 1) - xAt(0);
@@ -193,6 +227,29 @@
         ctx.roundRect(x, yAt(candle.open) + yOffset, w, -h, 1);
         ctx.fill();
         ctx.stroke();
+
+        /// draw escapes
+        if (candle.escapes) {
+          for (let i = 0; i < candle.escapes.length; i++) {
+            const escape = candle.escapes[i];
+            const size = w - 10;
+            const y = yAt(escape.multiplier) - size * 1.2 * i
+
+            /// draw image
+
+            if ($WIN1.image) {
+              /// clip circle
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(x + w / 2, y - size / 2, size / 2, 0, Math.PI * 2);
+              ctx.clip();
+
+              ctx.drawImage($WIN1.image, x + w / 2 - size / 2, y - size, size, size);
+              ctx.restore()
+            }
+          }
+        }
+
         ctx.restore();
       }
 
@@ -277,6 +334,7 @@
         }
       }
 
+
       // DRAW
 
       if ($BACKGROUND.image) {
@@ -329,8 +387,18 @@
   <Canvas ratio={w / h} bind:value={canvas}/>
   <div class="overlay">
     <div class="connection-status" data-connected={connected}/>
+    {#each escapes as i}
+      {#if i.multiplier < currentMultiplier}
+        <div class="escape-item"
+             in:fly={{y: 20}}
+             style="transform: translate({xAt(i.time)}px, 0)"
+        >
+          {i.multiplier} - {data.length}
+        </div>
+      {/if}
+    {/each}
     {#if state === 'running' || state === 'stopped'}
-      <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
+      <div class="multiplier-text">{formatMultiplier(currentMultiplier)}</div>
     {/if}
     {#if state === 'loading' || state === 'waiting'}
       <div class="loader">
@@ -347,6 +415,18 @@
 
   .overlay {
     pointer-events: none;
+  }
+
+  .escape-item {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+
+    color: white;
+    font-size: 2.333vw;
+    @media (min-width: 600px) {
+      font-size: 14px;
+    }
   }
 
   .loader {
@@ -376,29 +456,31 @@
     width: 4vw;
     height: 4vw;
 
-    &[data-connected=true]{
+    &[data-connected=true] {
       background-color: greenyellow;
     }
+
     @media (min-width: 600px) {
       width: 24px;
       height: 24px;
     }
   }
 
-  .multiplier {
+  .multiplier-text {
     position: absolute;
 
     color: white;
     font-family: monospace;
     font-weight: 600;
 
-    padding: 12px 20px;
-    background-color: rgba(255, 255, 255, 0.5);
+    padding: 8px 20px;
+    background-color: rgba(255, 255, 255, 0);
+    border: 4px solid var(--brand);
     border-radius: 8px;
 
     top: 3.3vw;
     left: 3.3vw;
-    font-size: 5.3vw;
+    font-size: 4.8vw;
     @media (min-width: 600px) {
       top: 20px;
       left: 20px;

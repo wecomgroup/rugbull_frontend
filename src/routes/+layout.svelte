@@ -1,13 +1,26 @@
 <script>
   import './global.scss'
   import Command from "$lib/components/CommandMenu/CommandMenu.svelte";
+  import {page} from '$app/stores'
+  import {goto} from "$app/navigation";
+  import {browser} from "$app/environment";
 
   const menus = [
     {label: "Rugbull", href: "/games/rugbull"},
     {label: "Rugbull (Debug)", href: "/games/rugbull/debug"},
     {label: "Components", href: "/components"},
+    {label: "Fairness", href: "/games/rugbull/fairness"},
   ]
 
+  /// Handle query to localStorage here
+  $:{
+    if($page.url.searchParams.get('token') && browser){
+      localStorage.setItem('token', $page.url.searchParams.get('token'))
+
+      // remove token from url
+      goto($page.url.pathname)
+    }
+  }
 </script>
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com">

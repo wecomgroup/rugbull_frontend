@@ -271,7 +271,7 @@
   <Canvas ratio={w / h} bind:value={canvas} />
   <div class="overlay">
     {#if state === 'running' || state === 'stopped' || (state === 'loading' && currentMultiplier > 1)}
-      <div class="multiplier">{formatMultiplier(currentMultiplier)}</div>
+      <div class="multiplier-text">{formatMultiplier(currentMultiplier)}</div>
     {/if}
   </div>
 </div>
@@ -285,7 +285,7 @@
     pointer-events: none;
   }
 
-  .multiplier {
+  .multiplier-text {
     position: absolute;
     color: white;
     font-size: 40px;
