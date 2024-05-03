@@ -50,7 +50,7 @@
   let currentRound: string | null = null;
   let messages: string[] = []
   let errorMessage: string | undefined;
-  let records: [Record?, Record?]=[];
+  let records: [Record?, Record?] = [];
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
@@ -101,7 +101,7 @@
       if (event.statusCode === 200) {
         const data: T = event.data
         callback(data)
-      } else if (event.statusCode === 401){
+      } else if (event.statusCode === 401) {
         console.log('TOKEN EXPIRED');
         localStorage.removeItem('token')
         notLogin = true;
@@ -121,13 +121,15 @@
     userId = event.userId;
 
     /// Load records when page reload
-    event.users_bet.forEach((bet, index) => {
-      records[index] = {
-        id: bet.recordId,
-        auto: !!bet.auto,
-        amount: parseFloat(bet.amount),
-      }
-    })
+    if (records.length === 0){
+      event.users_bet.forEach((bet, index) => {
+        records[index] = {
+          id: bet.recordId,
+          auto: !!bet.auto,
+          amount: parseFloat(bet.amount),
+        }
+      })
+    }
   }
 
 
@@ -186,6 +188,7 @@
         multiplierHistory = data.map(i => i.multiplier)
       }))
   }
+
   /// SOCKET HANDLERS
   function initSocket({token}) {
     const socket = io('https://api.rugbull.io', {
@@ -228,7 +231,7 @@
         }
         multiplier = 1;
         currentRound = event.round.toString()
-        records = []
+        records = [undefined, undefined]
         postHistory(socket)
         log(`[3] stopped ${event.multiplier.toFixed(2)}`)
       }
@@ -237,7 +240,7 @@
     socket.on('trumpetOfVictory', (event: RugbullAPI.VictoryEvent) => {
       console.log('EVENT trumpetOfVictory', event)
       const index = records.findIndex(r => r?.id === event.recordId);
-      if (index > -1){
+      if (index > -1) {
         records[index] = undefined;
         postHistory(socket)
       }
@@ -277,7 +280,7 @@
 
   function postMakeBet(socket: Socket, index: number, setting: Setting) {
     errorMessage = undefined;
-    const coinType =  useBonus ? 2 : 1;
+    const coinType = useBonus ? 2 : 1;
     const payload = {
       round: currentRound,
       coinType,
@@ -300,7 +303,7 @@
               amount: setting.betAmount
             };
 
-            if (coinType === 1){
+            if (coinType === 1) {
               energy = data.newBalance;
             }
 
@@ -440,7 +443,7 @@
 
   {#if errorMessage}
     <button transition:fly={{y: -20}}
-         on:click={() => errorMessage = undefined}
+            on:click={() => errorMessage = undefined}
             style="padding: 0"
     >
       <ErrorContainer>
