@@ -9,7 +9,6 @@
   import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
   import BetModule, {getSetting} from "$lib/components/BetController/BetModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
-  import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
@@ -120,6 +119,15 @@
     energy = Math.min(maxEnergy, Math.floor(-dayjs(event.users_energy.lastUpdateTime).diff() / 1000 * energyPerSecond + event.users_energy.currentEnergy))
     bonus.set(parseFloat(event.users_wallet.userBonus));
     userId = event.userId;
+
+    /// Load records when page reload
+    event.users_bet.forEach((bet, index) => {
+      records[index] = {
+        id: bet.recordId,
+        auto: !!bet.auto,
+        amount: parseFloat(bet.amount),
+      }
+    })
   }
 
 
