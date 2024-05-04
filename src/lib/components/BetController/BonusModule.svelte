@@ -8,7 +8,7 @@
 
 <ContainerV2 style="display: flex; align-items: center" {glow}>
   <CoinsIcon/>
-  <span class="bonus-text">{bonus.toFixed(6)}</span>
+  <span class="bonus-text">{bonus.toPrecision(10)}</span>
 </ContainerV2>
 
 <style>
@@ -21,7 +21,7 @@
       font-size: 32px
     }
     @media (min-width: 570px) {
-      font-size: 40px
+      font-size: 36px
     }
   }
 </style>

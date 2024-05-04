@@ -6,7 +6,7 @@
       close: number,
       low?: number,
       high?: number,
-      escapes?: UserEscape[],
+      cashout?: UserEscape[],
     }
 
     export type GameState = 'connecting' | 'reconnecting' | 'loading' | 'waiting' | 'running' | 'stopped'
@@ -18,6 +18,7 @@
     }
   }
 </script>
+
 <script lang="ts">
   import type {CanvasValue} from '$lib/components/Canvas';
   import {Canvas, createAnimationLoop, loadImage} from '$lib';
@@ -37,8 +38,12 @@
   export let currentMultiplier: number = 1;
   export let debug = false;
   export let connected = false;
-  export let escapes: IRugbull.UserEscape[] = [];
-  export let cashout: IRugbull.UserEscape[] = [];
+  export let escapes: IRugbull.UserEscape[] = [
+  ];
+  export let cashout: IRugbull.UserEscape[] = [
+    // {multiplier: 1.1, userName: 'someone', time: 10},
+    // {multiplier: 1.2, userName: 'user1', time: 20},
+  ];
 
   // CONST
   const w = 600;
@@ -55,7 +60,13 @@
   const CHART_W = w - CHART_LEFT - CHART_RIGHT;
   const BACKGROUND = loadImage('/images/rugbull/background.webp');
   const WIN1 = loadImage('/images/rugbull/dog-win-1.webp')
+  const SHIBA_FLY = loadImage('/images/rugbull/shiba-fly.webp')
+  const SHIBA_SORRY = loadImage('/images/rugbull/shiba-sorry.webp')
 
+  // SOUND
+  let soundLaugh: HTMLAudioElement;
+  let soundStart: HTMLAudioElement;
+  let soundGetReady: HTMLAudioElement;
 
   // STATE
   let canvas: CanvasValue | undefined;
@@ -109,7 +120,9 @@
     candles.push({time: i, open: i > 1 ? data[i - 1] : 1.0, close: data[data.length - 1]});
 
     candles.forEach((candle, index) => {
-      candle.escapes = escapes.filter(e => e.multiplier <= candle.close && e.multiplier > candle.open);
+      candle.cashout = cashout
+        .filter(e => e.multiplier <= candle.close
+          && e.multiplier > candle.open);
     })
     return candles;
   }
@@ -143,6 +156,27 @@
       BACKGROUND_Y.set(0)
     } else {
       BACKGROUND_Y.set(data.length * 2)
+    }
+  }
+
+  $: {
+    if (state === 'stopped'){
+      soundLaugh.currentTime = 0;
+      soundLaugh.play()
+    }
+  }
+
+  $: {
+    if (state === 'running'){
+      soundStart.currentTime = 0;
+      soundStart.play()
+    }
+  }
+
+  $: {
+    if (state === 'waiting'){
+      soundGetReady.currentTime = 0;
+      soundGetReady.play()
     }
   }
 
@@ -229,9 +263,9 @@
         ctx.stroke();
 
         /// draw escapes
-        if (candle.escapes) {
-          for (let i = 0; i < candle.escapes.length; i++) {
-            const escape = candle.escapes[i];
+        if (candle.cashout) {
+          for (let i = 0; i < candle.cashout.length; i++) {
+            const escape = candle.cashout[i];
             const size = w - 10;
             const y = yAt(escape.multiplier) - size * 1.2 * i
 
@@ -279,10 +313,14 @@
         const x1 = xAt(time)
         const x2 = w - CHART_RIGHT
 
+        $SHIBA_FLY.image && state==='running' && ctx.drawImage($SHIBA_FLY.image, x1 + candleW, y, 60, 60)
+        $SHIBA_SORRY.image && state==='stopped'  && ctx.drawImage($SHIBA_SORRY.image, x1 + candleW, y -70, 70, 70)
+
         ctx.beginPath()
         ctx.moveTo(x1 + candleW, y)
         ctx.lineTo(x2, y)
         ctx.stroke()
+
 
         ctx.font = '14px monospace';
         ctx.textAlign = 'left';
@@ -290,6 +328,7 @@
         ctx.fillStyle = BRAND_COLOR;
         ctx.translate(w - CHART_RIGHT + 4, yAt(mul));
         ctx.fillText(`${mul.toFixed(2)}`, 0, 0);
+
 
         ctx.restore();
       }
@@ -387,16 +426,18 @@
   <Canvas ratio={w / h} bind:value={canvas}/>
   <div class="overlay">
     <div class="connection-status" data-connected={connected}/>
-    {#each escapes as i}
-      {#if i.multiplier < currentMultiplier}
+    <!-- DRAW LIVE ESCAPES-->
+    <div class="escape-list">
+      {#each escapes as i,index}
         <div class="escape-item"
              in:fly={{y: 20}}
-             style="transform: translate({xAt(i.time)}px, 0)"
         >
-          {i.multiplier} - {data.length}
+          <img alt="Win" src="/images/rugbull/win-image.webp" height="20"/>
+          {i.userName} - {formatMultiplier(i.multiplier)}
         </div>
-      {/if}
-    {/each}
+      {/each}
+    </div>
+
     {#if state === 'running' || state === 'stopped'}
       <div class="multiplier-text">{formatMultiplier(currentMultiplier)}</div>
     {/if}
@@ -408,6 +449,10 @@
   </div>
 </div>
 
+<audio bind:this={soundLaugh} src="/sound/rugbull/laugh.mp3"/>
+<audio bind:this={soundStart} src="/sound/rugbull/dog-start.mp3"/>
+<audio bind:this={soundGetReady} src="/sound/rugbull/get-ready.mp3"/>
+
 <style>
   .game {
     position: relative;
@@ -417,13 +462,24 @@
     pointer-events: none;
   }
 
-  .escape-item {
+  .escape-list {
     position: absolute;
-    bottom: 20px;
-    left: 0;
+    bottom: 4px;
+    right: 10px;
 
-    color: white;
+    display: grid;
+  }
+
+  .escape-item {
     font-size: 2.333vw;
+
+
+    padding: 0.2em 0.4em;
+    color: white;
+    background-color: rgba(80, 80, 80, 0.8);
+
+    display: flex;
+    align-items: center;
     @media (min-width: 600px) {
       font-size: 14px;
     }

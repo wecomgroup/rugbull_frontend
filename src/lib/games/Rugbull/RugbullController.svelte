@@ -55,9 +55,13 @@
   let maxEnergy = 1000;
   let energyPerSecond = 1;
   let notLogin = false;
-  let userEscapes, useCashout;
+  let userEscapes: IRugbull.UserEscape[] = [];
+  let useCashout;
   let useBonus = false;
   const bonus = spring(0)
+
+  // SOUND
+  let soundCashout: HTMLAudioElement;
 
   /// SOCKET
   let socket: Socket | undefined
@@ -121,7 +125,7 @@
     userId = event.userId;
 
     /// Load records when page reload
-    if (records.length === 0){
+    if (records.length === 0) {
       event.users_bet.forEach((bet, index) => {
         records[index] = {
           id: bet.recordId,
@@ -213,6 +217,7 @@
         startTime = event.startTime;
         state = 'waiting';
         chart = [];
+        userEscapes = []
         currentRound = event.round.toString()
         log(`[1] ROUND(${event.round}) starts=${formatTime(event.startTime)}`)
       } else if (event.status === 2) {
@@ -232,6 +237,7 @@
         multiplier = 1;
         currentRound = event.round.toString()
         records = [undefined, undefined]
+        userEscapes = []
         postHistory(socket)
         log(`[3] stopped ${event.multiplier.toFixed(2)}`)
       }
@@ -239,6 +245,8 @@
 
     socket.on('trumpetOfVictory', (event: RugbullAPI.VictoryEvent) => {
       console.log('EVENT trumpetOfVictory', event)
+      soundCashout.currentTime = 0
+      soundCashout.play();
       const index = records.findIndex(r => r?.id === event.recordId);
       if (index > -1) {
         records[index] = undefined;
@@ -248,6 +256,16 @@
 
     socket.on('userEscapes', (event: RugbullAPI.UserEscapeEvent) => {
       console.log('EVENT userEscapes', event)
+      userEscapes = [
+        ...userEscapes,
+        ...event.userList.map(i => {
+          return ({
+            multiplier: parseFloat(i.multiplier),
+            userName: i.nickName,
+            time: chart.length,
+          })
+        })
+      ]
 
     })
 
@@ -405,7 +423,14 @@
     <pre>round={currentRound}</pre>
   {/if}
 
-  <Rugbull {startTime} {state} data={chart} currentMultiplier={multiplier} {connected}/>
+  <Rugbull
+      {startTime}
+      {state}
+      data={chart}
+      currentMultiplier={multiplier}
+      {connected}
+      escapes={userEscapes}
+  />
   <HistoryRow {multiplierHistory}/>
 
   {#if notLogin}
@@ -419,7 +444,6 @@
   {:else}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
       <EnergyModule energy={energy} maxEnergy={maxEnergy} glow={!useBonus}/>
-
       <BonusModule bonus={$bonus} glow={useBonus}/>
     </div>
   {/if}
@@ -470,6 +494,7 @@
   {/if}
 </main>
 
+<audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
 
 <style lang="scss">
   main {
