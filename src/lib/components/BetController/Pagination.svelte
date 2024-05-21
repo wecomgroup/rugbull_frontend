@@ -47,8 +47,12 @@
   button {
     display: grid;
     align-items: center;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 16px;
+    min-height: 16px;
+
+    & > :global(svg) {
+      width: 18px;
+    }
   }
 
   .button-text {
@@ -57,6 +61,17 @@
     &[data-selected=true] {
       background-color: var(--brand);
       color: black;
+    }
+  }
+
+  @media (min-width: 375px) {
+    button {
+      min-width: 26px;
+      min-height: 26px;
+
+      & > :global(svg) {
+        width: 20px;
+      }
     }
   }
 

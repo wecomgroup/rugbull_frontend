@@ -47,7 +47,7 @@
                    on:click={onClick}
                    style="height: calc(100% - 6px); width: 100%">
           {#if loading}
-            <SimpleLoader variant="sm"/>
+            <SimpleLoader/>
           {:else}
             <div class="bet-info">
               {#if showCashout}
@@ -78,7 +78,6 @@
 
 <style lang="scss">
   .bet-controller {
-    margin-top: 0.5rem;
     display: flex;
     gap: 0.5rem;
     width: 100%;
