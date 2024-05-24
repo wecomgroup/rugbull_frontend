@@ -1,5 +1,5 @@
-<script lang="js">
+<script>
   import DevFrame from "$lib/components/layout/DevFrame.svelte";
 </script>
 
-<DevFrame src="/components/raw"/>
+<DevFrame src="/games/rugbull2" />

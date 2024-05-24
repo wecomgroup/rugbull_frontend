@@ -8,11 +8,18 @@
   import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
   import Divider from "$lib/components/layout/Divider.svelte";
+  import Logo from "$lib/components/brand/Logo.svelte";
+  import LogoSquare from "$lib/components/brand/LogoSquare.svelte";
 
   let open = false;
 </script>
 
 <main style="">
+  <div class="row">
+    <Logo/>  <LogoSquare/>
+  </div>
+
+  <Divider/>
   <BetController/>
   <Divider/>
   <HamsterLoader/>
@@ -49,6 +56,11 @@
     gap: 8px;
     grid-template-columns: 1fr;
     justify-items: center;
+  }
+
+  .row {
+    display: flex;
+    gap: 8px;
   }
 
   .col-2 {

@@ -1,0 +1,1 @@
+<img alt="logo" src="/images/brand/logo.png" style="object-fit: contain"/>

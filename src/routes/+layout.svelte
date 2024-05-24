@@ -4,13 +4,7 @@
   import {page} from '$app/stores'
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
-
-  const menus = [
-    {label: "Rugbull", href: "/games/rugbull"},
-    {label: "Rugbull (Debug)", href: "/games/rugbull/debug"},
-    {label: "Components", href: "/components"},
-    {label: "Fairness", href: "/games/rugbull/fairness"},
-  ]
+  import {MENUS} from "$lib/constants/menus.js";
 
   /// Handle query to localStorage here
   $:{
@@ -33,4 +27,4 @@
   <slot/>
 </div>
 
-<Command menus={ menus }/>
+<Command menus={ MENUS }/>
