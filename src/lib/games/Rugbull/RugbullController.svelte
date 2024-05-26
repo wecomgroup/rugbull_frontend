@@ -6,15 +6,15 @@
   import ShareLink from "$lib/components/ShareLink/ShareLink.svelte";
   import {hashToNumber} from './decrypt'
   import {fly} from 'svelte/transition';
-  import ErrorContainer from "$lib/components/BetController/ErrorContainer.svelte";
-  import BetModule, {getSetting} from "$lib/components/BetController/BetModule.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";
+  import BetModule, {getSetting} from "$lib/components/bet-controller/BetModule.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
   import {spring} from "svelte/motion";
-  import HistoryRow from "$lib/components/BetController/HistoryRow.svelte";
+  import HistoryRow from "$lib/components/bet-controller/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
-  import BetHistory from "$lib/components/BetController/BetHistory.svelte";
-  import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
-  import BonusModule from "$lib/components/BetController/BonusModule.svelte";
+  import BetHistory from "$lib/components/bet-controller/BetHistory.svelte";
+  import EnergyModule from "$lib/components/bet-controller/EnergyModule.svelte";
+  import BonusModule from "$lib/components/bet-controller/BonusModule.svelte";
 
   /// PARAMS
   export let debug = false;

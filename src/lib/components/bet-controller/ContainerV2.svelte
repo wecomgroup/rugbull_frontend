@@ -11,7 +11,6 @@
     border-radius: 6px;
     border: 1px solid #6f767e;
     background: #f2f2f2;
-    box-shadow: 0 4.417391777038574px 4.417391777038574px 0 rgba(0, 0, 0, 0.25);
 
     padding: 6px;
 
@@ -31,8 +30,11 @@
     }
   }
 
-  .container-v2[data-glow]{
-    border-color: var(--brand);
-    box-shadow: inset 0 0 10px var(--brand);
+  .container-v2 {
+    box-shadow: 0 4.417391777038574px 4.417391777038574px 0 rgba(0, 0, 0, 0.25);
+    &[data-glow]{
+      border-color: var(--brand);
+      box-shadow: inset 0 0 10px var(--brand);
+    }
   }
 </style>

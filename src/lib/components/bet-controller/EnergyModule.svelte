@@ -1,6 +1,6 @@
 <script>
   import ZapIcon from "$lib/icons/ZapIcon.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
   import EnergyBar from "$lib/components/loaders/EnergyBar.svelte";
 
   export let energy = 30;

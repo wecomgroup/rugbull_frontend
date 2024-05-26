@@ -1,7 +1,7 @@
 <script lang="ts">
   import {createEventDispatcher} from 'svelte';
   import PrimaryContainer from './PrimaryContainer.svelte';
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 
   export let disabled = false;
   export let max: number = 10;

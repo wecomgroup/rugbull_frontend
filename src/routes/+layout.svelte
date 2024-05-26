@@ -1,11 +1,10 @@
 <script>
-  import './global.scss'
+  import '$lib/styles/global.scss'
   import Command from "$lib/components/CommandMenu/CommandMenu.svelte";
   import {page} from '$app/stores'
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
   import {MENUS} from "$lib/constants/menus.js";
-  import Navbar from "$lib/components/layout/Navbar.svelte";
 
   /// Handle query to localStorage here
   $:{

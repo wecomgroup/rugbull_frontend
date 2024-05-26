@@ -1,7 +1,7 @@
 <script lang="ts">
   import {io, type Socket} from "socket.io-client";
   import {onMount} from "svelte";
-  import FairnessVerification from "$lib/components/BetController/FairnessVerification.svelte";
+  import FairnessVerification from "$lib/components/bet-controller/FairnessVerification.svelte";
 
   let errorMessage;
   let socket: Socket | undefined;

@@ -1,0 +1,49 @@
+// LAYOUT
+
+.grid {
+  display: grid;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-1 {
+  flex: 1 1 0
+}
+
+.flex-auto {
+  flex: 1 1 auto
+}
+
+.flex-initial {
+  flex: 0 1 auto
+}
+
+.flex-none {
+  flex: none
+}
+
+// PADDING
+@each $i in 0 1 2 3 4 {
+  .gap-#{$i} {
+    gap: $i * .25rem;
+  }
+
+  .p-#{$i} {
+    padding: $i * .25rem;
+  }
+
+  .rounded-#{$i} {
+    border-radius: $i * .25rem;
+  }
+}
+

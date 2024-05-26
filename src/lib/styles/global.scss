@@ -1,3 +1,6 @@
+@import './layout';
+@import './remove-default';
+
 :root {
   --action: #FFDF37;
   --background: #14141b;
@@ -6,6 +9,7 @@
   --brand-hover: #F6CD84;
   --gray: #4F5168;
   --text-gray: #A8AACA;
+  --hover: #A8AACA;
 }
 
 body {
@@ -17,21 +21,12 @@ body {
   margin: 0;
 }
 
-pre, p, a, h1, h2, h3 {
-  margin: 0;
+button, a {
+  transition: all ease 0.2s;
 }
 
 a {
   color: var(--text);
-}
-
-button, input[type="submit"], input[type="reset"] {
-  background: none;
-  color: inherit;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-  outline: inherit;
 }
 
 .scrollbar-background {

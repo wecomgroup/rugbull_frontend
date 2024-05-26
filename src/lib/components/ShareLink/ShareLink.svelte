@@ -1,6 +1,6 @@
 <script>
   import Share2Icon from "$lib/icons/Share2Icon.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 
   const link = "telegram.me/TGBetOfficialBot?start=513739291";
 </script>

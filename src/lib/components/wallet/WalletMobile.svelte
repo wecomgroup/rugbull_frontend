@@ -26,6 +26,8 @@
     grid-template-rows: 1fr 1fr;
     gap: 0 10px;
 
+    width: fit-content;
+
     font-weight: bold;
     font-size: 14px;
 

@@ -16,6 +16,10 @@
 </div>
 
 <style lang="scss">
+  #energy-line {
+    display: grid;
+    justify-items: flex-end;
+  }
   .row {
     display: flex;
     align-items: center;
@@ -24,6 +28,8 @@
 
   #line {
     display: grid;
+    min-width: 140px;
+
     & > * {
       grid-row: 1;
       grid-column: 1;

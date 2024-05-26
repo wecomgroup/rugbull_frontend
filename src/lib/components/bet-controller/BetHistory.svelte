@@ -3,7 +3,7 @@
   import relativeTime from 'dayjs/plugin/relativeTime'
   import {ONE_DAY} from "$lib/utils/date";
   import {fly} from 'svelte/transition'
-  import Pagination from "$lib/components/BetController/Pagination.svelte";
+  import Pagination from "$lib/components/bet-controller/Pagination.svelte";
 
   dayjs.extend(relativeTime)
 

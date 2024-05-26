@@ -2,4 +2,4 @@
   import DevFrame from "$lib/components/layout/DevFrame.svelte";
 </script>
 
-<DevFrame src="/components/raw"/>
+<DevFrame src="/components"/>

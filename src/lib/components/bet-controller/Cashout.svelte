@@ -3,7 +3,7 @@
   import PrimaryContainer from './PrimaryContainer.svelte';
   import SimpleCheckbox from "$lib/components/buttons/SimpleCheckbox.svelte";
   import {fly} from 'svelte/transition';
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 
   export let checked: boolean = false;
   export let size: 'xs' | 'sm' | 'md' = 'md';

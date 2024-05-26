@@ -6,7 +6,7 @@
   import {browser} from "$app/environment";
   import {PUBLIC_TELEGRAM_BOT_NAME, PUBLIC_TELEGRAM_APP_NAME} from '$env/static/public'
   import {postLogin, postWebappLogin} from "$lib/api/postLogin";
-  import CopyablePre from "$lib/components/BetController/CopyablePre.svelte";
+  import CopyablePre from "$lib/components/bet-controller/CopyablePre.svelte";
 
   let loginResult, userData, initData;
 

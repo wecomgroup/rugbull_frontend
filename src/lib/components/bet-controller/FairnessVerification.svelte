@@ -1,5 +1,5 @@
 <script>
-  import CopyableCode from "$lib/components/BetController/CopyableCode.svelte";
+  import CopyableCode from "$lib/components/bet-controller/CopyableCode.svelte";
   import {hash, hashToNumber} from "$lib/games/Rugbull/decrypt.js";
   import {browser} from "$app/environment";
 

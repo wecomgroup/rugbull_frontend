@@ -1,6 +1,6 @@
 <script>
   import CoinsIcon from "$lib/icons/CoinsIcon.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 
   export let bonus = 1000;
   export let glow = undefined;

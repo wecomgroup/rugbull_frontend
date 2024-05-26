@@ -5,7 +5,7 @@
   import {goto} from "$app/navigation";
   import {PUBLIC_TELEGRAM_BOT_NAME, PUBLIC_TELEGRAM_APP_NAME} from '$env/static/public'
   import {postLogin} from "$lib/api/postLogin";
-  import CopyablePre from "$lib/components/BetController/CopyablePre.svelte";
+  import CopyablePre from "$lib/components/bet-controller/CopyablePre.svelte";
 
   let loginResult, loginResult2, userData, telegramWebapp;
 

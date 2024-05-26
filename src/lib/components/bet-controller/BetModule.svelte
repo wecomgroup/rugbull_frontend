@@ -30,11 +30,11 @@
 </script>
 
 <script>
-  import BetButton from "$lib/components/BetController/BetButton.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import BetButton from "$lib/components/bet-controller/BetButton.svelte";
+  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
   import SettingsIcon from "$lib/icons/SettingsIcon.svelte";
-  import BetModuleAmount from "$lib/components/BetController/BetModuleAmount.svelte";
-  import BetModuleCashout from "$lib/components/BetController/BetModuleCashout.svelte";
+  import BetModuleAmount from "$lib/components/bet-controller/BetModuleAmount.svelte";
+  import BetModuleCashout from "$lib/components/bet-controller/BetModuleCashout.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
   import {createEventDispatcher, onMount} from 'svelte';

@@ -1,7 +1,7 @@
 <script>
-  import BetButton from "$lib/components/BetController/BetButton.svelte";
-  import BetAmount from "$lib/components/BetController/BetAmount.svelte";
-  import Cashout from "$lib/components/BetController/Cashout.svelte";
+  import BetButton from "$lib/components/bet-controller/BetButton.svelte";
+  import BetAmount from "$lib/components/bet-controller/BetAmount.svelte";
+  import Cashout from "$lib/components/bet-controller/Cashout.svelte";
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import {createEventDispatcher} from "svelte";
   import {fly} from "svelte/transition";
