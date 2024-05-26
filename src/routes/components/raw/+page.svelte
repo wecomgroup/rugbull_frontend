@@ -3,21 +3,28 @@
   import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
   import Modal from "$lib/components/Modal/Modal.svelte";
-  import BetButton from "$lib/components/BetController/BetButton.svelte";
   import Pagination from "$lib/components/BetController/Pagination.svelte";
   import EnergyModule from "$lib/components/BetController/EnergyModule.svelte";
   import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
   import Divider from "$lib/components/layout/Divider.svelte";
   import Logo from "$lib/components/brand/Logo.svelte";
   import LogoSquare from "$lib/components/brand/LogoSquare.svelte";
+  import Comet from "$lib/games/Rugbull2/components/Comet.svelte";
 
   let open = false;
 </script>
 
-<main style="">
+<main>
   <div class="row">
     <Logo/>  <LogoSquare/>
   </div>
+
+
+  <ContainerV2 style="width: 300px; height: 100px; overflow: hidden; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px">
+    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 80 + 20}px)"/>
+    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 80 + 20}px)"/>
+    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 80 + 20}px)"/>
+  </ContainerV2>
 
   <Divider/>
   <BetController/>

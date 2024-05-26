@@ -3,18 +3,30 @@
   export let height = "50px";
   export let src = "/images/rugbull2/crater.webp"
 
-  let totalW;
+  let totalW, imgW, displayW;
 
-  $: adjustedX = Math.abs(x % (totalW / 3)) + (totalW / 3);
+  $: loading = !totalW || !imgW || !displayW;
+  $: needW = displayW * 3 + imgW;
+  $: count = Math.max(3, Math.ceil(needW / imgW));
+
+  $: adjustedX = Math.abs(x % (imgW * Math.floor(count / 2)));
+
 </script>
 
 <div class="scrollable-image"
      style="height:{height}"
+     bind:clientWidth={displayW}
 >
-  <div class="images-wrapper" style="transform: translate(-{adjustedX}px, 0); height:{height}" bind:clientWidth={totalW}>
-    <img alt="crater" {src} />
+  <div class="images-wrapper" style="transform: translate(-{adjustedX}px, 0); height:{height}"
+       bind:clientWidth={totalW}>
+    <div bind:clientWidth={imgW} style="display: flex">
+      <img alt="crater" {src}/>
+    </div>
     <img alt="crater" {src} style="margin-left:-1px"/>
-    <img alt="crater" {src} style="margin-left:-2px"/>
+    <img alt="crater" {src} style="margin-left:-1px"/>
+    {#each Array.from({length: count - 3}) as it,index}
+      <img alt="crater" {src} style="margin-left:-{index+1}px"/>
+    {/each}
   </div>
 </div>
 

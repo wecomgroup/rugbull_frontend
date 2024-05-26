@@ -1,17 +1,11 @@
 <script lang="js">
   export let src;
 
-  let innerHeight
-  let setting = {
-
-    width: "320px",
-    scale: "normal"
-  }
-
-  const settings = [
+  const SETTINGS = [
     {
       label: "mobile 320",
       width: "320px",
+      height: "520px",
       scale: "scale-100"
     },
     {
@@ -36,12 +30,15 @@
     }
   ]
 
+  let innerHeight
+  let setting = SETTINGS[0]
+
 </script>
 <svelte:window bind:innerHeight/>
 
 <main>
   <div class="row">
-    {#each settings as it}
+    {#each SETTINGS as it}
       <button on:click={() => setting= it}>{it.label}</button>
     {/each}
   </div>
@@ -51,7 +48,7 @@
             {src}
             class={setting.scale}
             width="{setting.width}"
-            height="{Math.min(800, Math.floor(innerHeight * 0.8))}px"
+            height="{setting.height || Math.min(800, Math.floor(innerHeight * 0.8))}px"
             frameborder="0"
     />
   </div>
