@@ -16,24 +16,28 @@
 </script>
 
 <div class="pagination-row">
-  <button on:click={() => setPage(1)}>
-    <ChevronFirst/>
-  </button>
-  <button on:click={() => setPage(page - 1)}>
-    <ChevronLeft/>
-  </button>
+  <div class="button-svg-group">
+    <button class="button-svg" on:click={() => setPage(1)}>
+      <ChevronFirst/>
+    </button>
+    <button class="button-svg" on:click={() => setPage(page - 1)}>
+      <ChevronLeft/>
+    </button>
+  </div>
   {#each pages as i}
     <button
         class="button-text"
         data-selected={page === i}
             on:click={() => setPage(i)}>{i}</button>
   {/each}
-  <button on:click={() => setPage(page + 1)}>
-    <ChevronRight/>
-  </button>
-  <button on:click={() => setPage(total)}>
-    <ChevronLast/>
-  </button>
+  <div class="button-svg-group">
+    <button class="button-svg" on:click={() => setPage(page + 1)}>
+      <ChevronRight/>
+    </button>
+    <button class="button-svg" on:click={() => setPage(total)}>
+      <ChevronLast/>
+    </button>
+  </div>
 </div>
 
 <style lang="scss">
@@ -44,18 +48,30 @@
     gap: 8px;
   }
 
-  button {
+  .button-svg-group {
+    display: flex;
+    gap: 4px;
+  }
+  .button-svg {
     display: grid;
     align-items: center;
-    min-width: 16px;
-    min-height: 16px;
+    justify-items: center;
+    min-width: 26px;
 
     & > :global(svg) {
-      width: 18px;
+      width: 16px;
+    }
+
+    &:hover {
+    background-color: var(--gray);
     }
   }
 
   .button-text {
+    display: grid;
+    align-items: center;
+    min-width: 16px;
+    min-height: 16px;
     background-color: #444;
 
     &[data-selected=true] {
@@ -65,7 +81,7 @@
   }
 
   @media (min-width: 375px) {
-    button {
+    .button-text {
       min-width: 26px;
       min-height: 26px;
 

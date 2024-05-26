@@ -5,6 +5,7 @@
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
   import {MENUS} from "$lib/constants/menus.js";
+  import Navbar from "$lib/components/layout/Navbar.svelte";
 
   /// Handle query to localStorage here
   $:{
@@ -20,7 +21,7 @@
   <title>Rugbull</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 </svelte:head>
 
 <div data-theme="dark">

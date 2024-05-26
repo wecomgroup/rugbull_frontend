@@ -89,7 +89,7 @@
         <EyeLoader style="font-size: 0.35px"/>
       </div>
     {:else}
-      <span class="button-text"> {showCashout ? 'Cashout' : 'Bet'} </span>
+      <span class="button-svg"> {showCashout ? 'Cashout' : 'Bet'} </span>
     {/if}
   </BetButton>
 </div>
@@ -117,7 +117,7 @@
     grid-template-columns: 1fr 60px;
     gap: 8px;
 
-    .button-text {
+    .button-svg {
       font-size: 15px;
       writing-mode: vertical-rl;
       line-height: 0;
@@ -130,7 +130,7 @@
       .button-loader {
         min-height: 40px;
       }
-      .button-text {
+      .button-svg {
         font-size: 22px;
         writing-mode: unset;
       }

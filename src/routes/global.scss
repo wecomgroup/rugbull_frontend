@@ -1,8 +1,18 @@
+:root {
+  --action: #FFDF37;
+  --background: #14141b;
+  --text: white;
+  --brand: #0A93FE;
+  --brand-hover: #F6CD84;
+  --gray: #4F5168;
+  --text-gray: #A8AACA;
+}
+
 body {
   background-color: var(--background);
   color: var(--text);
 
-  font-family: 'Inter', sans-serif;
+  font-family: 'Rubik', sans-serif;
 
   margin: 0;
 }
@@ -55,14 +65,6 @@ button, input[type="submit"], input[type="reset"] {
 .tag {
   background-color: #3b4a60;
   padding: 4px 8px;
-}
-
-:root {
-  --background: #14141b;
-  --text: white;
-  --brand: #F9BB4B;
-  --brand-hover: #F6CD84;
-  --gray: #6f767e;
 }
 
 

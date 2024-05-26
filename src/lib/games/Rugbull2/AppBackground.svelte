@@ -1,11 +1,9 @@
 <script lang="js">
   import {spring} from 'svelte/motion';
-  import {fly} from 'svelte/transition';
   import {onMount} from "svelte";
   import ScrollableImage from "$lib/games/Rugbull2/components/ScrollableImage.svelte";
-  import {createAnimationLoop} from "$lib";
   import Comet from "$lib/games/Rugbull2/components/Comet.svelte";
-  import ContainerV2 from "$lib/components/BetController/ContainerV2.svelte";
+  import CometsAnimation from "$lib/games/Rugbull2/components/CometsAnimation.svelte";
 
   const START = -500
   const backgroundX = spring(0, {
@@ -46,10 +44,8 @@
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars.webp" style="object-fit: cover"/>
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
 
-  <div id="comets" class="grid-top" style="margin: 0 20px;width: 100%; display: grid; grid-template-columns: repeat(3, 1fr)">
-    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 200 + 20}px)"/>
-    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 200 + 20}px)"/>
-    <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 200 + 20}px)"/>
+  <div class="grid-top">
+    <CometsAnimation />
   </div>
 
 </div>

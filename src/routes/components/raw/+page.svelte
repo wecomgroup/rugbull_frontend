@@ -10,6 +10,7 @@
   import Logo from "$lib/components/brand/Logo.svelte";
   import LogoSquare from "$lib/components/brand/LogoSquare.svelte";
   import Comet from "$lib/games/Rugbull2/components/Comet.svelte";
+  import Wallet from "$lib/components/wallet/WalletMobile.svelte";
 
   let open = false;
 </script>
@@ -19,6 +20,9 @@
     <Logo/>  <LogoSquare/>
   </div>
 
+  <Divider/>
+  <Wallet/>
+  <Divider/>
 
   <ContainerV2 style="width: 300px; height: 100px; overflow: hidden; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px">
     <Comet style="transform: translate({Math.random() * 100}%, {Math.random() * 80 + 20}px)"/>
