@@ -1,33 +1,44 @@
 <script>
+  import {spring} from 'svelte/motion';
+  import {onMount} from "svelte";
+
   export let energyMax = 1500;
   export let energyAmount = 350;
+  export let coinAmount = 5423.2392;
+
+  const _start = spring(-20, {stiffness: 0.06})
+  const _energyAmount = spring(0);
+
+  $: _energyAmount.set(energyAmount);
+
+  onMount(() => {
+    _start.set(0);
+  });
 
 </script>
 
-<div id="energy-line">
-  <div class="row">
-    {energyAmount.toFixed(2)} <span class="text-gray">/ {energyMax}</span>
-    <img alt="coin" src="/images/user/energy.svg"/>
+<div class="grid justify-items-end" style="gap: 2px">
+  <div class="grid justify-items-end" style="overflow: hidden">
+    <div class="flex items-center gap-1" style="transform: translate(0, {-$_start}px)">
+      {energyAmount.toFixed(2)} <span class="text-gray">/ {energyMax}</span>
+      <img alt="coin" src="/images/user/energy.svg"/>
+    </div>
   </div>
-  <div id="line">
-    <div id="line-background"/>
-    <div id="line-fill" style="width: {energyAmount/energyMax * 100}%"/>
+  <div class="line grid">
+    <div class="line-background"/>
+    <div class="line-fill" style="width: {$_energyAmount/energyMax * 100}%"/>
+  </div>
+  <div style="overflow: hidden">
+    <div class="flex items-center gap-1"  style=" transform: translate(0, {$_start}px)" >
+      {coinAmount}
+      <img alt="coin" src="/images/user/coin.svg"/>
+    </div>
   </div>
 </div>
 
 <style lang="scss">
-  #energy-line {
-    display: grid;
-    justify-items: flex-end;
-  }
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
 
-  #line {
-    display: grid;
+  .line {
     min-width: 140px;
 
     & > * {
@@ -37,11 +48,11 @@
       border-radius: 6px;
     }
 
-    #line-fill {
+    .line-fill {
       background-color: var(--brand);
     }
 
-    #line-background {
+    .line-background {
       background-color: var(--gray);
     }
   }

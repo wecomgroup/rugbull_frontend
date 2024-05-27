@@ -32,6 +32,50 @@
   flex: none
 }
 
+// Grid
+.cols-2 {
+  grid-template-columns: repeat(2, 1fr)
+}
+
+// Justify Items
+.justify-items-center {
+  justify-items: center
+}
+
+.justify-items-start {
+  justify-items: flex-start
+}
+
+.justify-items-end {
+  justify-items: flex-end
+}
+
+.justify-items-stretch {
+  justify-items: stretch
+}
+
+// Alignment
+.items-center {
+  align-items: center
+}
+
+.items-start {
+  align-items: flex-start
+}
+
+.items-end {
+  align-items: flex-end
+}
+
+.items-baseline {
+  align-items: baseline
+}
+
+.items-stretch {
+  align-items: stretch
+}
+
+
 // PADDING
 @each $i in 0 1 2 3 4 {
   .gap-#{$i} {

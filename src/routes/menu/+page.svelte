@@ -3,8 +3,12 @@
 </script>
 
 <div>
-  {#each MENUS as menu}
-    <a href="{menu.href}">{menu.label}</a>
+  {#each MENUS as it}
+    {#if typeof it === "object"}
+      <a href="{it.href}">{it.label}</a>
+    {:else}
+      <a href="{it}">{it}</a>
+    {/if}
   {/each}
 </div>
 
@@ -16,6 +20,7 @@
 
   a {
     padding: 4px 8px;
+
     &:hover {
       background-color: darkgrey;
       color: black;

@@ -1,4 +1,4 @@
-<script>
+<script lang="js">
   import {onMount} from "svelte";
   import {goto} from "$app/navigation";
 
@@ -6,7 +6,7 @@
   let search = "";
   let selectedIndex = 0;
 
-  /** @type {Array.<{label: string, href: string}>} */
+  /** @type {Array.<{label: string, href: string} | string>} */
   export let menus = [];
 
   onMount(() => {
@@ -17,6 +17,7 @@
       if (e.metaKey && e.key === 'k') {
         show = !show;
         search = ""
+        e.preventDefault()
       }
     }
 
@@ -26,7 +27,13 @@
     }
   })
 
-  $: filteredMenu = menus.filter(menu => menu.href.toLowerCase().includes(search.toLowerCase()) || menu.label.toLowerCase().includes(search.toLowerCase()));
+  $: filteredMenu = menus.filter(it => {
+    if (typeof it === "object") {
+      return it.href.toLowerCase().includes(search.toLowerCase()) || it.label.toLowerCase().includes(search.toLowerCase())
+    } else {
+      return it.toLowerCase().includes(search.toLowerCase())
+    }
+  });
 
   /**
    * @param e {KeyboardEvent}
@@ -35,7 +42,9 @@
   function handleInputKeyDown(e) {
     if (e.key === 'Enter') {
       if (filteredMenu.length > 0) {
-        goto(filteredMenu[0].href);
+        const selectedMenu = filteredMenu[selectedIndex]
+        if (typeof selectedMenu === 'object') goto(selectedMenu.href);
+        else goto(selectedMenu)
         show = false;
       }
     } else if (e.key === "ArrowDown") {
@@ -55,12 +64,15 @@
 {#if show}
   <div class="command-component">
     <div>
-
       <input bind:value={search}
              on:keydown={handleInputKeyDown}
              autofocus/>
-      {#each filteredMenu as menu, index}
-        <a class:selected={index === selectedIndex} href={menu.href}>{menu.label}</a>
+      {#each filteredMenu as it, index}
+        {#if typeof it === "object"}
+          <a class:selected={index === selectedIndex} href={it.href}>{it.label}</a>
+        {:else}
+          <a class:selected={index === selectedIndex} href={it}>{it}</a>
+        {/if}
       {/each}
     </div>
   </div>
