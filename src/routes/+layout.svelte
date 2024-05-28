@@ -1,6 +1,6 @@
 <script>
   import '$lib/styles/global.scss'
-  import Command from "$lib/components/CommandMenu/CommandMenu.svelte";
+  import Command from "$lib/components/layout/CommandMenu.svelte";
   import {page} from '$app/stores'
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";

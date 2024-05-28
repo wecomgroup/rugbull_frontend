@@ -39,13 +39,13 @@
 <style lang="scss">
 
   .line {
-    min-width: 140px;
+    min-width: 10rem;
 
     & > * {
       grid-row: 1;
       grid-column: 1;
-      height: 4px;
-      border-radius: 6px;
+      height: .25rem;
+      border-radius: .5rem;
     }
 
     .line-fill {

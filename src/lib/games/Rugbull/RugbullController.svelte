@@ -3,7 +3,7 @@
   import {io, type Socket} from 'socket.io-client';
   import {onMount} from 'svelte';
   import dayjs from "dayjs";
-  import ShareLink from "$lib/components/ShareLink/ShareLink.svelte";
+  import ShareLink from "$lib/components/display/ShareLink.svelte";
   import {hashToNumber} from './decrypt'
   import {fly} from 'svelte/transition';
   import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";

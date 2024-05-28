@@ -2,7 +2,7 @@
   import BetController from "$lib/components/bet-controller/BetController.svelte";
   import HamsterLoader from "$lib/components/loaders/HamsterLoader.svelte";
   import SimpleLoader from "$lib/components/loaders/SimpleLoader.svelte";
-  import Modal from "$lib/components/Modal/Modal.svelte";
+  import Modal from "$lib/components/modals/Modal.svelte";
   import Pagination from "$lib/components/bet-controller/Pagination.svelte";
   import EnergyModule from "$lib/components/bet-controller/EnergyModule.svelte";
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
@@ -11,8 +11,22 @@
   import LogoSquare from "$lib/components/brand/LogoSquare.svelte";
   import Comet from "$lib/games/Rugbull2/components/Comet.svelte";
   import Navbar from "$lib/components/layout/Navbar.svelte";
+  import ResultNumber from "$lib/games/Rugbull2/components/ResultNumber.svelte";
+  import ResultsRow from "$lib/games/Rugbull2/components/ResultsRow.svelte";
+  import {spring} from "svelte/motion";
+  import {onMount} from "svelte";
+  import IconButton from "$lib/components/buttons/IconButton.svelte";
+  import SoundOffIcon from "$lib/icons/SoundOffIcon.svelte";
+  import ShieldIcon from "$lib/icons/ShieldIcon.svelte";
+  import SoundOnIcon from "$lib/icons/SoundOnIcon.svelte";
 
   let open = false;
+
+  const time = spring(0);
+
+  onMount(() => {
+    time.set(1)
+  });
 </script>
 
 <Navbar/>
@@ -20,6 +34,16 @@
   <div class="row">
     <Logo/>  <LogoSquare/>
   </div>
+
+
+  <Divider/>
+
+  <ContainerV2 style="display: flex; gap: 0.5rem">
+    <IconButton iconTrue={ShieldIcon} iconFalse={ShieldIcon}/>
+    <IconButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+    <ResultsRow/>
+  </ContainerV2>
+
 
   <Divider/>
 

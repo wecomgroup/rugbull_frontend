@@ -36,7 +36,7 @@
   import BetModuleAmount from "$lib/components/bet-controller/BetModuleAmount.svelte";
   import BetModuleCashout from "$lib/components/bet-controller/BetModuleCashout.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
-  import Modal from "$lib/components/Modal/Modal.svelte";
+  import Modal from "$lib/components/modals/Modal.svelte";
   import {createEventDispatcher, onMount} from 'svelte';
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
 

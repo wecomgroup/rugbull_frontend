@@ -86,6 +86,15 @@
     padding: $i * .25rem;
   }
 
+  .px-#{$i} {
+    padding-left: $i * .25rem;
+    padding-right: $i * .25rem;
+  }
+  .py-#{$i} {
+    padding-bottom: $i * .25rem;
+    padding-top: $i * .25rem;
+  }
+
   .rounded-#{$i} {
     border-radius: $i * .25rem;
   }

@@ -1,6 +1,14 @@
 @import './layout';
 @import './remove-default';
 
+html {
+  font-size: 12px;
+
+  @media (min-width: 375px) {
+    font-size: 16px;
+  }
+}
+
 :root {
   --action: #FFDF37;
   --background: #14141b;
