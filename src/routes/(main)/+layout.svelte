@@ -3,4 +3,6 @@
 </script>
 
 <Navbar/>
+
 <slot/>
+

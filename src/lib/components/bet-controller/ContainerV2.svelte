@@ -2,7 +2,8 @@
   export let style = undefined;
   export let glow = undefined
 </script>
-<div class="container-v2" data-glow={glow || undefined} style={style}>
+
+<div class="container-v2 {$$restProps.class || ''}" data-glow={glow || undefined} style={style}>
   <slot/>
 </div>
 

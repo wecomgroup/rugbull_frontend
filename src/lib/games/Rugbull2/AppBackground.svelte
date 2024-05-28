@@ -29,7 +29,7 @@
 </script>
 
 <!--Background -->
-<div class="background">
+<div class="background noselect">
 
   <!--Crater -->
   <div class="ground grid-ground">

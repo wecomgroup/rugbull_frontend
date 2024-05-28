@@ -31,7 +31,7 @@
   ]
 
   let innerHeight
-  let setting = SETTINGS[0]
+  let setting = SETTINGS[1]
 
 </script>
 <svelte:window bind:innerHeight/>

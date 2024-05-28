@@ -11,13 +11,14 @@ html {
 
 :root {
   --action: #FFDF37;
-  --background: #14141b;
+  --background: #1A1D2C;
   --text: white;
   --brand: #0A93FE;
   --brand-hover: #F6CD84;
   --gray: #4F5168;
   --text-gray: #A8AACA;
   --hover: #A8AACA;
+
 }
 
 body {
@@ -88,4 +89,14 @@ a {
     background-color: #252525;
   }
 
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }

@@ -2,6 +2,7 @@
   const MENUS = [
     '/dev/components',
     '/dev/games/rugbull2',
+    '/dev/home',
   ]
 </script>
 

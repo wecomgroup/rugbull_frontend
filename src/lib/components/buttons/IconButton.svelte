@@ -1,33 +1,33 @@
 <script>
-  export let iconFalse;
-  export let iconTrue;
-  export let selected = false;
+  import {createEventDispatcher} from "svelte";
+
+  export let icon;
+
+  const dispatch = createEventDispatcher();
+
+  function onClick () {
+    dispatch('click');
+  }
 </script>
 
 <button
     class="grid items-center"
-    on:click={() => selected =!selected}
-        data-selected="{selected}"
+    on:click={onClick}
 >
-  <svelte:component this={selected ? iconTrue : iconFalse}/>
+  <svelte:component this={icon}/>
 </button>
 
 <style>
   button {
-    background-color: transparent;
+    background-color: #202539;
     color: #4F5168;
-    border: 2px solid #333853;
+    border: 2px solid #24273A;
     border-radius: 0.5rem;
 
     width: 2rem;
     height: 2rem;
     display: grid;
     padding: 2px;
-  }
 
-  button[data-selected=true] {
-    background-color: #1E2233;
-    color: #4F5168;
-    border: 2px solid transparent;
   }
 </style>

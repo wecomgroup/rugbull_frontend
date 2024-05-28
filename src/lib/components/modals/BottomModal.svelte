@@ -1,6 +1,7 @@
 <script>
   import {fly, fade} from 'svelte/transition'
-  import CloseIcon from "$lib/icons/CloseIcon.svelte";
+  import CloseIcon2 from "$lib/icons/CloseIcon2.svelte";
+  import IconButton from "$lib/components/buttons/IconButton.svelte";
 
   export let open
   export let showCloseIcon = false;
@@ -8,7 +9,6 @@
   export let fullscreen = false;
   export let modalWidth = 420;
   export let allowScroll = false;
-  export let hideTitle = false;
 
   function close() {
     open = false
@@ -49,8 +49,8 @@
   >
     <button class="container"
             on:click={handle}
-            in:fly={{y: 20}}
-            out:fly={{y: 20}}
+            in:fly={{y: 60}}
+            out:fly={{y: 60}}
             on:touchstart={handleTouchStart}
             on:touchmove={handleTouchMove}
             data-variant={fullscreen ? "fullscreen" : ""}
@@ -59,18 +59,15 @@
       <div class="container-inside"
            data-variant={fullscreen ? "fullscreen" : ""}
       >
-        {#if !hideTitle}
-          <div class="title">
-            <slot name="title"/>
-          </div>
-        {/if}
         <div class="body">
-          <slot name="body"/>
-        </div>
+          <slot name="body"/> </div>
         {#if showCloseIcon}
-          <button class="close-icon" on:click={close}>
-            <CloseIcon/>
-          </button>
+          <div class="close-icon">
+            <IconButton
+                icon={CloseIcon2}
+                on:click={close}
+            />
+          </div>
         {/if}
       </div>
     </button>
@@ -86,6 +83,9 @@
     width: 100vw;
     height: 100vh;
     z-index: 1000;
+
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(10px);
   }
 
   .Modal[data-variant="fullscreen"] {
@@ -94,18 +94,22 @@
 
   .container {
     position: fixed;
-    top: 50%;
+    bottom: 0;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: calc(100vw - 20px);
+
+    transform: translate(-50%);
+
+    width: calc(100vw);
+
     max-width: 400px;
     box-sizing: border-box;
-    border-radius: 20px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 
     background-color: var(--background);
     padding: 0.5em;
 
-    border: 1px solid currentColor;
+    border: 2px solid #24273A;
   }
 
   .container[data-variant="fullscreen"] {
@@ -125,14 +129,6 @@
     padding: 0em;
   }
 
-  .title {
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-
-    padding-bottom: 0.5em;
-  }
-
   .body {
     text-align: center;
     white-space: pre-wrap;
@@ -142,14 +138,7 @@
     position: absolute;
     top: 0;
     right: 0;
-    padding: 0.5em;
-
-    border: 2px solid var(--yellow);
-    border-radius: 100%;
-
-    transform: translate(0, -100%);
-
-    cursor: pointer;
+    padding: 0.5rem;
   }
 
   .Modal[data-has-close-icon="true"] {

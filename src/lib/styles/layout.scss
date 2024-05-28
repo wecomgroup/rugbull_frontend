@@ -94,6 +94,42 @@
     padding-bottom: $i * .25rem;
     padding-top: $i * .25rem;
   }
+  .pt-#{$i} {
+    padding-top: $i * .25rem;
+  }
+  .pb-#{$i} {
+    padding-bottom: $i * .25rem;
+  }
+  .pl-#{$i} {
+    padding-left: $i * .25rem;
+  }
+  .pr-#{$i} {
+    padding-right: $i * .25rem;
+  }
+
+  .m-#{$i} {
+    margin: $i * .25rem;
+  }
+  .mx-#{$i} {
+    margin-left: $i * .25rem;
+    margin-right: $i * .25rem;
+  }
+  .my-#{$i} {
+    margin-bottom: $i * .25rem;
+    margin-top: $i * .25rem;
+  }
+  .mt-#{$i} {
+    margin-top: $i * .25rem;
+  }
+  .mb-#{$i} {
+    margin-bottom: $i * .25rem;
+  }
+  .ml-#{$i} {
+    margin-left: $i * .25rem;
+  }
+  .mr-#{$i} {
+    margin-right: $i * .25rem;
+  }
 
   .rounded-#{$i} {
     border-radius: $i * .25rem;
