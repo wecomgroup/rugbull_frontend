@@ -2,7 +2,6 @@
   import {spring} from 'svelte/motion';
   import {onMount} from "svelte";
   import ScrollableImage from "$lib/games/Rugbull2/components/ScrollableImage.svelte";
-  import Comet from "$lib/games/Rugbull2/components/Comet.svelte";
   import CometsAnimation from "$lib/games/Rugbull2/components/CometsAnimation.svelte";
 
   const START = -500

@@ -103,11 +103,32 @@ declare global {
     }
   }
 
+  namespace Rugbull {
+    interface Setting {
+      auto: boolean;
+      cashoutMultiplier: number;
+      betAmount: number;
+    }
+
+    interface Record {
+      id: number,
+      auto: boolean,
+      amount: number,
+    }
+
+    interface UserEscape {
+      multiplier: number,
+      userName: string,
+      time: number,
+    }
+  }
+
   namespace AuthAPI {
     interface LoginResult {
       token?: string,
     }
   }
+
   namespace Telegram {
     interface UserData {
       id: number,

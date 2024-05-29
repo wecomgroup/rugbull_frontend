@@ -51,8 +51,10 @@
     <IconButton icon={CloseIcon2}/>
     <IconToggleButton iconTrue={ShieldIcon} iconFalse={ShieldIcon}/>
     <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
-    <ResultsRow/>
 
+  </ContainerV2>
+  <ContainerV2 class="flex gap-2">
+    <ResultsRow/>
   </ContainerV2>
 
   <ContainerV2>

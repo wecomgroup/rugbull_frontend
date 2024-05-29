@@ -20,17 +20,6 @@
   export let debug = false;
 
   /// TYPE
-  interface Setting {
-    auto: boolean;
-    cashoutMultiplier: number;
-    betAmount: number;
-  }
-
-  interface Record {
-    id: number,
-    auto: boolean,
-    amount: number,
-  }
 
   /// STATE
   let clientSeed = undefined;
@@ -50,7 +39,7 @@
   let currentRound: string | null = null;
   let messages: string[] = []
   let errorMessage: string | undefined;
-  let records: [Record?, Record?] = [];
+  let records: [Rugbull.Record?, Rugbull.Record?] = [];
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
@@ -296,7 +285,7 @@
       }))
   }
 
-  function postMakeBet(socket: Socket, index: number, setting: Setting) {
+  function postMakeBet(socket: Socket, index: number, setting: Rugbull.Setting) {
     errorMessage = undefined;
     const coinType = useBonus ? 2 : 1;
     const payload = {

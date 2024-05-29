@@ -40,7 +40,6 @@
 {#if open}
   <button class="Modal"
           on:click={closeWhenClickOutside && close}
-          in:fade
           out:fade
           data-has-close-icon={showCloseIcon}
           on:wheel={preventScroll}

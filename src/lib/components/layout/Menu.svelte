@@ -11,7 +11,7 @@
   const MENUS = [
     {icon: GameIcon, label: "Game", href: "/",},
     {icon: PeopleIcon, label: "Referral System", href: "/referral" },
-    {icon: CardsIcon, label: "Magic Cards", href: "/cards"},
+    {icon: CardsIcon, label: "Magic Cards", href: "/magic-cards"},
   ]
 </script>
 
