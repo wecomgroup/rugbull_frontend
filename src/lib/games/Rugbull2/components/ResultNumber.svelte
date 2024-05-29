@@ -3,9 +3,12 @@
 
   $: level = value > 10 ? 4 : value > 5 ? 3 : value > 2 ? 2 : 1;
 
+  function format(v) {
+    return v.toFixed(2)
+  }
 </script>
 
-<div class="grid items-center px-2 rounded-2 level-{level}">{value}</div>
+<div class="grid items-center px-2 rounded-2 level-{level}">{format(value)}</div>
 
 <style>
   div {

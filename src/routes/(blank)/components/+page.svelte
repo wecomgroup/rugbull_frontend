@@ -53,7 +53,7 @@
     <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
 
   </ContainerV2>
-  <ContainerV2 class="flex gap-2">
+  <ContainerV2 class="grid" >
     <ResultsRow/>
   </ContainerV2>
 

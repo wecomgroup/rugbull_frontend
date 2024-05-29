@@ -44,9 +44,12 @@
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
 
   <div class="grid-top">
-    <CometsAnimation />
+    <CometsAnimation/>
   </div>
 
+  <div class="grid-header" style="z-index: 2">
+    <slot name="header"/>
+  </div>
 </div>
 
 
@@ -57,20 +60,25 @@
     overflow: hidden;
 
     display: grid;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: auto 1fr auto;
 
     .grid-full {
-      grid-row: 1/-1;
+      grid-row: 1 / -1;
       grid-column: 1;
       width: 100%;
     }
 
     .grid-ground {
-      grid-row: 2;
+      grid-row: 3;
       grid-column: 1;
     }
 
     .grid-top {
+      grid-row: 1/span 2;
+      grid-column: 1;
+    }
+
+    .grid-header {
       grid-row: 1;
       grid-column: 1;
     }

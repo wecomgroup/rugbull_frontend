@@ -16,6 +16,10 @@
   import BonusModule from "$lib/components/bet-controller/BonusModule.svelte";
   import {hashToNumber} from "$lib/games/Rugbull/decrypt";
   import ResultsRow from "$lib/games/Rugbull2/components/ResultsRow.svelte";
+  import ShieldIcon from "$lib/icons/ShieldIcon.svelte";
+  import SoundOnIcon from "$lib/icons/SoundOnIcon.svelte";
+  import SoundOffIcon from "$lib/icons/SoundOffIcon.svelte";
+  import IconToggleButton from "$lib/components/buttons/IconToggleButton.svelte";
 
   export let debug = false;
 
@@ -401,6 +405,11 @@
   }
 </script>
 
-<AppBackground/>
+<AppBackground>
+  <div slot="header" class="grid gap-2 p-2" style="grid-template-columns: auto auto 1fr">
+    <IconToggleButton iconTrue={ShieldIcon} iconFalse={ShieldIcon} selected={true}/>
+    <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+    <ResultsRow results={multiplierHistory}/>
+  </div>
+</AppBackground>
 
-<ResultsRow results={multiplierHistory}/>
