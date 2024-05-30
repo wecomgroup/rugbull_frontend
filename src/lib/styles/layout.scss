@@ -32,9 +32,25 @@
   flex: none
 }
 
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
 // Grid
 .cols-2 {
   grid-template-columns: repeat(2, 1fr)
+}
+
+// Size
+.w-full {
+  width: 100%
+}
+.h-full {
+  height: 100%;
 }
 
 // Justify Items
@@ -74,7 +90,6 @@
 .items-stretch {
   align-items: stretch
 }
-
 
 // PADDING
 @each $i in 0 1 2 3 4 {

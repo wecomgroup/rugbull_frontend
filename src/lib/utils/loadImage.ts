@@ -1,4 +1,4 @@
-import {writable, type Writable} from 'svelte/store';
+import {writable} from 'svelte/store';
 import isBrowser from "$lib/utils/isBrowser";
 
 export default function (src: string) {
