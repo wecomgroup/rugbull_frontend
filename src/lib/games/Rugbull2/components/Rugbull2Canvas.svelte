@@ -9,6 +9,7 @@
   export let width = 400;
   export let height = 300;
   export let state = 0;
+  export let distance = 0;
 
   const bullSize = 100;
   const QUARTER = Math.PI / 4;
@@ -42,6 +43,9 @@
     new Sprite('/images/rugbull2/sprites/a.webp', {
       columns: 2,
     }),
+    new Sprite('/images/rugbull2/sprites/a.webp', {
+      columns: 2,
+    }),
     new Sprite('/images/rugbull2/sprites/b.webp', {
       columns: 2,
     }),
@@ -58,6 +62,9 @@
 
   const booster = new Sprite('/images/rugbull2/sprites/fire.webp', {
     columns: 8,
+  })
+  const flag = new Sprite('/images/rugbull2/sprites/flag.webp', {
+    rows: 5,
   })
 
   onMount(() => {
@@ -117,25 +124,20 @@
         ctx.save()
         ctx.translate(x, y)
 
-        const fireScale = [0, 0.5, 0.7, 1]
-        const firePlacement = [1.2, 1.3, 1.2, 1.15]
-        const bullScale = [1, 1.2, 1.4, 1.6, 2.0]
-
-        if (state >= 1 && state <= 3) {
-          block(() => {
-            ctx.scale(fireScale[state], fireScale[state])
-            ctx.rotate(-3 * QUARTER)
-            ctx.translate(-0.5 * bullSize, -(firePlacement[state]) * booster.heightOf(bullSize))
-            booster.draw(ctx, t, 0, 0, bullSize)
-          })
-        }
+        const fireScale = [0, 0.4, 0.6, 0.9, 1.2, 0.4]
+        const firePlacement = [0, 1.3, 1.3, 1.2, 1.15, -.3]
+        const bullScale = [1, 1, 1.2, 1.4, 1.6, 2.0]
+        const angle = [0, -0.2, -0.5, -0.60, -0.8]
 
         block(() => {
-          if (state >= 1 && state <= 3) {
-            ctx.rotate(-0.6 * QUARTER)
-            ctx.scale(bullScale[state], bullScale[state])
-          }
+          ctx.scale(fireScale[state], fireScale[state])
+          ctx.rotate((-2.3 +angle[state]) * QUARTER)
+          ctx.translate(-0.5 * bullSize, -(firePlacement[state]) * booster.heightOf(bullSize))
+          booster.draw(ctx, t, 0, 0, bullSize)
+        })
 
+        block(() => {
+          ctx.rotate(angle[state] * QUARTER)
           ctx.scale(bullScale[state], bullScale[state])
           ctx.translate(-0.5 * bullSize, -0.5 * bulls[state].heightOf(bullSize))
           bulls[state].draw(ctx, t, 0, 0, bullSize)
@@ -145,12 +147,22 @@
         ctx.restore()
       }
 
+      function drawFlag(){
+        const x = 130 - distance
+        const y = h - 50
+        block(() => {
+          ctx.translate(x, y)
+          flag.draw(ctx, t, 0, -flag.heightOf(100), 100)
+        })
+      }
+
       /// DRAW
 
 
       const {x, y} = getBullLocation()
+      drawFlag()
       drawBull(x, y)
-      drawCorners({canvasWidth: w, canvasHeight: h})
+      // drawCorners({canvasWidth: w, canvasHeight: h})
 
       /// FINAL
       ctx.restore()

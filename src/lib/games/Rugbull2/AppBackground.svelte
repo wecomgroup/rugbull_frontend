@@ -1,29 +1,9 @@
 <script lang="js">
-  import {spring} from 'svelte/motion';
-  import {onMount} from "svelte";
   import ScrollableImage from "$lib/games/Rugbull2/components/ScrollableImage.svelte";
   import CometsAnimation from "$lib/games/Rugbull2/components/CometsAnimation.svelte";
 
   export let distance = 0;
-
-  const backgroundX = spring(0, {
-    stiffness: 0.1,
-  });
-
-
-  onMount(() => {
-    function mouseMove(e) {
-      backgroundX.update(x => x - e.clientX * 0.2);
-    }
-
-    window.addEventListener('mousemove', mouseMove);
-    return () => {
-      window.removeEventListener('mousemove', mouseMove);
-    }
-  })
-
-  $: backgroundX.set(distance)
-
+  export let speed = 1;
 </script>
 
 <!--Background -->
@@ -31,7 +11,7 @@
 
   <!--Crater -->
   <div class="ground grid-ground">
-    <ScrollableImage x={$backgroundX}
+    <ScrollableImage x={distance}
                      height="100px"
                      src="/images/rugbull2/crater.webp"
     />
@@ -43,7 +23,7 @@
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
 
   <div class="grid-top">
-    <CometsAnimation style="height: 60%;"/>
+    <CometsAnimation speed={speed} style="height: 60%;"/>
   </div>
 
   <div class="grid-header" style="z-index: 2">

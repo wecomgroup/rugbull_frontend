@@ -59,7 +59,8 @@
   let userEscapes: Rugbull.UserEscape[] = [];
   let useBonus = false;
   let bullState = 0;
-  let distance = 0;
+
+ const distance = spring(0, {stiffness: 0.05});
 
   const bonus = spring(0);
 
@@ -76,25 +77,26 @@
 
   $: {
     if (state === "running") {
-      distance = 500 + multiplier * 300
-      if (multiplier > 1.2) {
-        bullState = 1;
+      if (multiplier > 10){
+        bullState = 4;
       }
       else if (multiplier > 2){
-        bullState = 2;
-      }
-      else if (multiplier > 10){
         bullState = 3;
       }
-      else {
-        bullState = 0
+      else if (multiplier > 1.2) {
+        bullState = 2;
       }
+      else {
+        bullState = 1
+      }
+
+      distance .set( (multiplier - 1) * 1000 * (bullState * 1.2))
     }
     else if (state === "stopped"){
-      bullState = 4;
+      bullState = 5;
     }
     else {
-      distance = 0
+      distance.set(0)
       bullState = 0;
     }
   }
@@ -467,7 +469,7 @@
   }
 </script>
 
-<AppBackground {distance}>
+<AppBackground speed={multiplier} distance={$distance}>
   <div
       slot="header"
       class="grid gap-2 p-2"
@@ -503,6 +505,7 @@
           height={300}
           state={bullState}
           style="width: 100%"
+          distance={$distance}
       />
     </div>
   </div>

@@ -6,12 +6,15 @@
   import {spring} from 'svelte/motion';
 
   export let style = undefined;
-  export let restartAfter = 1000;
+  export let restartAfter = 4000;
+  export let speed = 1;
 
-  let speed = Math.random() * 0.5 + 0.5
-  const time = spring()
+  let count = 0;
+
+  const time = spring(0, {stiffness: 0.2})
 
   function restart() {
+    count++;
     time.set(-1000, {hard: true})
     time.set(0)
   }
@@ -32,13 +35,15 @@
   $: if ($time > restartAfter) restart()
 
 </script>
-<div {style}>
-  <div class="comet" style="transform: translate({x}px, {y}px)">
-    <img alt="comet" src="/images/rugbull2/comet.webp"
-         style="transform: rotate(-45deg) scale(0.3);"
-    />
+{#key count}
+  <div style="transform: translate({Math.random() * 100}%, {Math.random() * 200 + 20}px)">
+    <div class="comet" style="transform: translate({x}px, {y}px)">
+      <img alt="comet" src="/images/rugbull2/comet.webp"
+           style="transform: rotate(-45deg) scale(0.3);"
+      />
+    </div>
   </div>
-</div>
+{/key}
 
 <style>
   .comet {
