@@ -1,6 +1,9 @@
 <script lang="js">
   export let ctx = undefined;
   export let style = undefined;
+  export let width = 400;
+  export let height = 400;
+
   let el
 
   $: {
@@ -15,5 +18,7 @@
 
 <canvas
     bind:this={el}
+    {width}
+    {height}
     {style}
 />

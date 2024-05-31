@@ -1,11 +1,17 @@
-<script>
+<script lang="js">
   import {onMount} from "svelte";
   import {spring} from "svelte/motion";
   import Canvas2 from "$lib/components/animation/Canvas2.svelte";
-  import loadImage from "$lib/utils/loadImage";
   import {Sprite} from "$lib/utils/Sprite.js";
+  import {interpolateBezierCurve} from "$lib/utils/interpolate.js";
 
   export let style = undefined;
+  export let width = 400;
+  export let height = 300;
+  export let state = 0;
+
+  const bullSize = 100;
+  const QUARTER = Math.PI / 4;
 
   /** @type CanvasRenderingContext2D */
   let ctx
@@ -13,17 +19,45 @@
   let drawCount = 0
   let t = Date.now();
 
+  const bullPosition = spring(0, {stiffness: 0.03});
+
   const start = spring(0);
   onMount(() => {
     start.set(100);
   });
+  $: {
+    if (state === 0) {
+      bullPosition.set(0, {hard: true})
+    } else if (state > 0) {
+      bullPosition.set(1)
+    }
+  }
 
   const RED = "red"
   const BLACK = "black"
 
   /// IMAGES
-  const bullA = new Sprite('/images/rugbull2/bull/a-sprite.png', {
-    columns: 2,
+
+  const bulls = [
+    new Sprite('/images/rugbull2/sprites/a.webp', {
+      columns: 2,
+    }),
+    new Sprite('/images/rugbull2/sprites/b.webp', {
+      columns: 2,
+    }),
+    new Sprite('/images/rugbull2/sprites/c.webp', {
+      columns: 2,
+    }),
+    new Sprite('/images/rugbull2/sprites/d.webp', {
+      columns: 2,
+    }),
+    new Sprite('/images/rugbull2/sprites/smoke.webp', {
+      rows: 10,
+    })
+  ]
+
+  const booster = new Sprite('/images/rugbull2/sprites/fire.webp', {
+    columns: 8,
   })
 
   onMount(() => {
@@ -39,22 +73,91 @@
     if (ctx) {
       drawCount++
 
-      const {width: canvasWidth, height: canvasHeight} = ctx.canvas
-      log = `${canvasWidth} x ${canvasHeight}`
+      /// CLEAR CANVAS
+      const {width: w, height: h} = ctx.canvas
+      log = `${w} x ${h}`
 
       ctx.save();
 
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.clearRect(0, 0, w, h);
 
-      ctx.fillStyle = RED;
+      function block(fn) {
+        ctx.save()
+        fn()
+        ctx.restore()
+      }
 
-      bullA.draw(ctx, t, 0, 0, 100)
+      /// DRAW FUNCTIONS
+      /// draw square at 4 corners
+      function drawCorners({canvasWidth, canvasHeight}) {
+        const size = 10;
+        ctx.fillStyle = RED;
+        ctx.fillRect(0, 0, size, size)
+        ctx.fillRect(canvasWidth - size, 0, size, size)
+        ctx.fillRect(0, canvasHeight - size, size, size)
+        ctx.fillRect(canvasWidth - size, canvasHeight - size, size, size)
+      }
+
+      function drawPoint() {
+        ctx.fillStyle = RED;
+        ctx.fillRect(-5, -5, 10, 10);
+      }
+
+      function getBullLocation() {
+        const yBottom = h - bulls[0].heightOf(bullSize) / 2
+        return interpolateBezierCurve(
+          [bullSize / 2 + 10, yBottom],
+          [w / 2 + 10, yBottom],
+          [w / 2 + 10, h / 2 - 40],
+          $bullPosition
+        )
+      }
+
+      function drawBull(x, y) {
+        ctx.save()
+        ctx.translate(x, y)
+
+        const fireScale = [0, 0.5, 0.7, 1]
+        const firePlacement = [1.2, 1.3, 1.2, 1.15]
+        const bullScale = [1, 1.2, 1.4, 1.6, 2.0]
+
+        if (state >= 1 && state <= 3) {
+          block(() => {
+            ctx.scale(fireScale[state], fireScale[state])
+            ctx.rotate(-3 * QUARTER)
+            ctx.translate(-0.5 * bullSize, -(firePlacement[state]) * booster.heightOf(bullSize))
+            booster.draw(ctx, t, 0, 0, bullSize)
+          })
+        }
+
+        block(() => {
+          if (state >= 1 && state <= 3) {
+            ctx.rotate(-0.6 * QUARTER)
+            ctx.scale(bullScale[state], bullScale[state])
+          }
+
+          ctx.scale(bullScale[state], bullScale[state])
+          ctx.translate(-0.5 * bullSize, -0.5 * bulls[state].heightOf(bullSize))
+          bulls[state].draw(ctx, t, 0, 0, bullSize)
+        })
+
+
+        ctx.restore()
+      }
+
+      /// DRAW
+
+
+      const {x, y} = getBullLocation()
+      drawBull(x, y)
+      drawCorners({canvasWidth: w, canvasHeight: h})
+
+      /// FINAL
       ctx.restore()
     }
   }
 
 </script>
 
-{log} {drawCount}
-<Canvas2 bind:ctx/>
+<Canvas2 {width} {height} bind:ctx {style}/>
 

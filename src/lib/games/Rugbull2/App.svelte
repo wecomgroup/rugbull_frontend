@@ -1,31 +1,31 @@
 <script lang="ts">
   import AppBackground from "$lib/games/Rugbull2/AppBackground.svelte";
-  import { io, type Socket } from "socket.io-client";
-  import { onMount } from "svelte";
+  import {io, type Socket} from "socket.io-client";
+  import {onMount} from "svelte";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
   import ShareLink from "$lib/components/display/ShareLink.svelte";
-  import { fly } from "svelte/transition";
+  import {fly} from "svelte/transition";
   import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";
   import BetModule, {
     getSetting,
   } from "$lib/components/bet-controller/BetModule.svelte";
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
-  import { spring } from "svelte/motion";
+  import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/bet-controller/HistoryRow.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
   import BetHistory from "$lib/components/bet-controller/BetHistory.svelte";
   import EnergyModule from "$lib/components/bet-controller/EnergyModule.svelte";
   import BonusModule from "$lib/components/bet-controller/BonusModule.svelte";
-  import { hashToNumber } from "$lib/games/Rugbull/decrypt";
+  import {hashToNumber} from "$lib/games/Rugbull/decrypt";
   import ResultsRow from "$lib/games/Rugbull2/components/ResultsRow.svelte";
   import ShieldIcon from "$lib/icons/ShieldIcon.svelte";
   import SoundOnIcon from "$lib/icons/SoundOnIcon.svelte";
   import SoundOffIcon from "$lib/icons/SoundOffIcon.svelte";
   import IconToggleButton from "$lib/components/buttons/IconToggleButton.svelte";
   import SubHeader from "./components/SubHeader.svelte";
-    import TheBull from "./components/TheBull.svelte";
-  import Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
+  import TheBull from "./components/TheBull.svelte";
+  import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
 
   dayjs.extend(duration);
 
@@ -58,6 +58,8 @@
   let useCashout;
   let userEscapes: Rugbull.UserEscape[] = [];
   let useBonus = false;
+  let bullState = 0;
+  let distance = 0;
 
   const bonus = spring(0);
 
@@ -70,6 +72,31 @@
   /// REACTIVE
   $: {
     useBonus = !energy || energy < 150;
+  }
+
+  $: {
+    if (state === "running") {
+      distance = 500 + multiplier * 300
+      if (multiplier > 1.2) {
+        bullState = 1;
+      }
+      else if (multiplier > 2){
+        bullState = 2;
+      }
+      else if (multiplier > 10){
+        bullState = 3;
+      }
+      else {
+        bullState = 0
+      }
+    }
+    else if (state === "stopped"){
+      bullState = 4;
+    }
+    else {
+      distance = 0
+      bullState = 0;
+    }
   }
 
   /// COMMON FUNCTIONS
@@ -129,8 +156,8 @@
       maxEnergy,
       Math.floor(
         (-dayjs(event.users_energy.lastUpdateTime).diff() / 1000) *
-          energyPerSecond +
-          event.users_energy.currentEnergy,
+        energyPerSecond +
+        event.users_energy.currentEnergy,
       ),
     );
     bonus.set(parseFloat(event.users_wallet.userBonus));
@@ -207,7 +234,7 @@
   }
 
   /// SOCKET HANDLERS
-  function initSocket({ token }) {
+  function initSocket({token}) {
     const socket = io("https://api.rugbull.io", {
       extraHeaders: {
         Authorization: token,
@@ -382,7 +409,7 @@
   onMount(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      socket = initSocket({ token });
+      socket = initSocket({token});
 
       postUserInit(socket);
       postHistory(socket);
@@ -431,7 +458,7 @@
         const record = records[index];
         const setting = getSetting(`setting-${index}`);
         if (record) {
-          postCashOut(socket, index, { recordId: record.id });
+          postCashOut(socket, index, {recordId: record.id});
         } else {
           postMakeBet(socket, index, setting);
         }
@@ -440,40 +467,53 @@
   }
 </script>
 
-<AppBackground>
+<AppBackground {distance}>
   <div
-    slot="header"
-    class="grid gap-2 p-2"
-    style="grid-template-columns: auto auto 1fr"
+      slot="header"
+      class="grid gap-2 p-2"
+      style="grid-template-columns: auto auto 1fr"
   >
     <IconToggleButton
-      iconTrue={ShieldIcon}
-      iconFalse={ShieldIcon}
-      selected={true}
+        iconTrue={ShieldIcon}
+        iconFalse={ShieldIcon}
+        selected={true}
     />
-    <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon} />
-    <ResultsRow results={multiplierHistory} />
+    <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+    <ResultsRow results={multiplierHistory}/>
   </div>
   <div slot="sub-header">
     {#if state === "waiting"}
       <SubHeader
-        label="Next game"
-        number={formatDuration(secondsToStart * 1000)}
+          label="Next game"
+          number={formatDuration(secondsToStart * 1000)}
       />
     {:else if state === "running"}
       <SubHeader
-        label="Current multiplier"
-        number={formatMultiplier(multiplier)}
+          label="Current multiplier"
+          number={formatMultiplier(multiplier)}
       />
     {:else}
-      <SubHeader label={state} number={state} />
+      <SubHeader label={state} number={state}/>
     {/if}
   </div>
-  <div slot="body" class="h-full">
-<!--    <TheBull style="height: 100%"/>-->
-    <Canvas/>
+  <div slot="body" class="h-full relative">
+    <div class="canvas-container absolute bottom-0">
+      <Rugbull2Canvas
+          width={400}
+          height={300}
+          state={bullState}
+          style="width: 100%"
+      />
+    </div>
   </div>
 </AppBackground>
 
 <style>
+  .canvas-container {
+    @media (min-width: 568px) {
+      width: 400px;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+  }
 </style>

@@ -26,6 +26,7 @@
     {
       label: "laptop 1024",
       width: "1024px",
+      height: "735px",
       scale: "scale-50"
     }
   ]

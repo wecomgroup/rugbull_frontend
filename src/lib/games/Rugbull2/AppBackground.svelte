@@ -4,26 +4,25 @@
   import ScrollableImage from "$lib/games/Rugbull2/components/ScrollableImage.svelte";
   import CometsAnimation from "$lib/games/Rugbull2/components/CometsAnimation.svelte";
 
-  const START = -500
+  export let distance = 0;
+
   const backgroundX = spring(0, {
     stiffness: 0.1,
   });
 
 
   onMount(() => {
-    backgroundX.set(START);
-
-
     function mouseMove(e) {
-      backgroundX.set(START - e.clientX * 0.2);
+      backgroundX.update(x => x - e.clientX * 0.2);
     }
 
     window.addEventListener('mousemove', mouseMove);
-
     return () => {
       window.removeEventListener('mousemove', mouseMove);
     }
   })
+
+  $: backgroundX.set(distance)
 
 </script>
 

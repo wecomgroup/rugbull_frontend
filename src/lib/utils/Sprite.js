@@ -26,11 +26,11 @@ export class Sprite {
   }
 
   #width() {
-    return this.#img.width;
+    return this.#img?.width ;
   }
 
-  #height() {
-    return this.#img.height;
+  imageHeight() {
+    return this.#img?.height;
   }
 
   #getFrame(t) {
@@ -41,19 +41,23 @@ export class Sprite {
   }
 
   frameHeight(){
-    return this.#height() / this.#rows;
+    return this.#img ? this.imageHeight() / this.#rows : 0;
   }
   frameWidth(){
     return this.#width() / this.#columns;
   }
 
+  heightOf(w){
+    return w * this.frameHeight() / this.frameWidth();
+  }
+
   /**
    *
    * @param ctx {CanvasRenderingContext2D}
-   * @param x
-   * @param y
-   * @param dw
-   * @param dh
+   * @param x {number}
+   * @param y {number}
+   * @param dw {number}
+   * @param [dh] {number}
    */
   draw(ctx, t, x, y, dw, dh) {
     if (!this.#img) return;
@@ -67,6 +71,7 @@ export class Sprite {
     const sy = row * sh;
 
     dh = dh ?? dw * sh / sw;
+
 
     ctx.drawImage(this.#img, sx, sy, sw, sh, x, y, dw, dh);
   }

@@ -49,6 +49,7 @@
 .w-full {
   width: 100%
 }
+
 .h-full {
   height: 100%;
 }
@@ -149,5 +150,19 @@
   .rounded-#{$i} {
     border-radius: $i * .25rem;
   }
+
+  .top-#{$i} {
+    top: $i * .25rem;
+  }
+  .right-#{$i} {
+    right: $i * .25rem;
+  }
+  .bottom-#{$i} {
+    bottom: $i * .25rem;
+  }
+  .left-#{$i} {
+    left: $i * .25rem;
+  }
+
 }
 
