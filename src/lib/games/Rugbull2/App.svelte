@@ -26,6 +26,8 @@
   import SubHeader from "./components/SubHeader.svelte";
   import TheBull from "./components/TheBull.svelte";
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
+  import TelegramLoginButton from "$lib/components/telegram/TelegramLoginButton.svelte";
+  import {getSocket} from "$lib/stores/socket";
 
   dayjs.extend(duration);
 
@@ -54,18 +56,22 @@
   let energy = 0;
   let maxEnergy = 1000;
   let energyPerSecond = 1;
-  let notLogin = false;
+  let notLogin = true;
+  let launchGame = false;
   let useCashout;
   let userEscapes: Rugbull.UserEscape[] = [];
   let useBonus = false;
   let bullState = 0;
 
- const distance = spring(0, {stiffness: 0.05});
+  const distance = spring(0, {stiffness: 0.05});
 
   const bonus = spring(0);
 
   // SOUND
   let soundCashout: HTMLAudioElement;
+  let soundLaugh: HTMLAudioElement;
+  let soundStart: HTMLAudioElement;
+  let soundGetReady: HTMLAudioElement;
 
   /// SOCKET
   let socket: Socket | undefined;
@@ -77,29 +83,46 @@
 
   $: {
     if (state === "running") {
-      if (multiplier > 10){
+      if (multiplier > 10) {
         bullState = 4;
-      }
-      else if (multiplier > 2){
+      } else if (multiplier > 2) {
         bullState = 3;
-      }
-      else if (multiplier > 1.2) {
+      } else if (multiplier > 1.2) {
         bullState = 2;
-      }
-      else {
+      } else {
         bullState = 1
       }
 
-      distance .set( (multiplier - 1) * 1000 * (bullState * 1.2))
-    }
-    else if (state === "stopped"){
+      distance.set((multiplier - 1) * 1000 * (bullState * 1.2))
+    } else if (state === "stopped") {
       bullState = 5;
-    }
-    else {
+    } else {
       distance.set(0)
       bullState = 0;
     }
   }
+
+  $: {
+    if (state === 'stopped') {
+      soundLaugh.currentTime = 0;
+      soundLaugh.play()
+    }
+  }
+
+  $: {
+    if (state === 'running') {
+      soundStart.currentTime = 0;
+      soundStart.play()
+    }
+  }
+
+  $: {
+    if (state === 'waiting') {
+      soundGetReady.currentTime = 0;
+      soundGetReady.play()
+    }
+  }
+
 
   /// COMMON FUNCTIONS
   function formatDuration(value: number | null | undefined) {
@@ -236,12 +259,15 @@
   }
 
   /// SOCKET HANDLERS
-  function initSocket({token}) {
-    const socket = io("https://api.rugbull.io", {
-      extraHeaders: {
-        Authorization: token,
-      },
-    });
+  function initSocket() {
+    const socket = getSocket()
+
+    if (socket == null){
+      notLogin = true;
+      return
+    }
+    notLogin = false;
+
     socket.on("disconnect", () => {
       connected = false;
       state = "reconnecting";
@@ -319,7 +345,8 @@
       }
     });
 
-    return socket;
+    postUserInit(socket);
+    postHistory(socket);
   }
 
   function postHistory(socket: Socket) {
@@ -409,15 +436,8 @@
   }
 
   onMount(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      socket = initSocket({token});
 
-      postUserInit(socket);
-      postHistory(socket);
-    } else {
-      notLogin = true;
-    }
+    initSocket();
 
     const intervalId = setInterval(() => {
       if (energy < maxEnergy) {
@@ -494,6 +514,11 @@
           label="Current multiplier"
           number={formatMultiplier(multiplier)}
       />
+    {:else if notLogin}
+      <SubHeader
+          label="Not login"
+          number="Login to play"
+      />
     {:else}
       <SubHeader label={state} number={state}/>
     {/if}
@@ -510,6 +535,13 @@
     </div>
   </div>
 </AppBackground>
+
+
+<audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
+<audio bind:this={soundLaugh} src="/sound/rugbull/laugh.mp3"/>
+<audio bind:this={soundStart} src="/sound/rugbull/dog-start.mp3"/>
+<audio bind:this={soundGetReady} src="/sound/rugbull/get-ready.mp3"/>
+
 
 <style>
   .canvas-container {

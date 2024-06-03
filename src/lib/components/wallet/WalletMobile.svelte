@@ -1,14 +1,14 @@
 <script>
   import EnergyLine from "./EnergyLine.svelte";
-
-  export let energyMax = 1500;
-  export let energyAmount = 350;
-  export let coinAmount = 5423.2392;
+  import {user} from "$lib/stores/userStore.js";
 
 </script>
 
 <div class="flex items-center gap-4">
-  <EnergyLine {energyMax} {energyAmount} {coinAmount}/>
+  <EnergyLine
+      energyMax={$user.maxEnergy}
+      energyAmount={$user.energy}
+      coinAmount={$user.bonus}/>
   <button class="wallet-button">
     <img alt="wallet" src="/images/user/wallet.svg"/>
   </button>

@@ -7,7 +7,7 @@
 
   $: loading = !totalW || !imgW || !displayW;
   $: needW = displayW * 3 + imgW;
-  $: count = Math.max(3, Math.ceil(needW / imgW));
+  $: count = Math.max(3, Math.ceil(needW / imgW) || 0);
 
   $: adjustedX = Math.abs(x % (imgW * Math.floor(count / 2)));
 
@@ -24,9 +24,11 @@
     </div>
     <img alt="crater" {src} style="margin-left:-1px"/>
     <img alt="crater" {src} style="margin-left:-1px"/>
-    {#each Array.from({length: count - 3}) as it,index}
-      <img alt="crater" {src} style="margin-left:-{index+1}px"/>
-    {/each}
+    {#if !loading}
+      {#each Array.from({length: count - 3}) as it,index}
+        <img alt="crater" {src} style="margin-left:-{index+1}px"/>
+      {/each}
+    {/if}
   </div>
 </div>
 

@@ -35,6 +35,7 @@
   }
 
   onMount(() => {
+    console.log("Login Button mounted")
     if (browser) {
       try {
 
