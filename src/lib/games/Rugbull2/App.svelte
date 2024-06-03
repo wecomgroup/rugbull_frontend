@@ -28,6 +28,7 @@
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
   import TelegramLoginButton from "$lib/components/telegram/TelegramLoginButton.svelte";
   import {getSocket} from "$lib/stores/socket";
+  import {user} from "$lib/stores/userStore";
 
   dayjs.extend(duration);
 
@@ -53,9 +54,6 @@
   let messages: string[] = [];
   let errorMessage: string | undefined;
   let records: [Rugbull.Record?, Rugbull.Record?] = [];
-  let energy = 0;
-  let maxEnergy = 1000;
-  let energyPerSecond = 1;
   let notLogin = true;
   let launchGame = false;
   let useCashout;
@@ -64,8 +62,6 @@
   let bullState = 0;
 
   const distance = spring(0, {stiffness: 0.05});
-
-  const bonus = spring(0);
 
   // SOUND
   let soundCashout: HTMLAudioElement;
@@ -78,7 +74,7 @@
 
   /// REACTIVE
   $: {
-    useBonus = !energy || energy < 150;
+    useBonus = !$user.energy || $user.energy < 150;
   }
 
   $: {
@@ -175,17 +171,6 @@
 
   /// HANDLE STATE
   function updateFromInitEvent(event: RugbullAPI.InitEvent) {
-    energyPerSecond = event.users_energy.energyAccumulationRate;
-    maxEnergy = event.users_energy.energyCapacity;
-    energy = Math.min(
-      maxEnergy,
-      Math.floor(
-        (-dayjs(event.users_energy.lastUpdateTime).diff() / 1000) *
-        energyPerSecond +
-        event.users_energy.currentEnergy,
-      ),
-    );
-    bonus.set(parseFloat(event.users_wallet.userBonus));
     userId = event.userId;
 
     /// Load records when page reload
@@ -336,15 +321,6 @@
       ];
     });
 
-    socket.on("balanceEvent", (event: any) => {
-      console.log("EVENT balanceEvent", event);
-      if (event.coinType === 1) {
-        energy = event.currentEnergy;
-      } else if (event.coinType === 2) {
-        bonus.set(parseFloat(event.userBonus));
-      }
-    });
-
     postUserInit(socket);
     postHistory(socket);
   }
@@ -393,7 +369,10 @@
         };
 
         if (coinType === 1) {
-          energy = data.newBalance;
+          user.update(it => {
+            it.energy = data.newBalance;
+            return it
+          })
         }
 
         postUserInit(socket);
@@ -439,11 +418,6 @@
 
     initSocket();
 
-    const intervalId = setInterval(() => {
-      if (energy < maxEnergy) {
-        energy += energyPerSecond;
-      }
-    }, 1000);
     const intervalId2 = setInterval(() => {
       if (startTime) {
         secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
@@ -451,7 +425,6 @@
     }, 100);
     return () => {
       socket?.disconnect();
-      clearInterval(intervalId);
       clearInterval(intervalId2);
     };
   });

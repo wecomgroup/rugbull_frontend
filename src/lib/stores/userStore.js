@@ -11,26 +11,25 @@ export const user = writable({
   maxEnergy: 0,
 });
 
+let intervalId
+
 
 /**
  * @param socket {import("socket.io-client").Socket}
  */
 export function subscribeUser(socket){
-  socket.on("disconnect", () => {
-    user.set(null)
-  })
 
   socket.on("balanceEvent", (event) => {
     console.log("EVENT balanceEvent", event);
     if (event.coinType === 1) {
-      user.update((u) => {
-        u.energy = event.currentEnergy;
-        return u;
+      user.update((it) => {
+        it.energy = event.currentEnergy;
+        return it;
       })
     } else if (event.coinType === 2) {
-      user.update((u) => {
-        u.bonus = parseFloat(event.currentBonus);
-        return u;
+      user.update((it) => {
+        it.bonus = parseFloat(event.currentBonus);
+        return it;
       })
     }
   });
@@ -43,6 +42,24 @@ export function subscribeUser(socket){
       updateFromInitEvent(event);
     }),
   );
+
+  const intervalId = setInterval(() => {
+    user.update(it => {
+      if (it.energy < it.maxEnergy) {
+        it.energy += it.energyPerSecond;
+      }
+      return it
+    })
+  }, 1000);
+
+  socket.on("disconnect", () => {
+    user.update(it => {
+      it.login = false;
+      return it
+    })
+    clearInterval(intervalId)
+  })
+
 }
 
 function updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
