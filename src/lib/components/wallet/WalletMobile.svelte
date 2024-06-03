@@ -1,6 +1,6 @@
 <script>
   import EnergyLine from "./EnergyLine.svelte";
-  import {user} from "$lib/stores/userStore.js";
+  import {user} from "$lib/stores/_user.js";
 
 </script>
 

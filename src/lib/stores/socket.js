@@ -1,6 +1,6 @@
 import {io} from "socket.io-client";
-import {subscribeUser} from "$lib/stores/userStore.js";
-import {errorStore} from "$lib/stores/errorStore.js";
+import {subscribeUser} from "$lib/stores/_user.js";
+import {_error} from "$lib/stores/_error.js";
 
 /** @type import("socket.io-client").Socket */
 let socket
@@ -37,16 +37,16 @@ function checkError(err, response) {
     return true;
   }
   if (response.ok === 0) {
-    errorStore.set( response.error);
+    _error.set( response.error);
     return true;
   }
   if (response.output?.payload?.statusCode >= 300) {
-    errorStore.set( response.output.payload.message);
+    _error.set( response.output.payload.message);
     return true;
   }
   if (response.statusCode >= 300) {
     console.log("ERROR", response);
-    errorStore.set( response.message);
+    _error.set( response.message);
     return true;
   }
   return false;

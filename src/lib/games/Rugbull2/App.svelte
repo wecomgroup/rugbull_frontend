@@ -28,7 +28,8 @@
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
   import TelegramLoginButton from "$lib/components/telegram/TelegramLoginButton.svelte";
   import {getSocket} from "$lib/stores/socket";
-  import {user} from "$lib/stores/userStore";
+  import {user} from "$lib/stores/_user";
+  import {loadSettings, soundOn} from "$lib/stores/_settings";
 
   dayjs.extend(duration);
 
@@ -101,21 +102,21 @@
   $: {
     if (state === 'stopped') {
       soundLaugh.currentTime = 0;
-      soundLaugh.play()
+      $soundOn && soundLaugh.play()
     }
   }
 
   $: {
     if (state === 'running') {
       soundStart.currentTime = 0;
-      soundStart.play()
+      $soundOn && soundStart.play()
     }
   }
 
   $: {
     if (state === 'waiting') {
       soundGetReady.currentTime = 0;
-      soundGetReady.play()
+      $soundOn && soundGetReady.play()
     }
   }
 
@@ -299,7 +300,7 @@
     socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
       soundCashout.currentTime = 0;
-      soundCashout.play();
+      $soundOn && soundCashout.play();
       const index = records.findIndex((r) => r?.id === event.recordId);
       if (index > -1) {
         records[index] = undefined;
@@ -416,6 +417,7 @@
 
   onMount(() => {
 
+    loadSettings()
     initSocket();
 
     const intervalId2 = setInterval(() => {
@@ -473,7 +475,7 @@
         iconFalse={ShieldIcon}
         selected={true}
     />
-    <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+    <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
     <ResultsRow results={multiplierHistory}/>
   </div>
   <div slot="sub-header">
@@ -508,6 +510,23 @@
     </div>
   </div>
 </AppBackground>
+<div class="bet-modules-row">
+  <BetModule
+      id="setting-0"
+      currentMultiplier={multiplier}
+      showCashout={records[0] != null}
+      available={150}
+      on:bet={onBetOrCashout(0)}
+  />
+  <BetModule
+      id="setting-1"
+      available={150}
+      currentMultiplier={multiplier}
+      showCashout={records[1] != null}
+      on:bet={onBetOrCashout(1)}
+  />
+</div>
+
 
 
 <audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>

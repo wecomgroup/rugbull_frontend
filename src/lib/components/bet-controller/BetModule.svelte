@@ -39,6 +39,7 @@
   import Modal from "$lib/components/modals/Modal.svelte";
   import {createEventDispatcher, onMount} from 'svelte';
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
+  import BottomModal from "$lib/components/modals/BottomModal.svelte";
 
   export let id = 'setting-1'
   export let label = 'Bet 1';
@@ -94,7 +95,7 @@
   </BetButton>
 </div>
 
-<Modal showCloseIcon={true} bind:open>
+<BottomModal showCloseIcon={true} bind:open>
   <div slot="title">{label}</div>
   <div slot="body" style="display: flex; flex-direction: column; gap: 8px">
     <BetModuleCashout
@@ -109,7 +110,7 @@
     <ActionButton on:click={() => open = false}>Close</ActionButton>
   </div>
 
-</Modal>
+</BottomModal>
 
 <style lang="scss">
   .bet-module-container {
