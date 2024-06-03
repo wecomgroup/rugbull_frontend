@@ -71,7 +71,9 @@
         <span class="tag" class:disabled={!auto}>Auto Cashout<br/>
           {#if auto}x{cashoutMultiplier}{/if}</span>
         <span class="tag">Bet Amount<br/>${betAmount.toFixed(2)}</span>
-        <span class="tag highlight" class:hide-value={!showCashout} class:disabled={!showCashout}
+        <span class="tag highlight"
+              class:hide-value={!showCashout}
+              class:disabled={!showCashout}
               style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
       </div>
 

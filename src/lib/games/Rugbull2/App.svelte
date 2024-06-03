@@ -1,6 +1,6 @@
 <script lang="ts">
   import AppBackground from "$lib/games/Rugbull2/AppBackground.svelte";
-  import {io, type Socket} from "socket.io-client";
+  import {type Socket} from "socket.io-client";
   import {onMount} from "svelte";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
@@ -69,9 +69,6 @@
   let soundLaugh: HTMLAudioElement;
   let soundStart: HTMLAudioElement;
   let soundGetReady: HTMLAudioElement;
-
-  /// SOCKET
-  let socket: Socket | undefined;
 
   /// REACTIVE
   $: {
@@ -426,7 +423,7 @@
       }
     }, 100);
     return () => {
-      socket?.disconnect();
+      getSocket()?.disconnect();
       clearInterval(intervalId2);
     };
   });
@@ -443,14 +440,15 @@
   }
 
   $: {
-    if (betHistoryPage && socket) {
-      postHistory(socket);
+    if (betHistoryPage && getSocket()) {
+      postHistory(getSocket());
     }
   }
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
     return function () {
+      const socket = getSocket()
       if (socket) {
         const record = records[index];
         const setting = getSetting(`setting-${index}`);

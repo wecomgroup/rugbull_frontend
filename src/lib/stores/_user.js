@@ -11,16 +11,14 @@ export const user = writable({
   maxEnergy: 0,
 });
 
-let intervalId
-
 
 /**
  * @param socket {import("socket.io-client").Socket}
  */
 export function subscribeUser(socket){
-
   socket.on("balanceEvent", (event) => {
     console.log("EVENT balanceEvent", event);
+
     if (event.coinType === 1) {
       user.update((it) => {
         it.energy = event.currentEnergy;

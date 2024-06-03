@@ -1,6 +1,7 @@
 import {io} from "socket.io-client";
 import {subscribeUser} from "$lib/stores/_user.js";
 import {_error} from "$lib/stores/_error.js";
+import {isBrowser} from "$lib";
 
 /** @type import("socket.io-client").Socket */
 let socket
@@ -10,7 +11,7 @@ export function getSocket(){
     return socket
   }
 
-  const token = localStorage.getItem("token");
+  const token = isBrowser() && localStorage.getItem("token");
 
   if (token == null){
     return null
