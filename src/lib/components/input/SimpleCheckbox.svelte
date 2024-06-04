@@ -1,13 +1,15 @@
 <script>
+  import './style.scss'
+  export let id;
   export let checked = false;
-  export let label = "Check Mate";
+  export let label = "Auto Cashout";
 </script>
 
-<div class="checkbox-container">
-  <input class="inp-cbx" id="morning" type="checkbox" bind:checked>
-  <label class="cbx" for="morning" style="display: flex; align-items: center">
+<div class="checkbox-container input-component">
+  <input class="inp-cbx" {id} type="checkbox" bind:checked>
+  <label class="cbx" for={id} style="display: flex; align-items: center">
     <span style="margin-right: 8px;"> </span>
-    <span>{label}</span>
+    <span class="label">{label}</span>
   </label>
   <svg class="inline-svg">
     <symbol id="check-4" viewBox="0 0 12 10">
@@ -22,7 +24,6 @@
   }
   .checkbox-container * {
     box-sizing: border-box;
-    color: white;
   }
 
   .checkbox-container .cbx {
@@ -54,7 +55,7 @@
     height: 18px;
     border-radius: 4px;
     transform: scale(1);
-    border: 1px solid #cccfdb;
+    border: 2px solid var(--label-color);
     transition: all 0.2s ease;
     box-shadow: 0 1px 1px rgba(0,16,75,0.05);
   }

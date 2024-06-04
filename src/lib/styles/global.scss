@@ -14,7 +14,7 @@ html {
   --background: #1A1D2C;
   --text: white;
   --brand: #0A93FE;
-  --brand-hover: #F6CD84;
+  --brand-hover: #37C2FE;
   --gray: #4F5168;
   --text-gray: #A8AACA;
   --hover: #A8AACA;
@@ -28,6 +28,10 @@ body {
   font-family: 'Rubik', sans-serif;
 
   margin: 0;
+}
+
+h2 {
+  font-size: 1.5rem;
 }
 
 button, a {

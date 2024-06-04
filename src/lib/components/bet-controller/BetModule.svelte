@@ -41,6 +41,9 @@
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
   import BottomModal from "$lib/components/modals/BottomModal.svelte";
   import TopModal from "$lib/components/modals/TopModal.svelte";
+  import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
+  import CashoutInput from "$lib/components/input/CashoutInput.svelte";
+  import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
 
   export let id = 'setting-1'
   export let label = 'Bet 1';
@@ -99,18 +102,20 @@
 </div>
 
 <TopModal bind:open>
-  <div slot="title">{label}</div>
-  <div slot="body" style="display: flex; flex-direction: column; gap: 8px">
-    <BetModuleCashout
-        bind:checked={$setting.auto}
-        bind:value={$setting.cashoutMultiplier}
-    />
-    <BetModuleAmount
-        max={available}
-        min={minBet}
-        bind:value={$setting.betAmount}
-    />
-    <ActionButton on:click={() => open = false}>OK</ActionButton>
+  <div slot="body" >
+    <h2 style="text-align: left">{label}</h2>
+    <div class="flex flex-col gap-4">
+      <SimpleCheckbox id="auto-cashout" bind:checked={$setting.auto}/>
+      <CashoutInput
+          disabled={$setting.auto}
+          bind:value={$setting.cashoutMultiplier}/>
+      <BetAmountInput
+          max={available}
+          min={minBet}
+          bind:value={$setting.betAmount}
+      />
+      <ActionButton on:click={() => open = false}>OK</ActionButton>
+    </div>
   </div>
 
 </TopModal>

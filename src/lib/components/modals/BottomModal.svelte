@@ -58,7 +58,8 @@
            data-variant={fullscreen ? "fullscreen" : ""}
       >
         <div class="body">
-          <slot name="body"/> </div>
+          <slot name="body"/>
+        </div>
         {#if showCloseIcon}
           <div class="close-icon">
             <IconButton

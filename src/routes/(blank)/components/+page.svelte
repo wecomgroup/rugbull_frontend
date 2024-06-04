@@ -26,9 +26,13 @@
   import MenuItem from "$lib/components/layout/MenuItem.svelte";
   import GameIcon from "$lib/icons/GameIcon.svelte";
   import PeopleIcon from "$lib/icons/PeopleIcon.svelte";
+  import CashoutInput from "$lib/components/input/CashoutInput.svelte";
+  import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
+  import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
 
   let open = false;
   let openBottom = false;
+  let checked = false;
 
   const time = spring(0);
 
@@ -44,6 +48,14 @@
     <LogoSquare/>
   </div>
 
+  <Divider/>
+
+
+  <div class="grid gap-4">
+    <SimpleCheckbox id="sandbox" bind:checked/>
+    <CashoutInput disabled={!checked}/>
+    <BetAmountInput/>
+  </div>
 
   <Divider/>
 
@@ -53,7 +65,7 @@
     <IconToggleButton iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
 
   </ContainerV2>
-  <ContainerV2 class="grid" >
+  <ContainerV2 class="grid">
     <ResultsRow/>
   </ContainerV2>
 

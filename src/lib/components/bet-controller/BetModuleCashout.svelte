@@ -1,14 +1,14 @@
 <script lang="ts">
   import {createEventDispatcher} from 'svelte';
   import PrimaryContainer from './PrimaryContainer.svelte';
-  import SimpleCheckbox from "$lib/components/buttons/SimpleCheckbox.svelte";
+  import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
   import {fly} from 'svelte/transition';
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 
   export let checked: boolean = false;
   export let disabled = false;
   export let value: number = 1.01;
-  export let t: (v) => void = (a) => a;
+  export let t: (v) => string = (a) => a;
   export let min: number = 1.01;
   export let max: number = 100;
 
@@ -36,25 +36,20 @@
   }
 </script>
 
-<div style="display: flex; gap: 8px">
-  <ContainerV2 style="flex: 1; display: grid; align-items: center;">
-    <SimpleCheckbox bind:checked label={t('Auto Cash Out')}/>
-  </ContainerV2>
+<div class="grid gap-2">
+  <SimpleCheckbox bind:checked label={t('Auto Cash Out')}/>
   {#if checked}
-    <div in:fly={{x:20}}>
-
-      <ContainerV2>
-        <div style="display: flex; margin: auto; gap:4px">
-          <div class="input-group">
-            <div class="input-container">
-              <span style="font-weight: 700; font-family: monospace; font-size: 20px">x</span>
-              <input type="number" class="input" bind:value/>
-            </div>
+    <div transition:fly={{y:-20}}>
+      <div style="display: flex; margin: auto; gap:4px">
+        <div class="input-group">
+          <div class="input-container">
+            <span style="font-weight: 700; font-family: monospace; font-size: 20px">x</span>
+            <input type="number" class="input" bind:value/>
           </div>
-          <button class="button" on:click={decrease} {disabled}>-</button>
-          <button class="button" on:click={increase} {disabled}>+</button>
         </div>
-      </ContainerV2>
+        <button class="button" on:click={decrease} {disabled}>-</button>
+        <button class="button" on:click={increase} {disabled}>+</button>
+      </div>
     </div>
   {/if}
 </div>

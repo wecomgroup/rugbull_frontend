@@ -1,7 +1,7 @@
 <script lang="ts">
   import {createEventDispatcher} from 'svelte';
   import PrimaryContainer from './PrimaryContainer.svelte';
-  import SimpleCheckbox from "$lib/components/buttons/SimpleCheckbox.svelte";
+  import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
   import {fly} from 'svelte/transition';
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
 

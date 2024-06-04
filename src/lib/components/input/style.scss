@@ -1,0 +1,64 @@
+.input-component {
+  --input-background: #2D3144;
+  --label-color: #A8AACA;
+  color: white;
+
+  .input-wrapper{
+    background-color: var(--input-background);
+
+    padding: .5rem;
+  }
+
+  .label {
+    color: var(--label-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  input {
+    background-color: transparent;
+    color: currentColor;
+    font-weight: 600;
+    font-size: 16px;
+
+    width: 100%;
+    padding: 0.5rem;
+
+    border: none;
+  }
+
+  input[data-disabled=true]{
+    color: var(--gray)
+  }
+
+  input::placeholder {
+    color: var(--label-color);
+  }
+
+  button {
+    background-color: #3B4156;
+    color: var(--label-color);
+    font-size: 14px;
+
+    padding: 0 0.75rem;
+    min-height: 28px;
+
+    transition: 0.3s all ease;
+  }
+
+  button:hover {
+    background-color: var(--hover);
+    color: black;
+  }
+
+  button:active {
+    background-color: var(--brand-hover);
+    color: black;
+  }
+
+  button[data-disabled=true] {
+    opacity: 0.5;
+
+  }
+}
