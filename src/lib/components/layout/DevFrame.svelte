@@ -14,6 +14,12 @@
       scale: "scale-100"
     },
     {
+      label: "mobile 414",
+      width: "414px",
+      height: "782px",
+      scale: "scale-100"
+    },
+    {
       label: "fold 568",
       width: "568px",
       scale: "scale-75"
@@ -32,7 +38,7 @@
   ]
 
   let innerHeight
-  let setting = SETTINGS[1]
+  let setting = SETTINGS[2]
 
 </script>
 <svelte:window bind:innerHeight/>
@@ -57,7 +63,7 @@
 
 <style lang="scss">
   main {
-    margin-top: 80px;
+    margin-top: 1rem;
     display: grid;
     justify-items: center;
     align-items: center;

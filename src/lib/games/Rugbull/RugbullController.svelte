@@ -7,7 +7,7 @@
   import {hashToNumber} from './decrypt'
   import {fly} from 'svelte/transition';
   import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";
-  import BetModule, {getSetting} from "$lib/components/bet-controller/BetModule.svelte";
+  import BetModule, {getSetting} from "../Rugbull2/components/BetModule.svelte";
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/bet-controller/HistoryRow.svelte";

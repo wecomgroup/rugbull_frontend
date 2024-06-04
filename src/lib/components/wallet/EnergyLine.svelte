@@ -30,7 +30,7 @@
   </div>
   <div style="overflow: hidden">
     <div class="flex items-center gap-1"  style=" transform: translate(0, {$_start}px)" >
-      {coinAmount}
+      {coinAmount.toPrecision(7)}
       <img alt="coin" src="/images/user/coin.svg"/>
     </div>
   </div>

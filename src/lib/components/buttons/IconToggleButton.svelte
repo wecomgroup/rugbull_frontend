@@ -1,12 +1,21 @@
 <script>
+  import {createEventDispatcher} from "svelte";
+
   export let iconFalse;
   export let iconTrue;
   export let selected = false;
+
+  const dispatch = createEventDispatcher();
+
+
 </script>
 
 <button
     class="grid items-center"
-    on:click={() => selected =!selected}
+    on:click={() => {
+      dispatch("click", {selected})
+      selected =!selected
+    }}
         data-selected="{selected}"
 >
   <svelte:component this={selected ? iconTrue : iconFalse}/>

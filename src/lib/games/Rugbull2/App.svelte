@@ -7,9 +7,7 @@
   import ShareLink from "$lib/components/display/ShareLink.svelte";
   import {fly} from "svelte/transition";
   import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";
-  import BetModule, {
-    getSetting,
-  } from "$lib/components/bet-controller/BetModule.svelte";
+  import BetModule, {getSetting} from "./components/BetModule.svelte";
   import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
   import {spring} from "svelte/motion";
   import HistoryRow from "$lib/components/bet-controller/HistoryRow.svelte";
@@ -30,6 +28,8 @@
   import {getSocket} from "$lib/stores/socket";
   import {user} from "$lib/stores/_user";
   import {loadSettings, soundOn} from "$lib/stores/_settings";
+  import {goto} from "$app/navigation";
+  import BetController from "./components/BetController.svelte";
 
   dayjs.extend(duration);
 
@@ -61,7 +61,7 @@
   let useBonus = false;
   let bullState = 0;
 
-  const distance = spring(0, {stiffness: 0.05});
+  const distance = spring(0, {stiffness: 0.02});
 
   // SOUND
   let soundCashout: HTMLAudioElement;
@@ -89,6 +89,9 @@
       distance.set((multiplier - 1) * 1000 * (bullState * 1.2))
     } else if (state === "stopped") {
       bullState = 5;
+    } else if (state === "waiting") {
+      distance.set(0, {hard: true})
+      bullState = 0;
     } else {
       distance.set(0)
       bullState = 0;
@@ -443,18 +446,16 @@
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
-    return function () {
-      const socket = getSocket()
-      if (socket) {
-        const record = records[index];
-        const setting = getSetting(`setting-${index}`);
-        if (record) {
-          postCashOut(socket, index, {recordId: record.id});
-        } else {
-          postMakeBet(socket, index, setting);
-        }
+    const socket = getSocket()
+    if (socket) {
+      const record = records[index];
+      const setting = getSetting(`setting-${index}`);
+      if (record) {
+        postCashOut(socket, index, {recordId: record.id});
+      } else {
+        postMakeBet(socket, index, setting);
       }
-    };
+    }
   }
 </script>
 
@@ -468,6 +469,7 @@
         iconTrue={ShieldIcon}
         iconFalse={ShieldIcon}
         selected={true}
+        on:click={() => goto("/debug")}
     />
     <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
     <ResultsRow results={multiplierHistory}/>
@@ -505,22 +507,17 @@
   </div>
 </AppBackground>
 {#if $user.login}
-  <div class="bet-modules-row">
-    <BetModule
-        id="setting-0"
-        currentMultiplier={multiplier}
-        showCashout={records[0] != null}
-        available={150}
-        on:bet={onBetOrCashout(0)}
-    />
-    <BetModule
-        id="setting-1"
-        available={150}
-        currentMultiplier={multiplier}
-        showCashout={records[1] != null}
-        on:bet={onBetOrCashout(1)}
-    />
-  </div>
+  <BetController
+      {multiplier}
+      showCashout0={records[0] != null}
+      showCashout1={records[1] != null}
+      coinType={useBonus ? 2 : 1}
+      gameState={state}
+      on:action={e => {
+        console.log("ACTION", e.detail)
+        onBetOrCashout(e.detail)
+      }}
+  />
 {/if}
 
 

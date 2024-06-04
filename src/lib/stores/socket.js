@@ -13,11 +13,10 @@ export function getSocket(){
 
   const token = isBrowser() && localStorage.getItem("token");
 
-  if (token == null){
+  if (!token){
     return null
   }
 
-  console.log("Creating socket with token");
 
   socket = io("https://api.rugbull.io", {
     extraHeaders: {

@@ -12,16 +12,27 @@ html {
 :root {
   --action: #FFDF37;
   --background: #1A1D2C;
+  --background-2: #2D3144;
+  --background-3: #3B4156;
+
   --text: white;
   --brand: #0A93FE;
   --brand-hover: #37C2FE;
+  --brand-text: white;
+
+  --pink: #FF35DE;
+
   --gray: #4F5168;
   --text-gray: #A8AACA;
   --hover: #A8AACA;
 
+  --gradient1: linear-gradient(90deg, #0496FF 0%, #FF35DE 100%);
+  --gradient2: linear-gradient(90deg, #004C84 0%, #B70099 100%);
+
 }
 
 body {
+  @extend .scrollbar-background;
   background-color: var(--background);
   color: var(--text);
 
@@ -103,4 +114,24 @@ a {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
+}
+
+.scrollbar-background {
+  @media (pointer: fine) {
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+      cursor: pointer;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(64, 63, 63, 0.8);
+      border-radius: 10px;
+      opacity: 0;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
 }

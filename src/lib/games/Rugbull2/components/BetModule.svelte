@@ -24,26 +24,21 @@
     return store;
   }
 
-  export function getSetting(id: string) : Setting {
+  export function getSetting(id: string): Setting {
     return JSON.parse(browser && localStorage.getItem(id))
   }
 </script>
 
 <script>
-  import BetButton from "$lib/components/bet-controller/BetButton.svelte";
-  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
-  import SettingsIcon from "$lib/icons/SettingsIcon.svelte";
-  import BetModuleAmount from "$lib/components/bet-controller/BetModuleAmount.svelte";
-  import BetModuleCashout from "$lib/components/bet-controller/BetModuleCashout.svelte";
+  import BetButton from "./BetButton.svelte";
   import ActionButton from "$lib/components/buttons/ActionButton.svelte";
-  import Modal from "$lib/components/modals/Modal.svelte";
   import {createEventDispatcher, onMount} from 'svelte';
   import EyeLoader from "$lib/components/loaders/EyeLoader.svelte";
-  import BottomModal from "$lib/components/modals/BottomModal.svelte";
   import TopModal from "$lib/components/modals/TopModal.svelte";
   import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
   import CashoutInput from "$lib/components/input/CashoutInput.svelte";
   import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
+  import BetModuleLayout from "./BetModuleLayout.svelte";
 
   export let id = 'setting-1'
   export let label = 'Bet 1';
@@ -51,6 +46,8 @@
   export let minBet = 50;
   export let showCashout = true;
   export let currentMultiplier = 1.2;
+  export let gameState = "waiting";
+  export let coinType = 1;
 
   const setting = createStore(id);
   let open = false;
@@ -59,55 +56,66 @@
 
   const dispatch = createEventDispatcher();
 
-  function onSettings() {
+  function showSetting() {
     if (!showCashout) {
       open = true;
     }
   }
 
 
+  $: canCashout = !auto && showCashout && gameState === "running"
+  $: canBet = gameState === "waiting" && !showCashout
 </script>
 
-<div class="bet-module-container">
-  <button style="padding: 0; display: grid; align-items: stretch" on:click={onSettings}>
-    <ContainerV2 style="display: flex; gap: 8px; align-items: center; justify-content: center">
-      <div style="display:grid; gap: 4px; grid-template-columns: 1fr 1fr">
-        <span class="tag" class:disabled={!auto}>Auto Cashout<br/>
-          {#if auto}x{cashoutMultiplier}{/if}</span>
-        <span class="tag">Bet Amount<br/>${betAmount.toFixed(2)}</span>
-        <span class="tag highlight"
-              class:hide-value={!showCashout}
-              class:disabled={!showCashout}
-              style="grid-column: 1/3">Cashout ${(betAmount * currentMultiplier).toFixed(2)}</span>
-      </div>
-
-
-      <div class:disabled={showCashout}>
-        <SettingsIcon/>
-      </div>
-    </ContainerV2>
+<BetModuleLayout>
+  <button slot="left" class="left p-1" on:click={showSetting}
+          class:disabled={!canBet}
+          class:auto={auto}
+  >
+        <span>{auto ? "Auto Cashout" : "Manual"}<br/>
+          {#if auto}x{cashoutMultiplier.toPrecision(3)}{/if}</span>
   </button>
-  <BetButton
-      on:click={() => dispatch('bet')}
-      disabled={auto && showCashout}
-      size="sm">
-    {#if auto && showCashout }
-      <div style="display: grid; justify-items: center">
-        <EyeLoader style="font-size: 0.35px"/>
-      </div>
-    {:else}
-      <span class="button-svg"> {showCashout ? 'Cashout' : 'Bet'} </span>
+  <button slot="right" class="right p-1"
+          class:disabled={!canBet}
+          on:click={showSetting}>
+    <span>Amount<br/>${betAmount.toFixed(2)}</span>
+  </button>
+  <button slot="bottom"
+          class="cashout-text"
+          class:cashout-text-active={showCashout}
+          on:click={showSetting}>
+    {#if showCashout}
+      <span>${(betAmount * currentMultiplier).toFixed(2)}</span>
+    {:else if gameState === "waiting" && coinType === 1}
+      <img alt="coin" src="/images/user/energy.svg"/>
+    {:else if gameState === "waiting" && coinType === 2}
+      <img alt="coin" src="/images/user/coin.svg"/>
     {/if}
-  </BetButton>
-</div>
+  </button>
+  <div slot="button">
+    <BetButton
+        on:click={() => dispatch('bet')}
+        disabled={!canBet && !canCashout}
+        style="width: 100%; height: 100%"
+    >
+      {#if auto && showCashout }
+        <div style="display: grid; justify-items: center">
+          <EyeLoader style="font-size: 0.35px"/>
+        </div>
+      {:else}
+        <span class="button-svg"> {showCashout ? 'Cashout' : 'Bet'} </span>
+      {/if}
+    </BetButton>
+  </div>
+</BetModuleLayout>
 
 <TopModal bind:open>
-  <div slot="body" >
+  <div slot="body">
     <h2 style="text-align: left">{label}</h2>
     <div class="flex flex-col gap-4">
       <SimpleCheckbox id="auto-cashout" bind:checked={$setting.auto}/>
       <CashoutInput
-          disabled={$setting.auto}
+          disabled={!$setting.auto}
           bind:value={$setting.cashoutMultiplier}/>
       <BetAmountInput
           max={available}
@@ -121,10 +129,27 @@
 </TopModal>
 
 <style lang="scss">
+  .disabled {
+    color: var(--text-gray)
+  }
+
+  .auto {
+    font-weight: 600;
+  }
+
+  .cashout-text {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  .cashout-text-active {
+    background-color: var(--brand);
+    color: var(--brand-text);
+  }
+
+
   .bet-module-container {
-    display: grid;
     grid-template-columns: 1fr 60px;
-    gap: 8px;
 
     .button-svg {
       font-size: 15px;
@@ -147,18 +172,5 @@
 
   }
 
-  .highlight {
-    background-color: var(--brand);
-    color: black;
-    font-weight: 600;
-  }
-
-  .disabled {
-    opacity: 0.5;
-  }
-
-  .hide-value {
-    color: var(--brand);
-  }
 
 </style>

@@ -3,22 +3,23 @@
     '/dev/components',
     '/dev/games/rugbull2',
     '/dev/home',
+    '/dev/debug',
   ]
 </script>
 
-<div class="page grid">
+<main class="page grid items-center">
+  <slot/>
+
   <div class="menu p-2">
     {#each MENUS as it}
       <a class="p-1 rounded-1" href={it}>{it}</a>
     {/each}
   </div>
-
-  <slot/>
-</div>
+</main>
 
 <style>
-  .page {
-    grid-template-columns: 120px 1fr;
+  main {
+    grid-template-rows: 1fr auto;
   }
 
   .menu {

@@ -5,7 +5,7 @@
   export let time = 1;
 </script>
 
-<div class="flex gap-2" style="min-height: 32px">
+<div class="flex gap-2 scrollbar-background" style="min-height: 32px">
   {#each results as it}
     <ResultNumber value={it}/>
   {/each}

@@ -27,7 +27,7 @@ export function subscribeUser(socket){
       })
     } else if (event.coinType === 2) {
       user.update((it) => {
-        it.bonus = parseFloat(event.currentBonus);
+        it.bonus = parseFloat(event.userBonus);
         return it;
       })
     }

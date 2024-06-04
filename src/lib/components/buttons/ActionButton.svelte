@@ -15,7 +15,7 @@
     background-color: var(--brand);
     font-size: 20px;
     font-weight: 600;
-    color: currentColor;
+    color: var(--brand-text);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;

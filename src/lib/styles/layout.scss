@@ -41,7 +41,8 @@
 }
 
 // Grid
-.cols-2 {
+.grid-with-2-columns {
+  display: grid;
   grid-template-columns: repeat(2, 1fr)
 }
 

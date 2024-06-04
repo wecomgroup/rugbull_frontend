@@ -99,7 +99,7 @@
 
     width: calc(100vw);
 
-    max-width: 400px;
+    max-width: 420px;
     box-sizing: border-box;
     border-bottom-left-radius: 1rem;
     border-bottom-right-radius: 1rem;
