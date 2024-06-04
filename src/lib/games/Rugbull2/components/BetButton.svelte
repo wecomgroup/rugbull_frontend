@@ -39,8 +39,9 @@
       pointer-events: none;
     }
 
-    font-size: 1.5rem;
-    font-weight: 500;
+    font-size: 2rem;
+    font-weight: 800;
+    text-transform: uppercase;
 
     border-bottom-left-radius: 1rem;
     border-bottom-right-radius: 1rem;
