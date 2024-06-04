@@ -47,7 +47,7 @@
           data-variant={fullscreen ? "fullscreen" : ""}
   >
     <button class="container"
-            in:fly={{ y: 20, duration: 600}}
+            in:fly={{ y: -20, duration: 600}}
             on:click={handle}
             on:touchstart={handleTouchStart}
             on:touchmove={handleTouchMove}
@@ -92,7 +92,7 @@
 
   .container {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 50%;
 
     transform: translate(-50%);
@@ -101,8 +101,8 @@
 
     max-width: 400px;
     box-sizing: border-box;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
 
     background-color: var(--background);
     padding: 0.5em;

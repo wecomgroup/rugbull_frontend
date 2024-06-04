@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 
 export const user = writable({
   login: false,
+  connected: false,
   userId: -1,
   energy: 0,
   bonus: 0,
@@ -50,9 +51,15 @@ export function subscribeUser(socket){
     })
   }, 1000);
 
+  socket.on("connect", () => {
+    user.update(it => {
+      it.connected = true;
+      return it
+    })
+  })
   socket.on("disconnect", () => {
     user.update(it => {
-      it.login = false;
+      it.connected = false;
       return it
     })
     clearInterval(intervalId)
@@ -74,14 +81,15 @@ function updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
   const bonus = parseFloat(event.users_wallet.userBonus)
   const userId = event.userId;
 
-  user.set({
+  user.update(it => ({
     login: true,
+    connected: it.connected,
     userId,
     energy,
     bonus,
     energyPerSecond,
     maxEnergy,
-  });
+  }));
 
   /// Load records when page reload
   // if (records.length === 0) {

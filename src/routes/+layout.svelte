@@ -1,10 +1,9 @@
 <script>
   import '$lib/styles/global.scss'
-  import Command from "$lib/components/layout/CommandMenu.svelte";
   import {page} from '$app/stores'
   import {goto} from "$app/navigation";
   import {browser} from "$app/environment";
-  import {MENUS} from "$lib/constants/menus.js";
+  import Shortcuts from "$lib/components/layout/Shortcuts.svelte";
 
   /// Handle query to localStorage here
   $:{
@@ -27,4 +26,4 @@
   <slot/>
 </div>
 
-<Command menus={ MENUS }/>
+<Shortcuts/>

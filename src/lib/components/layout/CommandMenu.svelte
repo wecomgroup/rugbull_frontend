@@ -10,10 +10,7 @@
   export let menus = [];
 
   onMount(() => {
-    /**
-     * @param e {KeyboardEvent}
-     */
-    function handleKey(e) {
+    function handleKey(/**@type {KeyboardEvent}*/e) {
       if (e.metaKey && e.key === 'k') {
         show = !show;
         search = ""

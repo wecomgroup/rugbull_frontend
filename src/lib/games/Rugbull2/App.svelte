@@ -55,7 +55,6 @@
   let messages: string[] = [];
   let errorMessage: string | undefined;
   let records: [Rugbull.Record?, Rugbull.Record?] = [];
-  let notLogin = true;
   let launchGame = false;
   let useCashout;
   let userEscapes: Rugbull.UserEscape[] = [];
@@ -160,7 +159,6 @@
       } else if (event.statusCode === 401) {
         console.log("TOKEN EXPIRED");
         localStorage.removeItem("token");
-        notLogin = true;
       } else {
         console.log("UNHANDLED EVENT", event);
       }
@@ -245,11 +243,9 @@
   function initSocket() {
     const socket = getSocket()
 
-    if (socket == null){
-      notLogin = true;
+    if (socket == null) {
       return
     }
-    notLogin = false;
 
     socket.on("disconnect", () => {
       connected = false;
@@ -419,7 +415,7 @@
 
     const intervalId2 = setInterval(() => {
       if (startTime) {
-        secondsToStart = Math.ceil((startTime - Date.now()) / 1000);
+        secondsToStart = Math.max(0, Math.ceil((startTime - Date.now()) / 1000));
       }
     }, 100);
     return () => {
@@ -487,7 +483,7 @@
           label="Current multiplier"
           number={formatMultiplier(multiplier)}
       />
-    {:else if notLogin}
+    {:else if !$user.login}
       <SubHeader
           label="Not login"
           number="Login to play"
@@ -508,23 +504,24 @@
     </div>
   </div>
 </AppBackground>
-<div class="bet-modules-row">
-  <BetModule
-      id="setting-0"
-      currentMultiplier={multiplier}
-      showCashout={records[0] != null}
-      available={150}
-      on:bet={onBetOrCashout(0)}
-  />
-  <BetModule
-      id="setting-1"
-      available={150}
-      currentMultiplier={multiplier}
-      showCashout={records[1] != null}
-      on:bet={onBetOrCashout(1)}
-  />
-</div>
-
+{#if $user.login}
+  <div class="bet-modules-row">
+    <BetModule
+        id="setting-0"
+        currentMultiplier={multiplier}
+        showCashout={records[0] != null}
+        available={150}
+        on:bet={onBetOrCashout(0)}
+    />
+    <BetModule
+        id="setting-1"
+        available={150}
+        currentMultiplier={multiplier}
+        showCashout={records[1] != null}
+        on:bet={onBetOrCashout(1)}
+    />
+  </div>
+{/if}
 
 
 <audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
