@@ -8,7 +8,7 @@
 </script>
 
 
-<div id="navbar">
+<div class="navbar">
   <Burger on:click={() => open = !open}/>
   <div style="flex: 1"/>
   <WalletMobile/>
@@ -18,7 +18,7 @@
 <Menu bind:open/>
 
 <style>
-  #navbar {
+  .navbar {
     background-color: #0A0C14;
 
     display: flex;

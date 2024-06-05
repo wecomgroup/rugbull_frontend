@@ -1,5 +1,6 @@
 @import './layout';
 @import './remove-default';
+@import './utility';
 
 html {
   font-size: 12px;
@@ -7,7 +8,9 @@ html {
   @media (min-width: 375px) {
     font-size: 16px;
   }
+  @extend .disable-double-tap-zoom
 }
+
 
 :root {
   --action: #FFDF37;
@@ -104,34 +107,4 @@ a {
     background-color: #252525;
   }
 
-}
-
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
-}
-
-.scrollbar-background {
-  @media (pointer: fine) {
-    &::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-      cursor: pointer;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: rgba(64, 63, 63, 0.8);
-      border-radius: 10px;
-      opacity: 0;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-  }
 }
