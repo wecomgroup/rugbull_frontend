@@ -31,6 +31,7 @@
   import {goto} from "$app/navigation";
   import BetController from "./components/BetController.svelte";
   import {rugbull} from "$lib/stores/_rugbull";
+  import LiveCashoutMobile, {randomUserEscape} from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
 
   dayjs.extend(duration);
 
@@ -62,6 +63,7 @@
   let bullState = 0;
 
   const distance = spring(0, {stiffness: 0.02});
+  const {userEscapes} = rugbull
 
   // SOUND
   let soundCashout: HTMLAudioElement;
@@ -488,13 +490,20 @@
       <Rugbull2Canvas
           width={400}
           height={300}
-          state={bullState}
+          state={5}
           style="width: 100%"
           distance={$distance}
       />
     </div>
   </div>
 </AppBackground>
+
+<div class="my-2">
+  <LiveCashoutMobile
+      items={[...$userEscapes, randomUserEscape(), randomUserEscape(), randomUserEscape(), randomUserEscape()]}
+      style="padding: 0 0.5rem"
+  />
+</div>
 {#if $user.login}
   <BetController
       {multiplier}

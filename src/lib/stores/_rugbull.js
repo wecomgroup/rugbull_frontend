@@ -9,21 +9,24 @@ class RugbullStore {
   }
 
   subscribe(/**@type {import("socket.io-client").Socket}*/socket) {
-    socket.on("userEscapes", (/**@type{RugbullAPI.UserEscapeEvent}*/event ) => {
+    socket.on("userEscapes", (/**@type{RugbullAPI.UserEscapeEvent}*/event) => {
       console.log("EVENT userEscapes", event);
       this.userEscapes.update(u => {
+        /** @type {Rugbull.UserEscape[]} */
+        const list = event.userList.map((i) => {
+          return {
+            key: u.length.toString(),
+            multiplier: parseFloat(i.multiplier),
+            amount: parseFloat(i.amount) * parseFloat(i.multiplier),
+            userName: i.nickName,
+            avatar: '/images/user/avatar.jpg',
+            time: Date.now(),
+          }
+        })
+
         return [
+          ...list,
           ...u,
-          ...event.userList.map((i) => {
-            return {
-              multiplier: parseFloat(i.multiplier),
-              amount: parseFloat(i.amount) * parseFloat(i.multiplier),
-              userName: i.nickName,
-              avatar: '',
-              // time: chart.length,
-              time: event.multiplier,
-            };
-          }),
         ];
       })
     });

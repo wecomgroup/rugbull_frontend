@@ -43,7 +43,7 @@
 <style lang="scss">
   .background {
     background: #111830;
-    height: 435px;
+    height: 360px;
     overflow: hidden;
 
     display: grid;

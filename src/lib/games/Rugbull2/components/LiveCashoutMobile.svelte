@@ -1,6 +1,7 @@
 <script context="module">
   export function randomUserEscape() {
     return {
+      key: Date.now().toString(),
       time: Date.now(),
       amount: Math.random() * 10000,
       avatar: '/images/user/avatar.jpg',
@@ -17,6 +18,7 @@
 
   /**@type {Rugbull.UserEscape[]}*/
   export let items = []
+  export let style = undefined
 
   let x = spring(0);
   let x2 = spring(0);
@@ -31,7 +33,7 @@
   }
 </script>
 
-<div class="row flex gap-2 scrollbar-0 noselect">
+<div class="row flex gap-2 scrollbar-0 noselect" {style}>
   {#each items as item, index}
     {#if index === 0}
       <LiveCashoutMobileItem

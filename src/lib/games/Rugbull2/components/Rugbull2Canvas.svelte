@@ -57,6 +57,7 @@
     }),
     new Sprite('/images/rugbull2/sprites/smoke.webp', {
       rows: 10,
+      fps: 8,
     })
   ]
 
@@ -68,7 +69,7 @@
   })
   const tomb = new Sprite('/images/rugbull2/sprites/tomb.webp', {
     rows: 4,
-    fps: 10,
+    fps: 5,
   })
 
   onMount(() => {
@@ -124,18 +125,36 @@
         )
       }
 
-      function drawBull(x, y) {
+      function getBullLocation2() {
+        const yBottom = h - bulls[0].heightOf(bullSize) / 2
+        return interpolateBezierCurve(
+          [bullSize / 2 + 10, yBottom],
+          [w / 2 + 40, yBottom],
+          [w / 2 + 40, yBottom - 40],
+          $bullPosition
+        )
+      }
+
+      function drawBull() {
+        const {x, y} = getBullLocation2()
         ctx.save()
         ctx.translate(x, y)
+
+        // const fireScale = [0, 0.4, 0.6, 0.9, 1.2, 0]
+        // const firePlacement = [0, 1.3, 1.3, 1.2, 1.15, -.3]
+        // const bullScale = [1, 1, 1.2, 1.4, 1.6, 2.0]
+        // const angle = [0, -0.2, -0.5, -0.60, -0.8]
+        // const boosterAngle = -2.3
 
         const fireScale = [0, 0.4, 0.6, 0.9, 1.2, 0]
         const firePlacement = [0, 1.3, 1.3, 1.2, 1.15, -.3]
         const bullScale = [1, 1, 1.2, 1.4, 1.6, 2.0]
-        const angle = [0, -0.2, -0.5, -0.60, -0.8]
+        const angle = [0, 0, 0, 0, 0]
+        const boosterAngle = -2.0
 
         block(() => {
           ctx.scale(fireScale[state], fireScale[state])
-          ctx.rotate((-2.3 + angle[state]) * QUARTER)
+          ctx.rotate((boosterAngle + angle[state]) * QUARTER)
           ctx.translate(-0.5 * bullSize, -(firePlacement[state]) * booster.heightOf(bullSize))
           booster.draw(ctx, t, 0, 0, bullSize)
         })
@@ -161,20 +180,20 @@
       }
 
       function drawTomb() {
-        const x = (w - 100) / 2
+        const imgW = 80
+        const x = (w - imgW) / 2 + 40
         const y = h
         block(() => {
           ctx.translate(x, y)
-          tomb.draw(ctx, t, 0, -flag.heightOf(100), 100)
+          tomb.draw(ctx, t, 0, -flag.heightOf(imgW), imgW)
         })
       }
 
       /// DRAW
 
 
-      const {x, y} = getBullLocation()
       drawFlag()
-      drawBull(x, y)
+      drawBull()
       if (state === 5) drawTomb()
       drawCorners({canvasWidth: w, canvasHeight: h})
 

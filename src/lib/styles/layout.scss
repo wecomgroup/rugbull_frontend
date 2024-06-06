@@ -132,9 +132,6 @@
     padding-right: $i * .25rem;
   }
 
-  .m-#{$i} {
-    margin: $i * .25rem;
-  }
   .mx-#{$i} {
     margin-left: $i * .25rem;
     margin-right: $i * .25rem;
@@ -154,6 +151,9 @@
   }
   .mr-#{$i} {
     margin-right: $i * .25rem;
+  }
+  .m-#{$i} {
+    margin: $i * .25rem;
   }
 
   .rounded-#{$i} {
