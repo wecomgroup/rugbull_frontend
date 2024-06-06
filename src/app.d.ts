@@ -117,9 +117,13 @@ declare global {
     }
 
     interface UserEscape {
-      multiplier: number,
-      userName: string,
+      key: string,
+      isUser?: boolean,
       time: number,
+      userName: string,
+      multiplier: number,
+      amount: number,
+      avatar: string,
     }
   }
 

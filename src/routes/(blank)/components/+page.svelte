@@ -20,7 +20,6 @@
   import SoundOnIcon from "$lib/icons/SoundOnIcon.svelte";
   import BottomModal from "$lib/components/modals/BottomModal.svelte";
   import IconButton from "$lib/components/buttons/IconButton.svelte";
-  import CloseIcon from "$lib/icons/CloseIcon.svelte";
   import CloseIcon2 from "$lib/icons/CloseIcon2.svelte";
   import CardsIcon from "$lib/icons/CardsIcon.svelte";
   import MenuItem from "$lib/components/layout/MenuItem.svelte";
@@ -29,16 +28,25 @@
   import CashoutInput from "$lib/components/input/CashoutInput.svelte";
   import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
   import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
+  import LiveCashoutMobile from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
 
   let open = false;
   let openBottom = false;
   let checked = false;
+  let userEscapes = [];
+
 
   const time = spring(0);
+
+  function addUserEscape() {
+    userEscapes = [randomUserEscape, ...userEscapes]
+  }
 
   onMount(() => {
     time.set(1)
   });
+
+
 </script>
 
 <Navbar/>
@@ -47,6 +55,17 @@
     <Logo/>
     <LogoSquare/>
   </div>
+
+
+  <Divider/>
+
+  <ContainerV2 class="grid gap-2" style="width: 300px">
+    <LiveCashoutMobile items={userEscapes}/>
+    <div class="flex gap-2">
+      <button on:click={addUserEscape}>Add</button>
+      <button on:click={() => userEscapes = []}>Rset</button>
+    </div>
+  </ContainerV2>
 
   <Divider/>
 

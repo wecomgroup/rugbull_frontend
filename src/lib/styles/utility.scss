@@ -8,11 +8,31 @@
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
-.scrollbar-background {
+.scrollbar-1 {
   @media (pointer: fine) {
     &::-webkit-scrollbar {
       width: 10px;
       height: 10px;
+      cursor: pointer;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(64, 63, 63, 0.8);
+      border-radius: 10px;
+      opacity: 0;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+}
+
+.scrollbar-0 {
+  @media (pointer: fine) {
+    &::-webkit-scrollbar {
+      width: 0px;
+      height: 0px;
       cursor: pointer;
     }
 

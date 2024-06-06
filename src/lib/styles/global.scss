@@ -35,7 +35,7 @@ html {
 }
 
 body {
-  @extend .scrollbar-background;
+  @extend .scrollbar-1;
   background-color: var(--background);
   color: var(--text);
 
@@ -56,7 +56,7 @@ a {
   color: var(--text);
 }
 
-.scrollbar-background {
+.scrollbar-1 {
   // &:hover {
   //   &::-webkit-scrollbar-thumb {
   //     opacity: 1;

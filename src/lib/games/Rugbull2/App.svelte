@@ -30,6 +30,7 @@
   import {loadSettings, soundOn} from "$lib/stores/_settings";
   import {goto} from "$app/navigation";
   import BetController from "./components/BetController.svelte";
+  import {rugbull} from "$lib/stores/_rugbull";
 
   dayjs.extend(duration);
 
@@ -57,7 +58,6 @@
   let records: [Rugbull.Record?, Rugbull.Record?] = [];
   let launchGame = false;
   let useCashout;
-  let userEscapes: Rugbull.UserEscape[] = [];
   let useBonus = false;
   let bullState = 0;
 
@@ -250,6 +250,8 @@
       return
     }
 
+    rugbull.subscribe(socket)
+
     socket.on("disconnect", () => {
       connected = false;
       state = "reconnecting";
@@ -267,7 +269,7 @@
         startTime = event.startTime;
         state = "waiting";
         chart = [];
-        userEscapes = [];
+        rugbull.reset()
         currentRound = event.round.toString();
         log(`[1] ROUND(${event.round}) starts=${formatTime(event.startTime)}`);
       } else if (event.status === 2) {
@@ -287,7 +289,7 @@
         multiplier = 1;
         currentRound = event.round.toString();
         records = [undefined, undefined];
-        userEscapes = [];
+        rugbull.reset()
         postHistory(socket);
         log(`[3] stopped ${event.multiplier.toFixed(2)}`);
       }
@@ -304,19 +306,6 @@
       }
     });
 
-    socket.on("userEscapes", (event: RugbullAPI.UserEscapeEvent) => {
-      console.log("EVENT userEscapes", event);
-      userEscapes = [
-        ...userEscapes,
-        ...event.userList.map((i) => {
-          return {
-            multiplier: parseFloat(i.multiplier),
-            userName: i.nickName,
-            time: chart.length,
-          };
-        }),
-      ];
-    });
 
     postUserInit(socket);
     postHistory(socket);

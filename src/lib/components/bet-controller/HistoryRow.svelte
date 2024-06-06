@@ -3,7 +3,7 @@
   export let multiplierHistory: number[] = [];
 </script>
 <div style="display: grid; position: relative;">
-  <div class="history-row scrollbar-background">
+  <div class="history-row scrollbar-1">
     {#if multiplierHistory.length === 0}
       <div in:fly={{x: -20}} class="history-row-item">Loading...</div>
     {/if}
