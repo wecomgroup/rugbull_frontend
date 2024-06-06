@@ -64,7 +64,11 @@
     columns: 8,
   })
   const flag = new Sprite('/images/rugbull2/sprites/flag.webp', {
-    rows: 5,
+    rows: 4,
+  })
+  const tomb = new Sprite('/images/rugbull2/sprites/tomb.webp', {
+    rows: 4,
+    fps: 10,
   })
 
   onMount(() => {
@@ -124,14 +128,14 @@
         ctx.save()
         ctx.translate(x, y)
 
-        const fireScale = [0, 0.4, 0.6, 0.9, 1.2, 0.4]
+        const fireScale = [0, 0.4, 0.6, 0.9, 1.2, 0]
         const firePlacement = [0, 1.3, 1.3, 1.2, 1.15, -.3]
         const bullScale = [1, 1, 1.2, 1.4, 1.6, 2.0]
         const angle = [0, -0.2, -0.5, -0.60, -0.8]
 
         block(() => {
           ctx.scale(fireScale[state], fireScale[state])
-          ctx.rotate((-2.3 +angle[state]) * QUARTER)
+          ctx.rotate((-2.3 + angle[state]) * QUARTER)
           ctx.translate(-0.5 * bullSize, -(firePlacement[state]) * booster.heightOf(bullSize))
           booster.draw(ctx, t, 0, 0, bullSize)
         })
@@ -147,12 +151,21 @@
         ctx.restore()
       }
 
-      function drawFlag(){
+      function drawFlag() {
         const x = 130 - distance
-        const y = h - 50
+        const y = h - 40
         block(() => {
           ctx.translate(x, y)
-          flag.draw(ctx, t, 0, -flag.heightOf(100), 100)
+          flag.draw(ctx, t, 0, -flag.heightOf(140), 140)
+        })
+      }
+
+      function drawTomb() {
+        const x = (w - 100) / 2
+        const y = h
+        block(() => {
+          ctx.translate(x, y)
+          tomb.draw(ctx, t, 0, -flag.heightOf(100), 100)
         })
       }
 
@@ -162,7 +175,8 @@
       const {x, y} = getBullLocation()
       drawFlag()
       drawBull(x, y)
-      // drawCorners({canvasWidth: w, canvasHeight: h})
+      if (state === 5) drawTomb()
+      drawCorners({canvasWidth: w, canvasHeight: h})
 
       /// FINAL
       ctx.restore()

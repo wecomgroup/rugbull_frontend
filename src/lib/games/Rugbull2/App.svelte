@@ -503,7 +503,6 @@
       coinType={useBonus ? 2 : 1}
       gameState={state}
       on:action={e => {
-        console.log("ACTION", e.detail)
         onBetOrCashout(e.detail)
       }}
   />
