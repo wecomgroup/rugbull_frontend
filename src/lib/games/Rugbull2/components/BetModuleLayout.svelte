@@ -1,16 +1,31 @@
+<script>
+  import {onMount} from "svelte";
+  import {fly} from "svelte/transition";
+
+  let mounted = false;
+
+  const start = 20
+  const diff = 10
+
+  onMount(() => {
+    mounted = true;
+  });
+</script>
 <div class="BetModuleLayout grid gap-1">
-  <div class="left" style="grid-area: a">
-    <slot name="left"/>
-  </div>
-  <div class="right" style="grid-area: b">
-    <slot name="right"/>
-  </div>
-  <div class="bottom" style="grid-area: c">
-    <slot name="bottom"/>
-  </div>
-  <div style="grid-area: d">
-    <slot name="button"/>
-  </div>
+  {#if mounted}
+    <div in:fly={{y: start}} class="left" style="grid-area: a">
+      <slot name="left"/>
+    </div>
+    <div in:fly={{y: start + diff }} class="right" style="grid-area: b">
+      <slot name="right"/>
+    </div>
+    <div in:fly={{y: start + diff * 2}} class="bottom" style="grid-area: c">
+      <slot name="bottom"/>
+    </div>
+    <div in:fly={{y: start + diff * 3}} style="grid-area: d">
+      <slot name="button"/>
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">

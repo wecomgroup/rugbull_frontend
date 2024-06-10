@@ -1,4 +1,5 @@
 import {writable} from 'svelte/store';
+import {soundOn} from "$lib/stores/_settings.js";
 
 
 class RugbullStore {
@@ -21,6 +22,7 @@ class RugbullStore {
             userName: i.nickName,
             avatar: '/images/user/avatar.jpg',
             time: Date.now(),
+            isUser: false,
           }
         })
 

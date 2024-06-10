@@ -2,6 +2,7 @@
   import {writable} from "svelte/store";
   import {browser} from "$app/environment";
 
+
   interface Setting {
     auto: boolean,
     cashoutMultiplier: number,
