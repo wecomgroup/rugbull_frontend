@@ -1,4 +1,5 @@
 <script lang="ts">
+  import {isDevMode} from "$lib/utils/isDevMode";
   import AppBackground from "$lib/games/Rugbull2/AppBackground.svelte";
   import {type Socket} from "socket.io-client";
   import {onMount} from "svelte";
@@ -450,72 +451,80 @@
   }
 </script>
 
-<AppBackground speed={multiplier} distance={$distance}>
-  <div
-      slot="header"
-      class="grid gap-2 p-2"
-      style="grid-template-columns: auto auto 1fr"
-  >
-    <IconToggleButton
-        iconTrue={ShieldIcon}
-        iconFalse={ShieldIcon}
-        selected={true}
-        on:click={() => goto("/debug")}
-    />
-    <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
-    <ResultsRow results={multiplierHistory}/>
-  </div>
-  <div slot="sub-header">
-    {#if state === "waiting"}
-      <SubHeader
-          label="Next game"
-          number={formatDuration(secondsToStart * 1000)}
+<main>
+
+  <AppBackground speed={multiplier} distance={$distance}>
+    <div
+        slot="header"
+        class="grid gap-2 p-2"
+        style="grid-template-columns: auto auto 1fr"
+    >
+      <IconToggleButton
+          iconTrue={ShieldIcon}
+          iconFalse={ShieldIcon}
+          selected={true}
+          on:click={() => goto("/debug")}
       />
-    {:else if state === "running"}
-      <SubHeader
-          label="Current multiplier"
-          number={formatMultiplier(multiplier)}
-      />
-    {:else if !$user.login}
-      <SubHeader
-          label="Not login"
-          number="Login to play"
-      />
-    {:else}
-      <SubHeader label={state} number={state}/>
-    {/if}
-  </div>
-  <div slot="body" class="h-full relative">
-    <div class="canvas-container absolute bottom-0">
-      <Rugbull2Canvas
-          width={400}
-          height={300}
-          state={5}
-          style="width: 100%"
-          distance={$distance}
+      <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+      <ResultsRow results={multiplierHistory}/>
+    </div>
+    <div slot="sub-header">
+      {#if state === "waiting"}
+        <SubHeader
+            label="Next game"
+            number={formatDuration(secondsToStart * 1000)}
+        />
+      {:else if state === "running"}
+        <SubHeader
+            label="Current multiplier"
+            number={formatMultiplier(multiplier)}
+        />
+      {:else if !$user.login}
+        <SubHeader
+            label="Not login"
+            number="Login to play"
+        />
+      {:else}
+        <SubHeader label={state} number={state}/>
+      {/if}
+    </div>
+    <div slot="body" class="h-full relative">
+      <div class="canvas-container absolute bottom-0">
+        <Rugbull2Canvas
+            width={400}
+            height={300}
+            state={bullState}
+            style="width: 100%"
+            distance={$distance}
+        />
+      </div>
+    </div>
+  </AppBackground>
+
+  <div class="fake-controller-header">
+    <div class="my-2">
+      <LiveCashoutMobile
+          items={[
+          ...$userEscapes,
+          ...(isDevMode ? [randomUserEscape(), randomUserEscape(), randomUserEscape()] : [])
+          ]}
+          style="padding: 0 0.5rem"
       />
     </div>
   </div>
-</AppBackground>
-
-<div class="my-2">
-  <LiveCashoutMobile
-      items={[...$userEscapes, randomUserEscape(), randomUserEscape(), randomUserEscape(), randomUserEscape()]}
-      style="padding: 0 0.5rem"
-  />
-</div>
-{#if $user.login}
-  <BetController
-      {multiplier}
-      showCashout0={records[0] != null}
-      showCashout1={records[1] != null}
-      coinType={useBonus ? 2 : 1}
-      gameState={state}
-      on:action={e => {
+  {#if $user.login}
+    <BetController
+        {multiplier}
+        showCashout0={records[0] != null}
+        showCashout1={records[1] != null}
+        coinType={useBonus ? 2 : 1}
+        gameState={state}
+        on:action={e => {
         onBetOrCashout(e.detail)
       }}
-  />
-{/if}
+    />
+  {/if}
+</main>
 
 
 <audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
@@ -525,11 +534,27 @@
 
 
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+  }
   .canvas-container {
     @media (min-width: 568px) {
       width: 400px;
       left: 50%;
       transform: translate(-50%, 0);
     }
+  }
+
+  .fake-controller-header {
+    overflow: hidden;
+    margin-top: -1rem;
+    padding-bottom: 1rem;
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
+    border-top: 2px solid var(--background-2);
+    height: 2rem;
+    background: var(--background);
+    z-index: 10;
   }
 </style>

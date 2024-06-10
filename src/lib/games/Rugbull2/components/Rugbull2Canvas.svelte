@@ -126,7 +126,7 @@
       }
 
       function getBullLocation2() {
-        const yBottom = h - bulls[0].heightOf(bullSize) / 2
+        const yBottom = h - bulls[0].heightOf(bullSize) / 2 - 20
         return interpolateBezierCurve(
           [bullSize / 2 + 10, yBottom],
           [w / 2 + 40, yBottom],
@@ -195,7 +195,7 @@
       drawFlag()
       drawBull()
       if (state === 5) drawTomb()
-      drawCorners({canvasWidth: w, canvasHeight: h})
+      // drawCorners({canvasWidth: w, canvasHeight: h})
 
       /// FINAL
       ctx.restore()
