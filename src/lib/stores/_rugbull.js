@@ -22,6 +22,7 @@ class RugbullStore {
             userName: i.nickName,
             avatar: '/images/user/avatar.jpg',
             time: Date.now(),
+            userId: i.userId,
             isUser: false,
           }
         })

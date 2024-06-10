@@ -76,6 +76,9 @@
   $: {
     useBonus = !$user.energy || $user.energy < 150;
   }
+  $: {
+    userId = $user.userId
+  }
 
   $: {
     if (state === "running") {
@@ -271,6 +274,7 @@
       if (event.status === 1) {
         startTime = event.startTime;
         state = "waiting";
+        multiplier = 1;
         chart = [];
         rugbull.reset()
         currentRound = event.round.toString();
@@ -289,7 +293,7 @@
         if (state !== "loading") {
           state = "stopped";
         }
-        multiplier = 1;
+        multiplier = 0;
         currentRound = event.round.toString();
         records = [undefined, undefined];
         rugbull.reset()
@@ -496,6 +500,7 @@
             state={bullState}
             style="width: 100%"
             distance={$distance}
+            multiplier={multiplier}
         />
       </div>
     </div>
@@ -505,7 +510,7 @@
     <div class="my-2">
       <LiveCashoutMobile
           items={[
-          ...$userEscapes,
+          ...$userEscapes.map(i => ({...i, isUser: userId === i.userId})),
           ...(isDevMode ? [randomUserEscape(), randomUserEscape(), randomUserEscape(), randomUserEscape()] : [])
           ]}
           style="padding-left: 0.5rem; padding-right: 0.5rem"
@@ -539,6 +544,7 @@
     flex-direction: column;
   }
   .canvas-container {
+    width: 100%;
     @media (min-width: 568px) {
       width: 400px;
       left: 50%;

@@ -10,6 +10,7 @@
   export let height = 300;
   export let state = 0;
   export let distance = 0;
+  export let multiplier = 1;
 
   const bullSize = 100;
   const QUARTER = Math.PI / 4;
@@ -23,6 +24,8 @@
   const bullPosition = spring(0, {stiffness: 0.03});
 
   const start = spring(0);
+  const currentMultiplier = spring(1, {stiffness: 0.03})
+
   onMount(() => {
     start.set(100);
   });
@@ -33,9 +36,13 @@
       bullPosition.set(1)
     }
   }
+  $: {
+    currentMultiplier.set(multiplier)
+  }
 
   const RED = "red"
   const BLACK = "black"
+
 
   /// IMAGES
 
@@ -189,6 +196,82 @@
         })
       }
 
+      function drawMeter() {
+        /// draw from right
+        const x = w
+        const y = h/2
+        const t1 = 6
+        const t2 = 2
+        const space = 180
+        const COLOR1 = "rgba(255,255,255, 0.8)"
+        const COLOR2 = "rgba(255,255,255, 0.6)"
+
+        function colorFromDy(dy) {
+          return `rgba(255,255,255, ${Math.max(0, 1.4 - Math.abs(dy) / 100)})`
+        }
+        function drawLine(mul) {
+          block(() => {
+            const scale = function(dy) {
+              // return 1
+              return (space-Math.abs(dy)) * 0.002 + 0.5
+            }
+            const fontSize = 24
+
+            block(() => {
+              const diff = $currentMultiplier - mul
+              const dy = diff * space
+              ctx.fillStyle = colorFromDy(dy)
+              ctx.translate(x, y + dy)
+              ctx.scale(scale(dy), scale(dy))
+              ctx.fillRect(0, -t1/2,-30, t1)
+              ctx.font = `normal ${ fontSize }px sans-serif`
+              ctx.fillText(`${mul.toFixed(1)}`, -50 - fontSize, fontSize/2 - 3)
+            })
+
+            for (let i = 1 ; i < 5; i++){
+              block(() => {
+                const diff = $currentMultiplier - (mul + i * 0.1)
+                const dy = diff * space
+                ctx.fillStyle = colorFromDy(dy)
+                ctx.translate(x, y + dy)
+                ctx.scale(scale(dy), scale(dy))
+                ctx.fillRect(0, 0,-20, t2)
+              })
+            }
+          })
+        }
+
+        function drawArrow(){
+
+          block(() => {
+            const triangleSize = 20
+            const triangleH = 28
+            ctx.translate(x, h/2)
+            ctx.lineWidth = 4
+
+            // Add three color stops
+            const gradient = ctx.createLinearGradient(0,-10, 0,  10);
+            gradient.addColorStop(1, "rgba(255,53,222, 0.95)");
+            gradient.addColorStop(0, "rgba(4,150,255, 0.95)");
+            ctx.fillStyle = gradient
+            ctx.beginPath()
+            ctx.moveTo(0,  - triangleH/2)
+            ctx.lineTo(-triangleSize * 0.7,  -2)
+            ctx.lineTo(-triangleSize * 0.7,  2)
+            ctx.lineTo(0,  + triangleH/2)
+            ctx.lineTo(0,  - triangleH/2)
+            ctx.fill()
+          })
+        }
+
+        const min = Math.max(0, Math.floor($currentMultiplier) - 1)
+        Array.from({length: 6}).forEach((_, i) => {
+          drawLine(min + i * 0.5)
+        })
+        drawArrow()
+
+      }
+
       /// DRAW
 
 
@@ -196,6 +279,7 @@
       drawBull()
       if (state === 5) drawTomb()
       // drawCorners({canvasWidth: w, canvasHeight: h})
+      drawMeter()
 
       /// FINAL
       ctx.restore()

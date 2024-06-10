@@ -99,6 +99,7 @@ declare global {
         amount: string,
         multiplier: string,
         nickName: string,
+        userId: string,
       }[]
     }
   }
@@ -118,6 +119,7 @@ declare global {
 
     interface UserEscape {
       key: string,
+      userId?: string,
       isUser?: boolean,
       time: number,
       userName: string,
