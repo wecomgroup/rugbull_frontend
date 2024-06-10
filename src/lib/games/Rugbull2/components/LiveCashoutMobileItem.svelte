@@ -18,8 +18,11 @@
 
 <style>
   .LiveCashoutMobileItem {
+    --shadow:-2px 6px 4px rgba(0, 0, 0, 0.25);
+
     font-size: 0.8rem;
     font-weight: 500;
+    box-shadow: var(--shadow);
   }
   .avatar {
     border-radius: 50%;
@@ -45,7 +48,7 @@
 
   .glow {
     border-color: var(--brand);
-    box-shadow: inset 0 0 1rem var(--brand);
+    box-shadow: inset 0 0 1rem var(--brand), var(--shadow);
     background: #183657;
   }
 

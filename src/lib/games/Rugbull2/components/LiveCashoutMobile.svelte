@@ -7,7 +7,7 @@
       avatar: '/images/user/avatar.jpg',
       userName: 'John Doe',
       multiplier: Math.random() * 10,
-      isUser: Math.random() > 0.6,
+      isUser: false,
     }
   }
 </script>
@@ -57,5 +57,6 @@
   div {
     overflow: auto;
     min-height: 40px;
+    padding-bottom: 1rem;
   }
 </style>

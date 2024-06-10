@@ -506,9 +506,9 @@
       <LiveCashoutMobile
           items={[
           ...$userEscapes,
-          ...(isDevMode ? [randomUserEscape(), randomUserEscape(), randomUserEscape()] : [])
+          ...(isDevMode ? [randomUserEscape(), randomUserEscape(), randomUserEscape(), randomUserEscape()] : [])
           ]}
-          style="padding: 0 0.5rem"
+          style="padding-left: 0.5rem; padding-right: 0.5rem"
       />
     </div>
   </div>
@@ -547,7 +547,6 @@
   }
 
   .fake-controller-header {
-    overflow: hidden;
     margin-top: -1rem;
     padding-bottom: 1rem;
     border-top-left-radius: 2rem;
