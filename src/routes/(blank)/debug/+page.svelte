@@ -1,5 +1,5 @@
 <script>
-  import {user} from "$lib/stores/_user.js";
+  import {_user} from "$lib/stores/_user.js";
   import {isBrowser} from "$lib";
   import CopyablePre from "$lib/components/bet-controller/CopyablePre.svelte";
 
@@ -13,7 +13,7 @@
   ]
 
   $: {
-    if (isBrowser() || $user.login) {
+    if (isBrowser() || $_user.login) {
       token = localStorage.getItem('token');
     }
   }
@@ -37,7 +37,7 @@
   </div>
   <CopyablePre
       text={token || "No token"}/>
-  <CopyablePre text={JSON.stringify($user, null, 2)}/>
+  <CopyablePre text={JSON.stringify($_user, null, 2)}/>
   <CopyablePre text={`${w} x ${h}`}/>
 </main>
 

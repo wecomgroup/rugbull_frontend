@@ -12,6 +12,8 @@ class RugbullStore {
   subscribe(/**@type {import("socket.io-client").Socket}*/socket) {
     socket.on("userEscapes", (/**@type{RugbullAPI.UserEscapeEvent}*/event) => {
       console.log("EVENT userEscapes", event);
+
+      // Add escapes on user escape
       this.userEscapes.update(u => {
         /** @type {Rugbull.UserEscape[]} */
         const list = event.userList.map((i) => {

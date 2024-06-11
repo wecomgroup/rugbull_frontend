@@ -2,9 +2,8 @@ import {writable} from 'svelte/store';
 import {createSocketHandler} from "$lib/stores/socket.js";
 import dayjs from "dayjs";
 
-export const user = writable({
+export const _user = writable({
   login: false,
-  connected: false,
   userId: -1,
   energy: 0,
   bonus: 0,
@@ -21,29 +20,21 @@ export function subscribeUser(socket){
     console.log("EVENT balanceEvent", event);
 
     if (event.coinType === 1) {
-      user.update((it) => {
+      _user.update((it) => {
         it.energy = event.currentEnergy;
         return it;
       })
     } else if (event.coinType === 2) {
-      user.update((it) => {
+      _user.update((it) => {
         it.bonus = parseFloat(event.userBonus);
         return it;
       })
     }
   });
 
-  socket.timeout(5000).emit(
-    "/v1/users.php/init",
-    {},
-    createSocketHandler((/**@type {RugbullAPI.InitEvent}*/event) => {
-      console.log("INIT", event);
-      updateFromInitEvent(event);
-    }),
-  );
 
   const intervalId = setInterval(() => {
-    user.update(it => {
+    _user.update(it => {
       if (it.energy < it.maxEnergy) {
         it.energy += it.energyPerSecond;
       }
@@ -52,16 +43,18 @@ export function subscribeUser(socket){
   }, 1000);
 
   socket.on("connect", () => {
-    user.update(it => {
-      it.connected = true;
-      return it
-    })
+
+    socket.timeout(5000).emit(
+      "/v1/users.php/init",
+      {},
+      createSocketHandler((/**@type {RugbullAPI.InitEvent}*/event) => {
+        console.log("INIT", event);
+        updateFromInitEvent(event);
+      }),
+    );
   })
+
   socket.on("disconnect", () => {
-    user.update(it => {
-      it.connected = false;
-      return it
-    })
     clearInterval(intervalId)
   })
 
@@ -81,9 +74,8 @@ function updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
   const bonus = parseFloat(event.users_wallet.userBonus)
   const userId = event.userId;
 
-  user.update(it => ({
+  _user.update(it => ({
     login: true,
-    connected: it.connected,
     userId,
     energy,
     bonus,

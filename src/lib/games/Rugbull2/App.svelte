@@ -5,17 +5,8 @@
   import {onMount} from "svelte";
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
-  import ShareLink from "$lib/components/display/ShareLink.svelte";
-  import {fly} from "svelte/transition";
-  import ErrorContainer from "$lib/components/bet-controller/ErrorContainer.svelte";
-  import BetModule, {getSetting} from "./components/BetModule.svelte";
-  import ContainerV2 from "$lib/components/bet-controller/ContainerV2.svelte";
+  import {getSetting} from "./components/BetModule.svelte";
   import {spring} from "svelte/motion";
-  import HistoryRow from "$lib/components/bet-controller/HistoryRow.svelte";
-  import ActionButton from "$lib/components/buttons/ActionButton.svelte";
-  import BetHistory from "$lib/components/bet-controller/BetHistory.svelte";
-  import EnergyModule from "$lib/components/bet-controller/EnergyModule.svelte";
-  import BonusModule from "$lib/components/bet-controller/BonusModule.svelte";
   import {hashToNumber} from "$lib/games/Rugbull/decrypt";
   import ResultsRow from "$lib/games/Rugbull2/components/ResultsRow.svelte";
   import ShieldIcon from "$lib/icons/ShieldIcon.svelte";
@@ -23,11 +14,9 @@
   import SoundOffIcon from "$lib/icons/SoundOffIcon.svelte";
   import IconToggleButton from "$lib/components/buttons/IconToggleButton.svelte";
   import SubHeader from "./components/SubHeader.svelte";
-  import TheBull from "./components/TheBull.svelte";
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
-  import TelegramLoginButton from "$lib/components/telegram/TelegramLoginButton.svelte";
-  import {getSocket} from "$lib/stores/socket";
-  import {user} from "$lib/stores/_user";
+  import {_connected, initSocket, socket} from "$lib/stores/socket";
+  import {_user} from "$lib/stores/_user";
   import {loadSettings, soundOn} from "$lib/stores/_settings";
   import {goto} from "$app/navigation";
   import BetController from "./components/BetController.svelte";
@@ -47,7 +36,6 @@
   let chart = [];
   let startTime = null;
   let secondsToStart = 0;
-  let connected = false;
   let multiplier = 1;
   let multiplierHistory = [];
   let betHistory: RugbullAPI.UserBet[] = [];
@@ -74,10 +62,10 @@
 
   /// REACTIVE
   $: {
-    useBonus = !$user.energy || $user.energy < 150;
+    useBonus = !$_user.energy || $_user.energy < 150;
   }
   $: {
-    userId = $user.userId
+    userId = $_user.userId
   }
 
   $: {
@@ -122,6 +110,15 @@
     if (state === 'waiting') {
       soundGetReady.currentTime = 0;
       $soundOn && soundGetReady.play()
+    }
+  }
+
+  $: {
+    if (state !== "connecting" && !$_connected){
+      state = "reconnecting"
+    }
+    else if (state === "connecting" && $_connected){
+      state = "loading"
     }
   }
 
@@ -249,23 +246,14 @@
   }
 
   /// SOCKET HANDLERS
-  function initSocket() {
-    const socket = getSocket()
+  function initSocketOnMount() {
+    const socket = initSocket()
 
     if (socket == null) {
       return
     }
 
-    rugbull.subscribe(socket)
-
-    socket.on("disconnect", () => {
-      connected = false;
-      state = "reconnecting";
-    });
-
     socket.on("connect", () => {
-      state = "loading";
-      connected = true;
       getGameInfo(socket);
       getGameResults(socket);
     });
@@ -362,7 +350,7 @@
         };
 
         if (coinType === 1) {
-          user.update(it => {
+          _user.update(it => {
             it.energy = data.newBalance;
             return it
           })
@@ -410,7 +398,7 @@
   onMount(() => {
 
     loadSettings()
-    initSocket();
+    initSocketOnMount();
 
     const intervalId2 = setInterval(() => {
       if (startTime) {
@@ -418,7 +406,6 @@
       }
     }, 100);
     return () => {
-      getSocket()?.disconnect();
       clearInterval(intervalId2);
     };
   });
@@ -435,14 +422,13 @@
   }
 
   $: {
-    if (betHistoryPage && getSocket()) {
-      postHistory(getSocket());
+    if (betHistoryPage && socket) {
+      postHistory(socket);
     }
   }
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
-    const socket = getSocket()
     if (socket) {
       const record = records[index];
       const setting = getSetting(`setting-${index}`);
@@ -483,7 +469,7 @@
             label="Current multiplier"
             number={formatMultiplier(multiplier)}
         />
-      {:else if !$user.login}
+      {:else if !$_user.login}
         <SubHeader
             label="Not login"
             number="Login to play"
@@ -517,7 +503,7 @@
       />
     </div>
   </div>
-  {#if $user.login}
+  {#if $_user.login}
     <BetController
         {multiplier}
         showCashout0={records[0] != null}

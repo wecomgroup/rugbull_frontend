@@ -1,31 +1,36 @@
 import {io} from "socket.io-client";
 import {subscribeUser} from "$lib/stores/_user.js";
 import {_error} from "$lib/stores/_error.js";
-import {isBrowser} from "$lib";
+import {PUBLIC_SOCKET_URL} from "$env/static/public";
+import {browser} from "$app/environment";
+import {writable} from "svelte/store";
+import {rugbull} from "$lib/stores/_rugbull.js";
 
 /** @type import("socket.io-client").Socket */
-let socket
+export let socket
 
-export function getSocket(){
-  if (socket != null){
-    return socket
-  }
+export const _connected = writable(false);
 
-  const token = isBrowser() && localStorage.getItem("token");
+export function initSocket(){
+  if (!browser) return null
+  if (socket != null) return socket
+  const token = localStorage.getItem("token");
+  if (!token) return null
 
-  if (!token){
-    return null
-  }
-
-
-  socket = io("https://api.rugbull.io", {
+  socket = io(PUBLIC_SOCKET_URL, {
     extraHeaders: {
       Authorization: token,
     },
   });
 
+  subscribeUser(socket)
+  rugbull.subscribe(socket)
+
   socket.on("connect", () => {
-    subscribeUser(socket)
+    _connected.set(true);
+  })
+  socket.on("disconnect", () => {
+    _connected.set(false);
   })
 
   return socket;
