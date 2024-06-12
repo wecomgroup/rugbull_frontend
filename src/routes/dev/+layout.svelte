@@ -1,7 +1,8 @@
 <script>
   const MENUS = [
-    '/dev/components',
     '/dev/home',
+    '/dev/magic-cards',
+    '/dev/components',
     '/dev/debug',
   ]
 </script>

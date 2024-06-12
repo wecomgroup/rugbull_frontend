@@ -4,13 +4,15 @@
 
   export let distance = 0;
   export let speed = 1;
+  export let hideGround = false;
+  export let fullScreen = false;
 </script>
 
 <!--Background -->
-<div class="background noselect">
+<div class="background noselect" class:full-screen={fullScreen}>
 
   <!--Crater -->
-  <div class="ground grid-ground">
+  <div class="ground grid-ground" class:hidden={hideGround}>
     <ScrollableImage x={distance}
                      height="100px"
                      src="/images/rugbull2/crater.webp"
@@ -88,6 +90,8 @@
 
 
   }
-
+  .full-screen {
+    height: 100vh;
+  }
 
 </style>
