@@ -18,10 +18,10 @@
   import {_connected, initSocket, socket} from "$lib/stores/socket";
   import {_user} from "$lib/stores/_user";
   import {loadSettings, soundOn} from "$lib/stores/_settings";
-  import {goto} from "$app/navigation";
   import BetController from "./components/BetController.svelte";
   import {rugbull} from "$lib/stores/_rugbull";
   import LiveCashoutMobile, {randomUserEscape} from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
+  import FairnessModal from "$lib/games/Rugbull2/fairness/FairnessModal.svelte";
 
   dayjs.extend(duration);
 
@@ -29,27 +29,21 @@
 
   /// STATE
   let state = "connecting";
-  let clientSeed = undefined;
-  let serverHash = undefined;
-  let lastRound = undefined;
   let userId = undefined;
   let chart = [];
   let startTime = null;
   let secondsToStart = 0;
   let multiplier = 1;
   let multiplierHistory = [];
-  let betHistory: RugbullAPI.UserBet[] = [];
   let betHistoryPage = 1;
-  let betHistoryCount = 0;
   let betHistoryLimit = 10;
   let currentRound: string | null = null;
   let messages: string[] = [];
   let errorMessage: string | undefined;
   let records: [Rugbull.Record?, Rugbull.Record?] = [];
-  let launchGame = false;
-  let useCashout;
   let useBonus = false;
   let bullState = 0;
+  let openFairness = false;
 
   const distance = spring(0, {stiffness: 0.02});
   const {userEscapes} = rugbull
@@ -234,8 +228,6 @@
       createSocketHandler<RugbullAPI.ResultEvent>((event) => {
         console.log("RESULTS event", event);
         const data = event.rows;
-        serverHash = data[0].encryption;
-        lastRound = data[0].round;
         data.forEach((i) => {
           i.multiplier = hashToNumber(i.encryption);
         });
@@ -315,8 +307,6 @@
       },
       createSocketHandler<RugbullAPI.HistoryEvent>((data) => {
         console.log("HISTORY", data);
-        betHistoryCount = data.count;
-        betHistory = data.rows;
       }),
     );
   }
@@ -453,7 +443,8 @@
           iconTrue={ShieldIcon}
           iconFalse={ShieldIcon}
           selected={true}
-          on:click={() => goto("/debug")}
+          buttonOnly={true}
+          on:click={() => openFairness = true}
       />
       <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
       <ResultsRow results={multiplierHistory}/>
@@ -517,6 +508,7 @@
   {/if}
 </main>
 
+<FairnessModal bind:open={openFairness} />
 
 <audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
 <audio bind:this={soundLaugh} src="/sound/rugbull/laugh.mp3"/>

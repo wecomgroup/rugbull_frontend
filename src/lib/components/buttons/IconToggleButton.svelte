@@ -4,6 +4,7 @@
   export let iconFalse;
   export let iconTrue;
   export let selected = false;
+  export let buttonOnly = false;
 
   const dispatch = createEventDispatcher();
 
@@ -14,9 +15,11 @@
     class="grid items-center"
     on:click={() => {
       dispatch("click", {selected})
-      selected =!selected
+      if (!buttonOnly) {
+        selected =!selected
+      }
     }}
-        data-selected="{selected}"
+    data-selected="{selected}"
 >
   <svelte:component this={selected ? iconTrue : iconFalse}/>
 </button>

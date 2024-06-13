@@ -7,9 +7,7 @@
   let w,h;
 
   const MENUS = [
-    {name: "Home", href: "/"},
-    "/dev/games/rugbull2",
-    "/dev/components",
+    "/dev/home",
   ]
 
   $: {

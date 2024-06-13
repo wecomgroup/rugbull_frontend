@@ -28,7 +28,8 @@
   import CashoutInput from "$lib/components/input/CashoutInput.svelte";
   import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
   import SimpleCheckbox from "$lib/components/input/SimpleCheckbox.svelte";
-  import LiveCashoutMobile from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
+  import LiveCashoutMobile, {randomUserEscape} from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
+  import CopyableCode from "$lib/components/bet-controller/CopyableCode.svelte";
 
   let open = false;
   let openBottom = false;
@@ -56,6 +57,11 @@
     <LogoSquare/>
   </div>
 
+  <Divider/>
+
+  <CopyableCode
+      label="Client Seed"
+      text={"9cbd9b474ada1e75093ab5fb057bce06411a00a775a3cc0d0b8db4de3e314999"}/>
 
   <Divider/>
 

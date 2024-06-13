@@ -1,6 +1,5 @@
 .input-component {
   --input-background: #2D3144;
-  --label-color: #A8AACA;
   color: white;
 
   .input-wrapper{
@@ -9,12 +8,7 @@
     padding: .5rem;
   }
 
-  .label {
-    color: var(--label-color);
-    font-weight: 500;
-    text-transform: uppercase;
-    text-align: left;
-  }
+
 
   input {
     background-color: transparent;
