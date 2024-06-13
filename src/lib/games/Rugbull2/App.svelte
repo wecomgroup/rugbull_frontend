@@ -43,7 +43,7 @@
   let records: [Rugbull.Record?, Rugbull.Record?] = [];
   let useBonus = false;
   let bullState = 0;
-  let openFairness = true;
+  let openFairness = false;
 
   const distance = spring(0, {stiffness: 0.02});
   const {userEscapes} = rugbull
