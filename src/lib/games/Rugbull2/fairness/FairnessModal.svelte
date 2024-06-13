@@ -90,7 +90,7 @@
              showCloseIcon={true}
              allowScroll={true}
 >
-  <div slot="body">
+  <div slot="body" class="pt-4">
     <FairnessVerification
         {clientSeed}
         results={resultsHistory}

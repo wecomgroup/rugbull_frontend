@@ -17,7 +17,7 @@
 
 <BottomModal bind:open
              showCloseIcon={true}>
-  <div slot="body" class="grid justify-items-start gap-4">
+  <div slot="body" class="grid justify-items-start gap-4 p-4">
     <Logo/>
 
     <h2 class="mb-2">Menu</h2>

@@ -3,6 +3,7 @@
   import {hash, hashToNumber} from "$lib/games/Rugbull/decrypt.js";
   import {browser} from "$app/environment";
   import FieldLayout from "$lib/components/layout/FieldLayout.svelte";
+  import ResultsHistory from "$lib/games/Rugbull2/fairness/ResultsHistory.svelte";
 
   export let clientSeed = undefined;
   let serverHash = undefined;
@@ -37,67 +38,19 @@
 </script>
 
 <div class="modal-body">
+  <CopyableCode id="next-server-hash" label="Multiplier" text={multiplier}/>
   <CopyableCode id="client-seed" label="Client Seed" text={clientSeed ?? 'loading...'}/>
   <CopyableCode id="server-hash" label="Server Seed" text={serverHash ?? 'loading...'}/>
-
-  <CopyableCode id="next-server-hash" label="Multiplier" text={multiplier}/>
-
   <CopyableCode id="previous-server-hash" label="Previous Server Seed" text={nextServerHash ?? 'loading...'}/>
 
-
-  <h2 style="margin-top: 16px">Results History</h2>
-  <div style="overflow: auto; height: 100px">
-    <table class="table-primary" >
-      <thead>
-      <tr>
-        <th>Round</th>
-        <th>Encryption</th>
-        <th>Multiplier</th>
-      </tr>
-      </thead>
-      <tbody>
-      {#each results as {round, encryption}}
-        <tr>
-          <td>{round}</td>
-          <td>
-            <button class="encryption" on:click={() => serverHash = encryption}>
-              {encryption}
-            </button>
-          </td>
-          <td style="text-align: right">{hashToNumber(encryption).toFixed(6)}</td>
-        </tr>
-      {/each}
-      </tbody>
-    </table>
+  <div style="overflow: auto; height: 200px">
+    <ResultsHistory {results}
+                    on:click={e => serverHash = e.detail}
+    />
   </div>
 </div>
 
 <style>
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    text-decoration: underline;
-    color: var(--brand);
-  }
-
-  .encryption {
-    word-break: break-all;
-    text-align: left;
-  }
-
-  textarea {
-    padding: 8px;
-    color: black;
-    font-size: 16px;
-    border-radius: 6px;
-  }
-
-  td {
-    font-family: monospace;
-  }
 
 </style>
 
