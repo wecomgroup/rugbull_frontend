@@ -56,6 +56,8 @@
 
 
   /// IMAGES
+  const star = new Sprite("/images/rugbull2/stars.webp", {})
+  const star2 = new Sprite("/images/rugbull2/stars-2.webp", {})
   const ground = new Sprite("/images/rugbull2/crater.webp", {})
   const comet = new Sprite("/images/rugbull2/comet.webp", {})
 
@@ -83,6 +85,7 @@
 
   const booster = new Sprite('/images/rugbull2/sprites/fire.webp', {
     columns: 8,
+    fps: 10
   })
   const flag = new Sprite('/images/rugbull2/sprites/flag.webp', {
     rows: 4,
@@ -299,6 +302,11 @@
 
       function drawGround () {
         block(() => {
+          star.drawStatic(ctx, 0, 0, w, star.heightOf(w))
+          star2.drawStatic(ctx, 0, 0, w, star2.heightOf(w))
+        })
+
+        block(() => {
           const height = 100
           const width = ground.widthOf(height)
           const dx = - (distance  % width)
@@ -307,6 +315,7 @@
           ground.drawStatic(ctx, 0, 0, width, height)
           ground.drawStatic(ctx, width, 0, width, height)
         })
+
       }
 
       function drawComet({size, x, timeOffset = 0}){
@@ -347,7 +356,7 @@
       drawFlag()
       drawBull()
       if (state === 5) drawTomb()
-      drawCorners({canvasWidth: w, canvasHeight: h})
+      // drawCorners({canvasWidth: w, canvasHeight: h})
       drawRadiaGradient()
       drawMeter()
 

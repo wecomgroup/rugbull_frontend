@@ -11,9 +11,6 @@
 
   <!--Crater -->
 
-  <!--Star background -->
-  <img class="grid-full" alt="stars" src="/images/rugbull2/stars.webp" style="object-fit: cover"/>
-  <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
 
   <div class="grid-header" style="z-index: 2">
     <slot name="header"/>
