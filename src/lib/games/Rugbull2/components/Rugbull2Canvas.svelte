@@ -3,7 +3,8 @@
   import {spring} from "svelte/motion";
   import Canvas2 from "$lib/components/animation/Canvas2.svelte";
   import {Sprite} from "$lib/utils/Sprite.js";
-  import {interpolateBezierCurve} from "$lib/utils/interpolate.js";
+  import {interpolateBezierCurve, interpolateLinear} from "$lib/utils/interpolate.js";
+  import {createAnimationLoop} from "$lib";
 
   export let style = undefined;
   export let width = 400;
@@ -22,6 +23,7 @@
   let log
   let drawCount = 0
   let t = Date.now();
+  let t2 = 0; // time since animation started
 
   const bullPosition = spring(0, {stiffness: 0.03});
 
@@ -55,6 +57,7 @@
 
   /// IMAGES
   const ground = new Sprite("/images/rugbull2/crater.webp", {})
+  const comet = new Sprite("/images/rugbull2/comet.webp", {})
 
   const bulls = [
     new Sprite('/images/rugbull2/sprites/a.webp', {
@@ -91,11 +94,13 @@
 
 
   onMount(() => {
-    const i = setInterval(() => {
+    const animation = createAnimationLoop((props) => {
       t = Date.now()
-    }, 100)
+      t2 = props.t;
+    })
+    animation.startLoop()
     return () => {
-      clearInterval(i)
+      animation.stopLoop()
     }
   })
 
@@ -304,9 +309,40 @@
         })
       }
 
+      function drawComet({size, x, timeOffset = 0}){
+        block(() => {
+          const duration = 150000 / size;
+          const height = size
+          const width = comet.widthOf(height)
+
+          const angle = Math.PI / 4
+          const t_ = ((t2 + timeOffset) % duration) / duration
+          const life = Math.floor((t2 + timeOffset) / duration)
+
+          /**@type {[number, number]} */
+          const from = [(x + life * 4 * size) % (w * 1.2), 0]
+          /**@type {[number, number]} */
+          const to = [-width * Math.cos(angle), 0]
+
+
+          to[1] = Math.tan(angle) * (from[0] - to[0]) + from[1]
+          const d = interpolateLinear(from, to, t_)
+          ctx.translate(d.x, d.y)
+          ctx.rotate(-Math.PI /4)
+
+
+          comet.drawStatic(ctx, 0, 0, width, height)
+        })
+      }
+
       /// DRAW
 
 
+      drawComet({size: 5, x: 200, timeOffset: 0})
+      drawComet({size: 9, x: 350, timeOffset: 2000})
+      drawComet({size: 12, x: 400, timeOffset: 2000})
+      drawComet({size: 15, x: 100, timeOffset: 0,})
+      drawComet({size: 17, x: 300, timeOffset: 5000})
       drawGround()
       drawFlag()
       drawBull()

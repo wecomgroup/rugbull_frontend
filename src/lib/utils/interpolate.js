@@ -4,3 +4,9 @@ export function interpolateBezierCurve([x1, y1], [x2, y2], [x3, y3], t) {
   return {x, y}
 }
 
+export function interpolateLinear([x1, y1], [x2, y2], t) {
+  const x = x1 + t * (x2 - x1)
+  const y = y1 + t * (y2 - y1)
+  return {x, y}
+}
+

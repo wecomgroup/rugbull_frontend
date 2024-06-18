@@ -11,7 +11,7 @@ export class Sprite {
   #startTime
   #fps
 
-  constructor(src, {rows = 1, columns = 1, fps = 15}) {
+  constructor(src, {rows = 1, columns = 1, fps = 4}) {
     this.#rows = rows;
     this.#columns = columns;
     this.#fps = fps;

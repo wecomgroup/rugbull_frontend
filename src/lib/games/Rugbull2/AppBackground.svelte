@@ -1,6 +1,4 @@
 <script lang="js">
-  import ScrollableImage from "$lib/games/Rugbull2/components/ScrollableImage.svelte";
-  import CometsAnimation from "$lib/games/Rugbull2/components/CometsAnimation.svelte";
 
   export let distance = 0;
   export let speed = 1;
@@ -16,10 +14,6 @@
   <!--Star background -->
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars.webp" style="object-fit: cover"/>
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
-
-  <div class="grid-top">
-    <CometsAnimation speed={speed} style="height: 60%;"/>
-  </div>
 
   <div class="grid-header" style="z-index: 2">
     <slot name="header"/>
