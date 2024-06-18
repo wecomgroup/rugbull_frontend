@@ -43,7 +43,7 @@
   <CopyableCode id="server-hash" label="Server Seed" text={serverHash ?? 'loading...'}/>
   <CopyableCode id="previous-server-hash" label="Previous Server Seed" text={nextServerHash ?? 'loading...'}/>
 
-  <div style="overflow: auto; height: 200px">
+  <div class="scrollbar-1" style="overflow: auto; height: 200px">
     <ResultsHistory {results}
                     on:click={e => serverHash = e.detail}
     />

@@ -7,6 +7,7 @@
   export let label
 
   function copyToClipboard() {
+    // does not work when in iframe
     navigator.clipboard.writeText(text);
   }
 </script>

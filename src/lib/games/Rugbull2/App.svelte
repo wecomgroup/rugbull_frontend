@@ -22,6 +22,7 @@
   import {rugbull} from "$lib/stores/_rugbull";
   import LiveCashoutMobile, {randomUserEscape} from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
   import FairnessModal from "$lib/games/Rugbull2/fairness/FairnessModal.svelte";
+  import AppLayout from "$lib/games/Rugbull2/AppLayout.svelte";
 
   dayjs.extend(duration);
 
@@ -108,10 +109,18 @@
   }
 
   $: {
-    if (state !== "connecting" && !$_connected){
-      state = "reconnecting"
+    if (!$soundOn) {
+      soundCashout?.pause()
+      soundLaugh?.pause()
+      soundStart?.pause()
+      soundGetReady?.pause()
     }
-    else if (state === "connecting" && $_connected){
+  }
+
+  $: {
+    if (state !== "connecting" && !$_connected) {
+      state = "reconnecting"
+    } else if (state === "connecting" && $_connected) {
       state = "loading"
     }
   }
@@ -395,9 +404,6 @@
         secondsToStart = Math.max(0, Math.ceil((startTime - Date.now()) / 1000));
       }
     }, 100);
-    return () => {
-      clearInterval(intervalId2);
-    };
   });
 
   let errorMessageTimeoutId;
@@ -431,84 +437,86 @@
   }
 </script>
 
-<main>
-
-  <AppBackground speed={multiplier} distance={$distance}>
-    <div
-        slot="header"
-        class="grid gap-2 p-2"
-        style="grid-template-columns: auto auto 1fr"
-    >
-      <IconToggleButton
-          iconTrue={ShieldIcon}
-          iconFalse={ShieldIcon}
-          selected={true}
-          buttonOnly={true}
-          on:click={() => openFairness = true}
-      />
-      <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
-      <ResultsRow results={multiplierHistory}/>
-    </div>
-    <div slot="sub-header">
-      {#if state === "waiting"}
-        <SubHeader
-            label="Next game"
-            number={formatDuration(secondsToStart * 1000)}
+<AppLayout>
+  <div slot="animation">
+    <AppBackground speed={multiplier} distance={$distance}>
+      <div
+          slot="header"
+          class="grid gap-2 p-2"
+          style="grid-template-columns: auto auto 1fr"
+      >
+        <IconToggleButton
+            iconTrue={ShieldIcon}
+            iconFalse={ShieldIcon}
+            selected={true}
+            buttonOnly={true}
+            on:click={() => openFairness = true}
         />
-      {:else if state === "running"}
-        <SubHeader
-            label="Current multiplier"
-            number={formatMultiplier(multiplier)}
-        />
-      {:else if !$_user.login}
-        <SubHeader
-            label="Not login"
-            number="Login to play"
-        />
-      {:else}
-        <SubHeader label={state} number={state}/>
-      {/if}
-    </div>
-    <div slot="body" class="h-full relative">
-      <div class="canvas-container absolute bottom-0">
-        <Rugbull2Canvas
-            width={400}
-            height={300}
-            state={bullState}
-            style="width: 100%"
-            distance={$distance}
-            multiplier={multiplier}
-        />
+        <IconToggleButton bind:selected={$soundOn} iconTrue={SoundOnIcon} iconFalse={SoundOffIcon}/>
+        <ResultsRow results={multiplierHistory}/>
       </div>
-    </div>
-  </AppBackground>
-
-  <div class="fake-controller-header">
-    <div class="my-2">
-      <LiveCashoutMobile
-          items={[
+      <div slot="sub-header">
+        {#if state === "waiting"}
+          <SubHeader
+              label="Next game"
+              number={formatDuration(secondsToStart * 1000)}
+          />
+        {:else if state === "running"}
+          <SubHeader
+              label="Current multiplier"
+              number={formatMultiplier(multiplier)}
+          />
+        {:else if !$_user.login}
+          <SubHeader
+              label="Not login"
+              number="Login to play"
+          />
+        {:else}
+          <SubHeader label={state} number={state}/>
+        {/if}
+      </div>
+      <div slot="body" class="h-full relative">
+        <div class="canvas-container absolute bottom-0">
+          <Rugbull2Canvas
+              width={400}
+              height={300}
+              state={bullState}
+              style="width: 100%"
+              distance={$distance}
+              multiplier={multiplier}
+          />
+        </div>
+      </div>
+    </AppBackground>
+  </div>
+  <div slot="controller" class="flex flex-col">
+    <div class="fake-controller-header">
+      <div class="my-2">
+        <LiveCashoutMobile
+            items={[
           ...$userEscapes.map(i => ({...i, isUser: userId === i.userId})),
           ...(isDevMode ? [randomUserEscape(), randomUserEscape(), randomUserEscape(), randomUserEscape()] : [])
           ]}
-          style="padding-left: 0.5rem; padding-right: 0.5rem"
-      />
+            style="padding-left: 0.5rem; padding-right: 0.5rem"
+        />
+      </div>
     </div>
-  </div>
-  {#if $_user.login}
-    <BetController
-        {multiplier}
-        showCashout0={records[0] != null}
-        showCashout1={records[1] != null}
-        coinType={useBonus ? 2 : 1}
-        gameState={state}
-        on:action={e => {
+    {#if $_user.login}
+      <BetController
+          {multiplier}
+          showCashout0={records[0] != null}
+          showCashout1={records[1] != null}
+          coinType={useBonus ? 2 : 1}
+          gameState={state}
+          on:action={e => {
         onBetOrCashout(e.detail)
       }}
-    />
-  {/if}
-</main>
+      />
+    {/if}
+  </div>
+</AppLayout>
 
-<FairnessModal bind:open={openFairness} />
+<FairnessModal bind:open={openFairness}/>
 
 <audio bind:this={soundCashout} src='/sound/rugbull/kaching.mp3'/>
 <audio bind:this={soundLaugh} src="/sound/rugbull/laugh.mp3"/>
@@ -517,10 +525,6 @@
 
 
 <style>
-  main {
-    display: flex;
-    flex-direction: column;
-  }
   .canvas-container {
     width: 100%;
     @media (min-width: 568px) {

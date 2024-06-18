@@ -11,13 +11,13 @@ export class Sprite {
   #startTime
   #fps
 
-  constructor(src, {rows = 1, columns = 1, fps =15}) {
+  constructor(src, {rows = 1, columns = 1, fps = 15}) {
     this.#rows = rows;
     this.#columns = columns;
     this.#fps = fps;
     this.#startTime = Date.now();
 
-    if (isBrowser()){
+    if (isBrowser()) {
       loadImage(src)
         .then(({image}) => {
           this.#img = image;
@@ -26,7 +26,7 @@ export class Sprite {
   }
 
   #width() {
-    return this.#img?.width ;
+    return this.#img?.width;
   }
 
   imageHeight() {
@@ -40,15 +40,19 @@ export class Sprite {
     return frame;
   }
 
-  frameHeight(){
+  frameHeight() {
     return this.#img ? this.imageHeight() / this.#rows : 0;
   }
-  frameWidth(){
+
+  frameWidth() {
     return this.#width() / this.#columns;
   }
 
-  heightOf(w){
+  heightOf(w) {
     return w * this.frameHeight() / this.frameWidth();
+  }
+  widthOf(h) {
+    return h * this.frameWidth() / this.frameHeight();
   }
 
   /**
@@ -74,6 +78,10 @@ export class Sprite {
 
 
     ctx.drawImage(this.#img, sx, sy, sw, sh, x, y, dw, dh);
+  }
+
+  drawStatic(ctx, x, y, dw, dh) {
+    this.draw(ctx, 0, x, y, dw, dh);
   }
 }
 

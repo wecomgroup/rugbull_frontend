@@ -12,15 +12,8 @@
 <div class="background noselect" class:full-screen={fullScreen}>
 
   <!--Crater -->
-  <div class="ground grid-ground" class:hidden={hideGround}>
-    <ScrollableImage x={distance}
-                     height="100px"
-                     src="/images/rugbull2/crater.webp"
-    />
-  </div>
 
   <!--Star background -->
-  <div class="layer grid-full"/>
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars.webp" style="object-fit: cover"/>
   <img class="grid-full" alt="stars" src="/images/rugbull2/stars-2.webp" style="object-fit: cover"/>
 
@@ -75,13 +68,6 @@
     .grid-top {
       grid-row: 1/span 3;
       grid-column: 1;
-    }
-
-
-
-    .layer {
-      z-index: 2;
-      background: radial-gradient(rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.7));
     }
 
     .ground {

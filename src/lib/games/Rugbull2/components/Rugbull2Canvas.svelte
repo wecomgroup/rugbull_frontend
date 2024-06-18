@@ -12,6 +12,8 @@
   export let distance = 0;
   export let multiplier = 1;
 
+  let mouseScroll = 0;
+
   const bullSize = 100;
   const QUARTER = Math.PI / 4;
 
@@ -29,6 +31,13 @@
   onMount(() => {
     start.set(100);
   });
+
+  function wheel(e) {
+    // mouseScroll += e.deltaY
+    // console.log("wheel", mouseScroll)
+    // e.preventDefault()
+  }
+
   $: {
     if (state === 0) {
       bullPosition.set(0, {hard: true})
@@ -45,6 +54,7 @@
 
 
   /// IMAGES
+  const ground = new Sprite("/images/rugbull2/crater.webp", {})
 
   const bulls = [
     new Sprite('/images/rugbull2/sprites/a.webp', {
@@ -79,6 +89,7 @@
     fps: 5,
   })
 
+
   onMount(() => {
     const i = setInterval(() => {
       t = Date.now()
@@ -109,12 +120,22 @@
       /// DRAW FUNCTIONS
       /// draw square at 4 corners
       function drawCorners({canvasWidth, canvasHeight}) {
-        const size = 10;
-        ctx.fillStyle = RED;
+        const size = 20;
+        ctx.fillStyle = "white";
         ctx.fillRect(0, 0, size, size)
         ctx.fillRect(canvasWidth - size, 0, size, size)
         ctx.fillRect(0, canvasHeight - size, size, size)
         ctx.fillRect(canvasWidth - size, canvasHeight - size, size, size)
+      }
+
+      function drawRadiaGradient(){
+        block(() => {
+          const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, h);
+          gradient.addColorStop(0.3, "rgba(0,0,0,0)");
+          gradient.addColorStop(1, "rgba(0,0,0, 0.7)");
+          ctx.fillStyle = gradient
+          ctx.fillRect(0, 0, w, h)
+        })
       }
 
       function drawPoint() {
@@ -269,16 +290,29 @@
           drawLine(min + i * 0.5)
         })
         drawArrow()
+      }
 
+      function drawGround () {
+        block(() => {
+          const height = 100
+          const width = ground.widthOf(height)
+          const dx = - (distance  % width)
+          ctx.translate(dx, h - height)
+          ground.drawStatic(ctx, -width, 0, width, height)
+          ground.drawStatic(ctx, 0, 0, width, height)
+          ground.drawStatic(ctx, width, 0, width, height)
+        })
       }
 
       /// DRAW
 
 
+      drawGround()
       drawFlag()
       drawBull()
       if (state === 5) drawTomb()
-      // drawCorners({canvasWidth: w, canvasHeight: h})
+      drawCorners({canvasWidth: w, canvasHeight: h})
+      drawRadiaGradient()
       drawMeter()
 
       /// FINAL
@@ -288,5 +322,7 @@
 
 </script>
 
-<Canvas2 {width} {height} bind:ctx {style}/>
+<div on:wheel={wheel}>
+  <Canvas2 {width} {height} bind:ctx {style}/>
+</div>
 
