@@ -228,7 +228,7 @@
       function drawMeter() {
         /// draw from right
         const x = w
-        const y = h/2
+        const y = h * 0.6
         const t1 = 6
         const t2 = 2
         const space = 180
@@ -271,11 +271,10 @@
         }
 
         function drawArrow(){
-
           block(() => {
             const triangleSize = 20
             const triangleH = 28
-            ctx.translate(x, h/2)
+            ctx.translate(x, y)
             ctx.lineWidth = 4
 
             // Add three color stops
@@ -311,9 +310,11 @@
           const width = ground.widthOf(height)
           const dx = - (distance  % width)
           ctx.translate(dx, h - height)
+          ground.drawStatic(ctx, -width * 2, 0, width, height)
           ground.drawStatic(ctx, -width, 0, width, height)
           ground.drawStatic(ctx, 0, 0, width, height)
           ground.drawStatic(ctx, width, 0, width, height)
+          ground.drawStatic(ctx, width * 2, 0, width, height)
         })
 
       }

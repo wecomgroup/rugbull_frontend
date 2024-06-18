@@ -20,16 +20,19 @@
     <slot name="sub-header"/>
   </div>
 
-  <div style="grid-column: 1; grid-row: 3/-1; z-index: 2">
+  <div class="grid-full">
     <slot name="body"/>
   </div>
+<!--  <div style="grid-column: 1; grid-row: 3/-1; z-index: 2">-->
+<!--    <slot name="body"/>-->
+<!--  </div>-->
 </div>
 
 
 <style lang="scss">
   .background {
     background: #111830;
-    height: 360px;
+    height: 300px;
     overflow: hidden;
 
     display: grid;
@@ -67,8 +70,15 @@
 
 
   }
+
   .full-screen {
     height: 100vh;
+  }
+
+  @media (min-width: 375px){
+    .background {
+      height: 360px;
+    }
   }
 
 </style>

@@ -29,6 +29,7 @@
   export let debug = false;
 
   /// STATE
+  let innerWidth = 0;
   let state = "connecting";
   let userId = undefined;
   let chart = [];
@@ -476,10 +477,12 @@
         {/if}
       </div>
       <div slot="body" class="h-full relative">
-        <div class="canvas-container absolute bottom-0">
+        <div class="w-full absolute bottom-0">
           <Rugbull2Canvas
-              width={400}
-              height={300}
+              width={innerWidth >= 768 ? 800 :
+              innerWidth >= 568 ? 600 :
+              400}
+              height={400}
               state={bullState}
               style="width: 100%"
               distance={$distance}
@@ -523,19 +526,12 @@
 <audio bind:this={soundStart} src="/sound/rugbull/dog-start.mp3"/>
 <audio bind:this={soundGetReady} src="/sound/rugbull/get-ready.mp3"/>
 
+<svelte:window bind:innerWidth/>
 
 <style>
-  .canvas-container {
-    width: 100%;
-    @media (min-width: 568px) {
-      width: 400px;
-      left: 50%;
-      transform: translate(-50%, 0);
-    }
-  }
 
   .fake-controller-header {
-    margin-top: -1rem;
+    margin-top: -1.5rem;
     padding-bottom: 1rem;
     border-top-left-radius: 2rem;
     border-top-right-radius: 2rem;

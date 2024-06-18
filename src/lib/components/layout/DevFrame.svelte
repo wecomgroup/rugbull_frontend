@@ -1,4 +1,7 @@
 <script lang="js">
+  import {onMount} from "svelte";
+  import {browser} from "$app/environment";
+
   export let src;
 
   const SETTINGS = [
@@ -37,16 +40,29 @@
     }
   ]
 
+  let selected = 2
   let innerHeight
-  let setting = SETTINGS[2]
+  let mounted = false
+  $: setting = SETTINGS[selected]
+
+  $: browser && mounted &&  localStorage.setItem('dev-frame-index', selected.toString())
+
+  onMount(() => {
+    if (browser) {
+      const index = localStorage.getItem('dev-frame-index')
+      selected = parseInt(index)
+      if (isNaN(selected)) selected = 2;
+    }
+    mounted = true
+  })
 
 </script>
 <svelte:window bind:innerHeight/>
 
 <main>
   <div class="row">
-    {#each SETTINGS as it}
-      <button on:click={() => setting= it}>{it.label}</button>
+    {#each SETTINGS as it, index}
+      <button on:click={() => selected= index}>{it.label}</button>
     {/each}
   </div>
 

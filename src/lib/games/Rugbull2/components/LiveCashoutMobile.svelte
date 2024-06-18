@@ -13,7 +13,6 @@
 </script>
 <script>
   import LiveCashoutMobileItem from "$lib/games/Rugbull2/components/LiveCashoutMobileItem.svelte";
-  import {fly} from 'svelte/transition';
   import {spring} from 'svelte/motion';
 
   /**@type {Rugbull.UserEscape[]}*/
@@ -56,7 +55,6 @@
 <style>
   div {
     overflow: auto;
-    min-height: 40px;
     padding-bottom: 1rem;
   }
 </style>
