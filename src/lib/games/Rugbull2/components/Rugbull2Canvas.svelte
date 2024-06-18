@@ -114,10 +114,12 @@
       /// CLEAR CANVAS
       const {width: w, height: h} = ctx.canvas
       log = `${w} x ${h}`
-
       ctx.save();
-
       ctx.clearRect(0, 0, w, h);
+
+      /// Frame variable
+      const leftX = (w >= 400 ? w / 2 - 200 : 0)
+      const rightX = (w >= 600 ? w / 2 + 300 : w)
 
       function block(fn) {
         ctx.save()
@@ -136,9 +138,9 @@
         ctx.fillRect(canvasWidth - size, canvasHeight - size, size, size)
       }
 
-      function drawRadiaGradient(){
+      function drawRadiaGradient() {
         block(() => {
-          const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, h);
+          const gradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, h);
           gradient.addColorStop(0.3, "rgba(0,0,0,0)");
           gradient.addColorStop(1, "rgba(0,0,0, 0.7)");
           ctx.fillStyle = gradient
@@ -164,7 +166,7 @@
       function getBullLocation2() {
         const yBottom = h - bulls[0].heightOf(bullSize) / 2 - 20
         return interpolateBezierCurve(
-          [bullSize / 2 + 10, yBottom],
+          [bullSize / 2 + (leftX + 10), yBottom],
           [w / 2 + 40, yBottom],
           [w / 2 + 40, yBottom - 40],
           $bullPosition
@@ -207,7 +209,7 @@
       }
 
       function drawFlag() {
-        const x = 130 - distance
+        const x = 120 - distance + leftX
         const y = h - 40
         block(() => {
           ctx.translate(x, y)
@@ -227,7 +229,7 @@
 
       function drawMeter() {
         /// draw from right
-        const x = w
+        const x = rightX
         const y = h * 0.6
         const t1 = 6
         const t2 = 2
@@ -238,11 +240,12 @@
         function colorFromDy(dy) {
           return `rgba(255,255,255, ${Math.max(0, 1.4 - Math.abs(dy) / 100)})`
         }
+
         function drawLine(mul) {
           block(() => {
-            const scale = function(dy) {
+            const scale = function (dy) {
               // return 1
-              return (space-Math.abs(dy)) * 0.002 + 0.5
+              return (space - Math.abs(dy)) * 0.002 + 0.5
             }
             const fontSize = 24
 
@@ -252,25 +255,25 @@
               ctx.fillStyle = colorFromDy(dy)
               ctx.translate(x, y + dy)
               ctx.scale(scale(dy), scale(dy))
-              ctx.fillRect(0, -t1/2,-30, t1)
-              ctx.font = `normal ${ fontSize }px sans-serif`
-              ctx.fillText(`${mul.toFixed(1)}`, -50 - fontSize, fontSize/2 - 3)
+              ctx.fillRect(0, -t1 / 2, -30, t1)
+              ctx.font = `normal ${fontSize}px sans-serif`
+              ctx.fillText(`${mul.toFixed(1)}`, -50 - fontSize, fontSize / 2 - 3)
             })
 
-            for (let i = 1 ; i < 5; i++){
+            for (let i = 1; i < 5; i++) {
               block(() => {
                 const diff = $currentMultiplier - (mul + i * 0.1)
                 const dy = diff * space
                 ctx.fillStyle = colorFromDy(dy)
                 ctx.translate(x, y + dy)
                 ctx.scale(scale(dy), scale(dy))
-                ctx.fillRect(0, 0,-20, t2)
+                ctx.fillRect(0, 0, -20, t2)
               })
             }
           })
         }
 
-        function drawArrow(){
+        function drawArrow() {
           block(() => {
             const triangleSize = 20
             const triangleH = 28
@@ -278,16 +281,16 @@
             ctx.lineWidth = 4
 
             // Add three color stops
-            const gradient = ctx.createLinearGradient(0,-10, 0,  10);
+            const gradient = ctx.createLinearGradient(0, -10, 0, 10);
             gradient.addColorStop(1, "rgba(255,53,222, 0.95)");
             gradient.addColorStop(0, "rgba(4,150,255, 0.95)");
             ctx.fillStyle = gradient
             ctx.beginPath()
-            ctx.moveTo(0,  - triangleH/2)
-            ctx.lineTo(-triangleSize * 0.7,  -2)
-            ctx.lineTo(-triangleSize * 0.7,  2)
-            ctx.lineTo(0,  + triangleH/2)
-            ctx.lineTo(0,  - triangleH/2)
+            ctx.moveTo(0, -triangleH / 2)
+            ctx.lineTo(-triangleSize * 0.7, -2)
+            ctx.lineTo(-triangleSize * 0.7, 2)
+            ctx.lineTo(0, +triangleH / 2)
+            ctx.lineTo(0, -triangleH / 2)
             ctx.fill()
           })
         }
@@ -299,7 +302,7 @@
         drawArrow()
       }
 
-      function drawGround () {
+      function drawGround() {
         block(() => {
           star.drawStatic(ctx, 0, 0, w, star.heightOf(w))
           star2.drawStatic(ctx, 0, 0, w, star2.heightOf(w))
@@ -308,7 +311,7 @@
         block(() => {
           const height = 100
           const width = ground.widthOf(height)
-          const dx = - (distance  % width)
+          const dx = -(distance % width)
           ctx.translate(dx, h - height)
           ground.drawStatic(ctx, -width * 2, 0, width, height)
           ground.drawStatic(ctx, -width, 0, width, height)
@@ -319,7 +322,7 @@
 
       }
 
-      function drawComet({size, x, timeOffset = 0}){
+      function drawComet({size, x, timeOffset = 0}) {
         block(() => {
           const duration = 150000 / size;
           const height = size
@@ -338,7 +341,7 @@
           to[1] = Math.tan(angle) * (from[0] - to[0]) + from[1]
           const d = interpolateLinear(from, to, t_)
           ctx.translate(d.x, d.y)
-          ctx.rotate(-Math.PI /4)
+          ctx.rotate(-Math.PI / 4)
 
 
           comet.drawStatic(ctx, 0, 0, width, height)

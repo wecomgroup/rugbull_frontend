@@ -80,5 +80,10 @@
       height: 360px;
     }
   }
+  @media (min-width: 568px){
+    .background {
+      height: 400px;
+    }
+  }
 
 </style>
