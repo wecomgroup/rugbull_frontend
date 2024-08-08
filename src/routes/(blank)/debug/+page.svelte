@@ -8,6 +8,7 @@
 
   const MENUS = [
     "/dev/home",
+    "/"
   ]
 
   $: {
@@ -24,7 +25,8 @@
 </script>
 
 <main>
-  <div class="flex gap-1">
+  <a href={`http://localhost:3000?token=${token}`} target="_blank">Open in browser</a>
+  <div class="grid gap-1">
     {#each MENUS as menu}
       {#if typeof menu === "object"}
         <a href={menu.href}>{menu.name}</a>

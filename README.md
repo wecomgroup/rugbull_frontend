@@ -29,3 +29,15 @@ make dev
 ```bash
 make deploy
 ```
+
+
+## Documentations
+
+Postman: 
+https://documenter.getpostman.com/view/15533615/2sA35G2MDK
+
+Design1: 
+https://www.figma.com/file/gv5mljLSGarTG8hDOqGyNg/TG.BET?type=design&node-id=2826-3429&mode=design&t=CHlXRHXfsZBkxmHh-0
+
+Design2: 
+https://www.figma.com/file/gv5mljLSGarTG8hDOqGyNg/TG.BET?type=design&node-id=2826-3429&mode=design&t=qa1bFMM0UYcrNwej-0
