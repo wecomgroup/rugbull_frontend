@@ -2,50 +2,81 @@
   import AppBackground from "$lib/games/Rugbull2/AppBackground.svelte";
   import Card from "$lib/components/layout/Card.svelte";
   import dayjs from "dayjs";
+  import duration from "dayjs/plugin/duration";
+  import relativeTime from "dayjs/plugin/relativeTime";
   import SubHeader from "$lib/games/Rugbull2/components/SubHeader.svelte";
   import Title from "$lib/components/texts/Title.svelte";
   import TitleH2 from "$lib/components/texts/TitleH2.svelte";
+  import { onMount } from "svelte";
+  import { MagicCardAPI } from "$lib/socket-api/magic-cards";
+  import { createQuery } from "@tanstack/svelte-query";
 
-  let pointsLimit = 2500
+  dayjs.extend(duration);
+  dayjs.extend(relativeTime)
 
-  $: cards = [
-    {
+
+  let pointsLimit = 2500;
+
+  const magicCards = createQuery({
+    queryKey: ["magic-cards"],
+    queryFn: MagicCardAPI.list,
+  });
+
+  const TYPES = {
+    "Speed up": {
       variant: "blue",
       title: "Speed up",
-      description: "This kind of magic card is to speed up increment of Locked Point, that means increase 2 points per second",
+      description:
+        "This kind of magic card is to speed up increment of Locked Point, that means increase 2 points per second",
       image: "/images/rugbull2/Lightning.svg",
       action: "Buy for 150.0",
       icon: "/images/user/coin.svg",
       tagLabel: "TIME TO ACTION",
-      tag: dayjs().format("hh:mm:ss")
+      tag: dayjs().format("hh:mm:ss"),
     },
-    {
+    "Expand pool": {
       variant: "red",
       title: "Expand pool",
-      description: "This kind of magic card is to expand the capacity of Locked Point Pool",
+      description:
+        "This kind of magic card is to expand the capacity of Locked Point Pool",
       image: "/images/rugbull2/Potion.svg",
       action: "Buy for 150.0",
       icon: "/images/user/coin.svg",
       tagLabel: "POINTS LIMIT",
-      tag: pointsLimit
+      tag: pointsLimit,
     },
-    {
+    "Double winning": {
       variant: "gray",
       title: "Double winning",
-      description: "This kind of magic card is to double winning of Free Point within valid period.",
+      description:
+        "This kind of magic card is to double winning of Free Point within valid period.",
       image: "/images/rugbull2/Double.svg",
       action: "Buy for 200.0",
       icon: "/images/user/coin.svg",
       tagLabel: "TIME TO ACTION",
-      tag: dayjs().format("hh:mm:ss")
-    }
-  ]
+      tag: dayjs().format("hh:mm:ss"),
+    },
+  }
+
+  $: cards = $magicCards.data?.cards.map((card) => {
+    return {
+      ...TYPES[card.type],
+      id: card.rowId,
+      title: card.name,
+      description: card.description,
+      tagLabel: "DURATION",
+      tag: dayjs.duration(card.duration, "s").humanize(),
+      action: `Buy for ${card.price}`,
+    };
+  }) ?? [];
+
+  function buyCard(id){
+    MagicCardAPI.buy({cardId: id});
+  }
 </script>
 
-
 <div class="fixed" style="z-index: -1">
-  <AppBackground hideGround={true} fullScreen={true}>
-  </AppBackground>
+  <AppBackground hideGround={true} fullScreen={true}></AppBackground>
 </div>
 
 <main>
@@ -53,15 +84,15 @@
   {#each cards as i}
     <Card variant={i.variant}>
       <div class="card-content">
-        <img class="image" alt="icon" src={i.image}/>
+        <img class="image" alt="icon" src={i.image} />
         <TitleH2>{i.title}</TitleH2>
         <p class="description">{i.description}</p>
         <div class="flex items-center w-full">
           <p class="flex-1">{i.tagLabel}</p>
           <div class="Tag">{i.tag}</div>
         </div>
-        <button>
-          {i.action} <img class="icon" alt="icon" src={i.icon}/>
+        <button on:click={() => buyCard(i.id)}>
+          {i.action} <img class="icon" alt="icon" src={i.icon} />
         </button>
       </div>
     </Card>
@@ -132,7 +163,8 @@
       pointer-events: none;
     }
 
-    &:disabled, &[disabled] {
+    &:disabled,
+    &[disabled] {
       background-image: var(--background-2);
       color: var(--text-gray);
     }

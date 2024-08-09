@@ -71,8 +71,16 @@
   width: 100%
 }
 
+.w-fit {
+  width: fit-content
+}
+
 .h-full {
   height: 100%;
+}
+
+.h-screen {
+  height: 100vh;
 }
 
 // Justify Items
@@ -114,6 +122,12 @@
 }
 
 // PADDING
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @each $i in 0 1 2 3 4 {
   .gap-#{$i} {
     gap: $i * .25rem;

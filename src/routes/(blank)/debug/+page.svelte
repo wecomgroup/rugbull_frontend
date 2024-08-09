@@ -25,7 +25,8 @@
 </script>
 
 <main>
-  <a href={`http://localhost:3000?token=${token}`} target="_blank">Open in browser</a>
+  <a href={`https://rugbull.me?token=${token}`} target="_blank">Open in browser</a>
+  <a href={`http://localhost:3000?token=${token}`} target="_blank">Open in localhost</a>
   <div class="grid gap-1">
     {#each MENUS as menu}
       {#if typeof menu === "object"}

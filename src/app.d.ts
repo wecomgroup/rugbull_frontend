@@ -57,12 +57,12 @@ declare global {
     }
 
     interface RoundEvent {
-      status : number,
-      elapsed : number,
-      multiplier : number,
-      pushTime : number,
-      round : number,
-      startTime : number,
+      status: number,
+      elapsed: number,
+      multiplier: number,
+      pushTime: number,
+      round: number,
+      startTime: number,
     }
 
     interface VictoryEvent {
@@ -145,7 +145,24 @@ declare global {
       auth_date: number,
       hash: string,
     }
+  }
 
+  namespace MagicCard {
+    interface Card {
+      rowId: number
+      name: string
+      type: string
+      price: string
+      duration: number
+      effect_amount: number
+      description: string
+    }
+
+    interface BuyResponse {
+      cardId: number
+      cardName: string
+      newBalance: number
+    }
   }
 
   interface Window {
@@ -172,4 +189,4 @@ declare global {
 }
 
 
-export {};
+export { };

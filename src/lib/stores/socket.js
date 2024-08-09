@@ -9,7 +9,7 @@ import {rugbull} from "$lib/stores/_rugbull.js";
 /** @type import("socket.io-client").Socket */
 export let socket
 
-export const _connected = writable(false);
+export const _socketConnected = writable(false);
 
 export function initSocket(){
   if (!browser) return null
@@ -27,10 +27,10 @@ export function initSocket(){
   rugbull.subscribe(socket)
 
   socket.on("connect", () => {
-    _connected.set(true);
+    _socketConnected.set(true);
   })
   socket.on("disconnect", () => {
-    _connected.set(false);
+    _socketConnected.set(false);
   })
 
   return socket;
