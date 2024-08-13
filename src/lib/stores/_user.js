@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 class UserStore {
   coin = writable(0)
   energy = writable({
-    energy: 0,
+    current: 0,
     maxEnergy: 1000,
     energyPerSecond: 1,
   })
@@ -29,7 +29,7 @@ class UserStore {
       console.log("EVENT balance", event);
 
       if (event.coinType === 1) {
-        this.energy.set(event.currentEnergy);
+        this.updateEnergy(event.currentEnergy);
       } else if (event.coinType === 2) {
         this.coin.set(parseFloat(event.userBonus));
       }
@@ -37,8 +37,8 @@ class UserStore {
 
     const intervalId = setInterval(() => {
       this.energy.update(it => {
-        if (it.energy < it.maxEnergy) {
-          it.energy += it.energyPerSecond
+        if (it.current < it.maxEnergy) {
+          it.current += it.energyPerSecond
         }
         return it
       })
@@ -74,7 +74,7 @@ class UserStore {
     );
 
     this.energy.set({
-      energy: currentEnergy,
+      current: currentEnergy,
       maxEnergy,
       energyPerSecond: energyPerSecond,
     })
@@ -88,7 +88,7 @@ class UserStore {
 
   updateEnergy(energy) {
     this.energy.update(it => {
-      it.energy = energy
+      it.current = energy
       return it
     })
   }

@@ -47,6 +47,13 @@ class BetStore {
     })
     return found
   }
+
+  setRecord(index, { id, auto, amount }) {
+    this.records.update(records => {
+      records[index] = { id, auto, amount };
+      return records;
+    })
+  }
 }
 
 export const betStore = new BetStore();

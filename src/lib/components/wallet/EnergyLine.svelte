@@ -20,7 +20,7 @@
 <div class="grid justify-items-end" style="gap: 2px">
   <div class="grid justify-items-end" style="overflow: hidden">
     <div class="flex items-center gap-1" style="transform: translate(0, {-$_start}px)">
-      {energyAmount.toFixed(2)} <span class="text-gray">/ {energyMax}</span>
+      {energyAmount?.toFixed(2)} <span class="text-gray">/ {energyMax}</span>
       <img alt="coin" src="/images/user/energy.svg"/>
     </div>
   </div>

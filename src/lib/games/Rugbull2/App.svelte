@@ -39,7 +39,6 @@
   let secondsToStart = 0;
   let multiplierHistory = [];
   let betHistoryPage = 1;
-  let currentRound: string | null = null;
   let messages: string[] = [];
   let errorMessage: string | undefined;
   let useBonus = false;
@@ -61,7 +60,7 @@
 
   /// REACTIVE
   $: {
-    useBonus = !$energy.energy || $energy.energy < 150;
+    useBonus = !$energy.current || $energy.current < 150;
   }
 
   $: {
@@ -217,7 +216,7 @@
     errorMessage = undefined;
     const coinType = useBonus ? 2 : 1;
     const payload = {
-      round: currentRound,
+      round: $round.currentRound,
       coinType,
       auto: setting.auto ? 1 : 0,
       multiplier: setting.cashoutMultiplier,
@@ -227,17 +226,15 @@
     console.log("BET", payload);
 
     const data = await BetAPI.bet(payload);
-    records[index] = {
+    betStore.setRecord(index, {
       id: data.recordId,
       auto: setting.auto,
       amount: setting.betAmount,
-    };
+    });
 
     if (coinType === 1) {
       userStore.updateEnergy(data.newBalance);
     }
-
-    // postUserInit(socket);
   }
 
   function postCashOut(

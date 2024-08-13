@@ -13,7 +13,7 @@
 <div class="flex items-center gap-4">
   <EnergyLine
       energyMax={$energy.maxEnergy}
-      energyAmount={$energy.energy}
+      energyAmount={$energy.current}
       coinAmount={$coinSpring}/>
   <button class="wallet-button">
     <img alt="wallet" src="/images/user/wallet.svg"/>
