@@ -1,96 +1,89 @@
-import {writable} from 'svelte/store';
-import {createSocketHandler} from "$lib/stores/socket.js";
+import { writable } from 'svelte/store';
+import { createSocketHandler } from "$lib/stores/socket.js";
 import dayjs from "dayjs";
 
-export const _user = writable({
-  login: false,
-  userId: -1,
-  energy: 0,
-  bonus: 0,
-  energyPerSecond: 0,
-  maxEnergy: 0,
-});
 
+export class UserStore {
+  coin = writable(0)
+  energy = writable({
+    energy: 0,
+    maxEnergy: 1000,
+    energyPerSecond: 1,
+  })
 
-/**
- * @param socket {import("socket.io-client").Socket}
- */
-export function subscribeUser(socket){
-  socket.on("balanceEvent", (event) => {
-    console.log("EVENT balanceEvent", event);
+  user = writable({
+    login: false,
+    userId: -1,
+  })
 
-    if (event.coinType === 1) {
-      _user.update((it) => {
-        it.energy = event.currentEnergy;
-        return it;
-      })
-    } else if (event.coinType === 2) {
-      _user.update((it) => {
-        it.bonus = parseFloat(event.userBonus);
-        return it;
-      })
-    }
-  });
+  subscribe(/**@type {import("socket.io-client").Socket}*/ socket) {
+    socket.on("balanceEvent", (event) => {
+      console.log("EVENT balance", event);
 
-
-  const intervalId = setInterval(() => {
-    _user.update(it => {
-      if (it.energy < it.maxEnergy) {
-        it.energy += it.energyPerSecond;
+      if (event.coinType === 1) {
+        this.energy.set(event.currentEnergy);
+      } else if (event.coinType === 2) {
+        this.coin.set(parseFloat(event.userBonus));
       }
+    });
+
+    const intervalId = setInterval(() => {
+      this.energy.update(it => {
+        if (it.energy < it.maxEnergy) {
+          it.energy += it.energyPerSecond
+        }
+        return it
+      })
+    }, 1000);
+
+    socket.on("connect", () => {
+      socket.timeout(5000).emit(
+        "/v1/users.php/init",
+        {},
+        createSocketHandler((/**@type {RugbullAPI.InitEvent}*/event) => {
+          console.log("INIT", event);
+          this.updateFromInitEvent(event);
+        }),
+      );
+    })
+
+    socket.on("disconnect", () => {
+      clearInterval(intervalId)
+    })
+  }
+
+  updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
+    const energyPerSecond = event.users_energy.energyAccumulationRate
+    const maxEnergy = event.users_energy.energyCapacity;
+    const currentEnergy = Math.min(
+      maxEnergy,
+      Math.floor(
+        (-dayjs(event.users_energy.lastUpdateTime).diff() / 1000) *
+        energyPerSecond +
+        event.users_energy.currentEnergy,
+      ),
+    );
+
+    this.energy.set({
+      energy: currentEnergy,
+      maxEnergy,
+      energyPerSecond: energyPerSecond,
+    })
+
+    this.coin.set(parseFloat(event.users_wallet.userBonus))
+    this.user.set({
+      login: true,
+      userId: event.userId
+    })
+  }
+
+  updateEnergy(energy) {
+    this.energy.update(it => {
+      it.energy = energy
       return it
     })
-  }, 1000);
-
-  socket.on("connect", () => {
-
-    socket.timeout(5000).emit(
-      "/v1/users.php/init",
-      {},
-      createSocketHandler((/**@type {RugbullAPI.InitEvent}*/event) => {
-        console.log("INIT", event);
-        updateFromInitEvent(event);
-      }),
-    );
-  })
-
-  socket.on("disconnect", () => {
-    clearInterval(intervalId)
-  })
-
+  }
 }
 
-function updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
-  const energyPerSecond = event.users_energy.energyAccumulationRate;
-  const maxEnergy = event.users_energy.energyCapacity;
-  const energy = Math.min(
-    maxEnergy,
-    Math.floor(
-      (-dayjs(event.users_energy.lastUpdateTime).diff() / 1000) *
-      energyPerSecond +
-      event.users_energy.currentEnergy,
-    ),
-  );
-  const bonus = parseFloat(event.users_wallet.userBonus)
-  const userId = event.userId;
+export const userStore = new UserStore();
 
-  _user.update(it => ({
-    login: true,
-    userId,
-    energy,
-    bonus,
-    energyPerSecond,
-    maxEnergy,
-  }));
-
-  /// Load records when page reload
-  // if (records.length === 0) {
-  //   event.users_bet.forEach((bet, index) => {
-  //     records[index] = {
-  //       id: bet.recordId,
-  //       auto: !!bet.auto,
-  //       amount: parseFloat(bet.amount),
-  //     };
-  //   });
-  // }
-}

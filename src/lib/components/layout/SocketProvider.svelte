@@ -6,10 +6,6 @@
   onMount(() => {
     initSocket();
   });
-
-  $: {
-    console.log($_socketConnected);
-  }
 </script>
 
 {#if $_socketConnected}

@@ -4,10 +4,8 @@
   import dayjs from "dayjs";
   import duration from "dayjs/plugin/duration";
   import relativeTime from "dayjs/plugin/relativeTime";
-  import SubHeader from "$lib/games/Rugbull2/components/SubHeader.svelte";
   import Title from "$lib/components/texts/Title.svelte";
   import TitleH2 from "$lib/components/texts/TitleH2.svelte";
-  import { onMount } from "svelte";
   import { MagicCardAPI } from "$lib/socket-api/magic-cards";
   import { createQuery } from "@tanstack/svelte-query";
 

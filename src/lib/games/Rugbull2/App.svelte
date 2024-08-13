@@ -15,8 +15,8 @@
   import IconToggleButton from "$lib/components/buttons/IconToggleButton.svelte";
   import SubHeader from "./components/SubHeader.svelte";
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
-  import { _socketConnected, initSocket, socket } from "$lib/stores/socket";
-  import { _user } from "$lib/stores/_user";
+  import { _socketConnected, socket } from "$lib/stores/socket";
+  import { userStore } from "$lib/stores/_user";
   import { loadSettings, soundOn } from "$lib/stores/_settings";
   import BetController from "./components/BetController.svelte";
   import { rugbull } from "$lib/stores/_rugbull";
@@ -25,6 +25,7 @@
   } from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
   import FairnessModal from "$lib/games/Rugbull2/fairness/FairnessModal.svelte";
   import AppLayout from "$lib/games/Rugbull2/AppLayout.svelte";
+  import { BetAPI } from "$lib/socket-api/bet";
 
   dayjs.extend(duration);
 
@@ -33,7 +34,6 @@
   /// STATE
   let innerWidth = 0;
   let state = "connecting";
-  let userId = undefined;
   let chart = [];
   let startTime = null;
   let secondsToStart = 0;
@@ -58,12 +58,11 @@
   let soundStart: HTMLAudioElement;
   let soundGetReady: HTMLAudioElement;
 
+  const { energy, user } = userStore;
+
   /// REACTIVE
   $: {
-    useBonus = !$_user.energy || $_user.energy < 150;
-  }
-  $: {
-    userId = $_user.userId;
+    useBonus = !$energy.energy || $energy.energy < 150;
   }
 
   $: {
@@ -178,8 +177,6 @@
 
   /// HANDLE STATE
   function updateFromInitEvent(event: RugbullAPI.InitEvent) {
-    userId = event.userId;
-
     /// Load records when page reload
     if (records.length === 0) {
       event.users_bet.forEach((bet, index) => {
@@ -249,11 +246,7 @@
 
   /// SOCKET HANDLERS
   function initSocketOnMount() {
-    const socket = initSocket();
-
-    if (socket == null) {
-      return;
-    }
+    console.log("Init socket");
 
     socket.on("connect", () => {
       getGameInfo(socket);
@@ -320,7 +313,7 @@
     );
   }
 
-  function postMakeBet(
+  async function postMakeBet(
     socket: Socket,
     index: number,
     setting: Rugbull.Setting,
@@ -337,27 +330,18 @@
 
     console.log("BET", payload);
 
-    socket.timeout(5000).emit(
-      "/v1/games.php/bet",
-      payload,
-      createSocketHandler<any>((data) => {
-        console.log("BET RESPONSE", data);
-        records[index] = {
-          id: data.recordId,
-          auto: setting.auto,
-          amount: setting.betAmount,
-        };
+    const data = await BetAPI.bet(payload);
+    records[index] = {
+      id: data.recordId,
+      auto: setting.auto,
+      amount: setting.betAmount,
+    };
 
-        if (coinType === 1) {
-          _user.update((it) => {
-            it.energy = data.newBalance;
-            return it;
-          });
-        }
+    if (coinType === 1) {
+      userStore.updateEnergy(data.newBalance);
+    }
 
-        postUserInit(socket);
-      }),
-    );
+    postUserInit(socket);
   }
 
   function postCashOut(
@@ -406,6 +390,10 @@
         );
       }
     }, 100);
+
+    return () => {
+      clearInterval(intervalId2);
+    };
   });
 
   let errorMessageTimeoutId;
@@ -472,7 +460,7 @@
             label="Current multiplier"
             number={formatMultiplier(multiplier)}
           />
-        {:else if !$_user.login}
+        {:else if !$user.login}
           <SubHeader label="Not login" number="Login to play" />
         {:else}
           <SubHeader label={state} number={state} />
@@ -497,7 +485,7 @@
       <div class="my-2">
         <LiveCashoutMobile
           items={[
-            ...$userEscapes.map((i) => ({ ...i, isUser: userId === i.userId })),
+            ...$userEscapes.map((i) => ({ ...i, isUser: $user.userId.toString() === i.userId })),
             ...(isDevMode
               ? [
                   randomUserEscape(),
@@ -511,7 +499,7 @@
         />
       </div>
     </div>
-    {#if $_user.login}
+    {#if $user.login}
       <BetController
         {multiplier}
         showCashout0={records[0] != null}

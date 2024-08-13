@@ -1,19 +1,20 @@
 <script>
   import EnergyLine from "./EnergyLine.svelte";
-  import {_user} from "$lib/stores/_user.js";
+  import {userStore} from "$lib/stores/_user.js";
   import {spring} from "svelte/motion";
 
-  const coin = spring(0, {stiffness: 0.1});
+  const coinSpring = spring(0, {stiffness: 0.1});
+  const {coin, energy} = userStore
   $: {
-    coin.set($_user.bonus);
+    coinSpring.set($coin);
   }
 </script>
 
 <div class="flex items-center gap-4">
   <EnergyLine
-      energyMax={$_user.maxEnergy}
-      energyAmount={$_user.energy}
-      coinAmount={$coin}/>
+      energyMax={$energy.maxEnergy}
+      energyAmount={$energy.energy}
+      coinAmount={$coinSpring}/>
   <button class="wallet-button">
     <img alt="wallet" src="/images/user/wallet.svg"/>
   </button>

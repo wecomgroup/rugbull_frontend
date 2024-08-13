@@ -1,5 +1,5 @@
 import {io} from "socket.io-client";
-import {subscribeUser} from "$lib/stores/_user.js";
+import {userStore} from "$lib/stores/_user.js";
 import {_error} from "$lib/stores/_error.js";
 import {PUBLIC_SOCKET_URL} from "$env/static/public";
 import {browser} from "$app/environment";
@@ -23,7 +23,7 @@ export function initSocket(){
     },
   });
 
-  subscribeUser(socket)
+  userStore.subscribe(socket)
   rugbull.subscribe(socket)
 
   socket.on("connect", () => {
