@@ -3,7 +3,7 @@ import { createSocketHandler } from "$lib/stores/socket.js";
 import dayjs from "dayjs";
 
 
-export class UserStore {
+class UserStore {
   coin = writable(0)
   energy = writable({
     energy: 0,
@@ -16,7 +16,15 @@ export class UserStore {
     userId: -1,
   })
 
+  alreadySubscribed = false;
+
   subscribe(/**@type {import("socket.io-client").Socket}*/ socket) {
+    if (this.alreadySubscribed) {
+      console.error("Already subscribed");
+      return;
+    }
+    this.alreadySubscribed = true;
+
     socket.on("balanceEvent", (event) => {
       console.log("EVENT balance", event);
 
@@ -50,6 +58,7 @@ export class UserStore {
     socket.on("disconnect", () => {
       clearInterval(intervalId)
     })
+
   }
 
   updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
@@ -82,6 +91,10 @@ export class UserStore {
       it.energy = energy
       return it
     })
+  }
+
+  updateCoin(coin) {
+    this.coin.set(coin)
   }
 }
 

@@ -4,7 +4,7 @@ import {_error} from "$lib/stores/_error.js";
 import {PUBLIC_SOCKET_URL} from "$env/static/public";
 import {browser} from "$app/environment";
 import {writable} from "svelte/store";
-import {rugbull} from "$lib/stores/_rugbull.js";
+import {rugbullStore} from "$lib/stores/_rugbull.js";
 
 /** @type import("socket.io-client").Socket */
 export let socket
@@ -24,7 +24,7 @@ export function initSocket(){
   });
 
   userStore.subscribe(socket)
-  rugbull.subscribe(socket)
+  rugbullStore.subscribe(socket)
 
   socket.on("connect", () => {
     _socketConnected.set(true);

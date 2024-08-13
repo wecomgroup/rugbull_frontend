@@ -36,13 +36,15 @@
   {#each items as item, index}
     {#if index === 0}
       <LiveCashoutMobileItem
-          {...item}
+          amount={item.amount}
+          avatar={item.avatar}
           glow={item.isUser}
           style="transform: translate(-{$x}px,0)"
       />
     {:else}
       <LiveCashoutMobileItem
-          {...item}
+          amount={item.amount}
+          avatar={item.avatar}
           glow={item.isUser}
           style="transform: translate(-{$x2}px,0)"
       />

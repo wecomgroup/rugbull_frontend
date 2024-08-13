@@ -40,6 +40,7 @@
   import CashoutInput from "$lib/components/input/CashoutInput.svelte";
   import BetAmountInput from "$lib/components/input/BetAmountInput.svelte";
   import BetModuleLayout from "./BetModuleLayout.svelte";
+    import { uiStore } from "$lib/stores/_ui";
 
   export let id = 'setting-1'
   export let label = 'Bet 1';
@@ -54,6 +55,9 @@
   let open = false;
 
   $: ({auto, cashoutMultiplier, betAmount} = $setting)
+  $: {
+    uiStore.toggleNavbar(!open)
+  }
 
   const dispatch = createEventDispatcher();
 

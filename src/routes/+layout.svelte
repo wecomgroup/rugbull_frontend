@@ -4,10 +4,6 @@
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import Shortcuts from "$lib/components/layout/Shortcuts.svelte";
-  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
-  import SocketProvider from "$lib/components/layout/SocketProvider.svelte";
-
-  const queryClient = new QueryClient();
 
   /// Handle query to localStorage here
   $: {
@@ -30,12 +26,6 @@
   />
 </svelte:head>
 
-<SocketProvider>
-  <QueryClientProvider client={queryClient}>
-    <div data-theme="dark">
-      <slot />
-    </div>
-  </QueryClientProvider>
-</SocketProvider>
+<slot />
 
 <Shortcuts />

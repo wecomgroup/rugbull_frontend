@@ -19,13 +19,16 @@
   import { userStore } from "$lib/stores/_user";
   import { loadSettings, soundOn } from "$lib/stores/_settings";
   import BetController from "./components/BetController.svelte";
-  import { rugbull } from "$lib/stores/_rugbull";
+  import { rugbullStore } from "$lib/stores/_rugbull";
   import LiveCashoutMobile, {
     randomUserEscape,
   } from "$lib/games/Rugbull2/components/LiveCashoutMobile.svelte";
   import FairnessModal from "$lib/games/Rugbull2/fairness/FairnessModal.svelte";
   import AppLayout from "$lib/games/Rugbull2/AppLayout.svelte";
   import { BetAPI } from "$lib/socket-api/bet";
+  import { betStore } from "$lib/stores/_bet";
+  import { GameAPI } from "$lib/socket-api/game";
+  import { formatTime, formatTimeMs } from "$lib/utils/format";
 
   dayjs.extend(duration);
 
@@ -33,24 +36,18 @@
 
   /// STATE
   let innerWidth = 0;
-  let state = "connecting";
-  let chart = [];
-  let startTime = null;
   let secondsToStart = 0;
-  let multiplier = 1;
   let multiplierHistory = [];
   let betHistoryPage = 1;
-  let betHistoryLimit = 10;
   let currentRound: string | null = null;
   let messages: string[] = [];
   let errorMessage: string | undefined;
-  let records: [Rugbull.Record?, Rugbull.Record?] = [];
   let useBonus = false;
   let bullState = 0;
   let openFairness = false;
 
   const distance = spring(0, { stiffness: 0.02 });
-  const { userEscapes } = rugbull;
+  const { userEscapes } = rugbullStore;
 
   // SOUND
   let soundCashout: HTMLAudioElement;
@@ -59,6 +56,8 @@
   let soundGetReady: HTMLAudioElement;
 
   const { energy, user } = userStore;
+  const { records } = betStore;
+  const { round, multiplier } = rugbullStore;
 
   /// REACTIVE
   $: {
@@ -66,21 +65,21 @@
   }
 
   $: {
-    if (state === "running") {
-      if (multiplier > 10) {
+    if ($round.state === "running") {
+      if ($multiplier > 10) {
         bullState = 4;
-      } else if (multiplier > 2) {
+      } else if ($multiplier > 2) {
         bullState = 3;
-      } else if (multiplier > 1.2) {
+      } else if ($multiplier > 1.2) {
         bullState = 2;
       } else {
         bullState = 1;
       }
 
-      distance.set((multiplier - 1) * 1000 * (bullState * 1.2));
-    } else if (state === "stopped") {
+      distance.set(($multiplier - 1) * 1000 * (bullState * 1.2));
+    } else if ($round.state === "stopped") {
       bullState = 5;
-    } else if (state === "waiting") {
+    } else if ($round.state === "waiting") {
       distance.set(0, { hard: true });
       bullState = 0;
     } else {
@@ -90,21 +89,21 @@
   }
 
   $: {
-    if (state === "stopped") {
+    if (soundLaugh && $round.state === "stopped") {
       soundLaugh.currentTime = 0;
       $soundOn && soundLaugh.play();
     }
   }
 
   $: {
-    if (state === "running") {
+    if (soundStart && $round.state === "running") {
       soundStart.currentTime = 0;
       $soundOn && soundStart.play();
     }
   }
 
   $: {
-    if (state === "waiting") {
+    if (soundGetReady && $round.state === "waiting") {
       soundGetReady.currentTime = 0;
       $soundOn && soundGetReady.play();
     }
@@ -120,10 +119,8 @@
   }
 
   $: {
-    if (state !== "connecting" && !$_socketConnected) {
-      state = "reconnecting";
-    } else if (state === "connecting" && $_socketConnected) {
-      state = "loading";
+    if ($round.state === "stopped") {
+      betStore.reset();
     }
   }
 
@@ -175,20 +172,6 @@
     };
   }
 
-  /// HANDLE STATE
-  function updateFromInitEvent(event: RugbullAPI.InitEvent) {
-    /// Load records when page reload
-    if (records.length === 0) {
-      event.users_bet.forEach((bet, index) => {
-        records[index] = {
-          id: bet.recordId,
-          auto: !!bet.auto,
-          amount: parseFloat(bet.amount),
-        };
-      });
-    }
-  }
-
   /// FUNCTIONS
   function log(message: string) {
     const formattedMessage = `${formatTimeMs(Date.now())} - ${message}`;
@@ -203,114 +186,27 @@
     }
   }
 
-  function formatTime(v) {
-    return dayjs(v).format("HH:mm:ss");
-  }
-
-  function formatTimeMs(v) {
-    return dayjs(v).format("HH:mm:ss.SSS");
-  }
-
-  function getGameInfo(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/games.php/info",
-      {},
-      createSocketHandler<RugbullAPI.GameEvent>((data) => {
-        console.log("INFO", data);
-        if (data.status === "1") {
-          startTime = parseInt(data.startTime);
-          state = "waiting";
-          currentRound = data.round;
-        }
-      }),
-    );
-  }
-
-  function getGameResults(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/games.php/result",
-      {
-        limit: 20,
-        page: 1,
-      },
-      createSocketHandler<RugbullAPI.ResultEvent>((event) => {
-        console.log("RESULTS event", event);
-        const data = event.rows;
-        data.forEach((i) => {
-          i.multiplier = hashToNumber(i.encryption);
-        });
-        multiplierHistory = data.map((i) => i.multiplier);
-      }),
-    );
+  async function getGameResults() {
+    const event = await GameAPI.getGameResults();
+    const data = event.rows;
+    data.forEach((i) => {
+      i.multiplier = hashToNumber(i.encryption);
+    });
+    multiplierHistory = data.map((i) => i.multiplier);
   }
 
   /// SOCKET HANDLERS
   function initSocketOnMount() {
-    console.log("Init socket");
-
-    socket.on("connect", () => {
-      getGameInfo(socket);
-      getGameResults(socket);
-    });
-
-    socket.on("gameEvent", (event: RugbullAPI.RoundEvent) => {
-      if (event.status === 1) {
-        startTime = event.startTime;
-        state = "waiting";
-        multiplier = 1;
-        chart = [];
-        rugbull.reset();
-        currentRound = event.round.toString();
-        log(`[1] ROUND(${event.round}) starts=${formatTime(event.startTime)}`);
-      } else if (event.status === 2) {
-        state === "waiting" && log(`[2] START`);
-        chart = [...chart, event.multiplier];
-        multiplier = event.multiplier;
-
-        state = "running";
-        currentRound = event.round.toString();
-        // log(`[2] ${event.elapsed} ${event.multiplier.toFixed(2)}`)
-      } else if (event.status === 3) {
-        getGameResults(socket);
-        chart = [...chart, 0];
-        if (state !== "loading") {
-          state = "stopped";
-        }
-        multiplier = 0;
-        currentRound = event.round.toString();
-        records = [undefined, undefined];
-        rugbull.reset();
-        postHistory(socket);
-        log(`[3] stopped ${event.multiplier.toFixed(2)}`);
-      }
-    });
+    getGameResults();
 
     socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
       soundCashout.currentTime = 0;
       $soundOn && soundCashout.play();
-      const index = records.findIndex((r) => r?.id === event.recordId);
-      if (index > -1) {
-        records[index] = undefined;
-        postHistory(socket);
+      const found = betStore.resetByRecordId(event.recordId);
+      if (found) {
       }
     });
-
-    postUserInit(socket);
-    postHistory(socket);
-  }
-
-  function postHistory(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/games.php/history",
-      {
-        limit: betHistoryLimit,
-        page: betHistoryPage,
-      },
-      createSocketHandler<RugbullAPI.HistoryEvent>((data) => {
-        console.log("HISTORY", data);
-      }),
-    );
   }
 
   async function postMakeBet(
@@ -341,7 +237,7 @@
       userStore.updateEnergy(data.newBalance);
     }
 
-    postUserInit(socket);
+    // postUserInit(socket);
   }
 
   function postCashOut(
@@ -362,18 +258,7 @@
       createSocketHandler<any>((data) => {
         console.log("CASHOUT RESPONSE", data);
         records[index] = undefined;
-        postUserInit(socket);
-      }),
-    );
-  }
-
-  function postUserInit(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/users.php/init",
-      {},
-      createSocketHandler<RugbullAPI.InitEvent>((event) => {
-        console.log("INIT", event);
-        updateFromInitEvent(event);
+        // postUserInit(socket);
       }),
     );
   }
@@ -383,10 +268,10 @@
     initSocketOnMount();
 
     const intervalId2 = setInterval(() => {
-      if (startTime) {
+      if ($round.startTime) {
         secondsToStart = Math.max(
           0,
-          Math.ceil((startTime - Date.now()) / 1000),
+          Math.ceil(($round.startTime - Date.now()) / 1000),
         );
       }
     }, 100);
@@ -407,12 +292,6 @@
     }
   }
 
-  $: {
-    if (betHistoryPage && socket) {
-      postHistory(socket);
-    }
-  }
-
   /// HANDLERS
   function onBetOrCashout(index: number) {
     if (socket) {
@@ -429,7 +308,7 @@
 
 <AppLayout>
   <div slot="animation">
-    <AppBackground speed={multiplier} distance={$distance}>
+    <AppBackground speed={$multiplier} distance={$distance}>
       <div
         slot="header"
         class="grid gap-2 p-2"
@@ -450,20 +329,20 @@
         <ResultsRow results={multiplierHistory} />
       </div>
       <div slot="sub-header">
-        {#if state === "waiting"}
+        {#if $round.state === "waiting"}
           <SubHeader
             label="Next game"
             number={formatDuration(secondsToStart * 1000)}
           />
-        {:else if state === "running"}
+        {:else if $round.state === "running"}
           <SubHeader
             label="Current multiplier"
-            number={formatMultiplier(multiplier)}
+            number={formatMultiplier($multiplier)}
           />
         {:else if !$user.login}
           <SubHeader label="Not login" number="Login to play" />
         {:else}
-          <SubHeader label={state} number={state} />
+          <SubHeader label={$round.state} number={$round.state} />
         {/if}
       </div>
       <div slot="body" class="h-full relative">
@@ -474,7 +353,7 @@
             state={bullState}
             style="width: 100%"
             distance={$distance}
-            {multiplier}
+            multiplier={$multiplier}
           />
         </div>
       </div>
@@ -485,7 +364,10 @@
       <div class="my-2">
         <LiveCashoutMobile
           items={[
-            ...$userEscapes.map((i) => ({ ...i, isUser: $user.userId.toString() === i.userId })),
+            ...$userEscapes.map((i) => ({
+              ...i,
+              isUser: $user.userId.toString() === i.userId,
+            })),
             ...(isDevMode
               ? [
                   randomUserEscape(),
@@ -501,11 +383,11 @@
     </div>
     {#if $user.login}
       <BetController
-        {multiplier}
+        multiplier={$multiplier}
         showCashout0={records[0] != null}
         showCashout1={records[1] != null}
         coinType={useBonus ? 2 : 1}
-        gameState={state}
+        gameState={$round.state}
         on:action={(e) => {
           onBetOrCashout(e.detail);
         }}
