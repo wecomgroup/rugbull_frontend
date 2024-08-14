@@ -7,6 +7,7 @@
   let w,h;
 
   const MENUS = [
+    "/components",
     "/dev/home",
     "/"
   ]

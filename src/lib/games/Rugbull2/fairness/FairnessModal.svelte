@@ -1,28 +1,26 @@
 <script lang="ts">
-  import {io, type Socket} from "socket.io-client";
-  import {onMount} from "svelte";
+  import { type Socket } from "socket.io-client";
+  import { onMount } from "svelte";
+  import { socketStore } from "$lib/stores/socket";
   import FairnessVerification from "./FairnessVerification.svelte";
   import BottomModal from "$lib/components/modals/BottomModal.svelte";
-  import {initSocket} from "$lib/stores";
 
   export let open = false;
 
-  let socket: Socket | undefined;
-  let resultsHistory = []
+  let resultsHistory = [];
   let clientSeed = undefined;
-
 
   /// COMMON FUNCTIONS
   function checkError(err, response) {
     if (err) {
-      console.error(err)
-      return true
+      console.error(err);
+      return true;
     }
     if (response.ok === 0) {
-      return true
+      return true;
     }
     if (response.output?.payload?.statusCode > 300) {
-      return true
+      return true;
     }
     return false;
   }
@@ -30,72 +28,68 @@
   function createSocketHandler<T>(callback: (data: T) => void) {
     return (err, event: any) => {
       if (checkError(err, event)) {
-        return
+        return;
       }
       if (event.statusCode === 200) {
-        const data: T = event.data
-        callback(data)
+        const data: T = event.data;
+        callback(data);
       } else {
-        console.log('UNHANDLED EVENT', event)
+        console.log("UNHANDLED EVENT", event);
       }
-    }
+    };
   }
 
   /// INIT
   function initSocketOnMount() {
-    const socket = initSocket()
+    const { socket } = socketStore;
 
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       getGameResults(socket);
       getWebConfig(socket);
     });
 
-
     return socket;
   }
 
-
   /// API
   function getGameResults(socket: Socket) {
-    socket
-      .timeout(5000)
-      .emit('/v1/games.php/result', {
+    socket.timeout(5000).emit(
+      "/v1/games.php/result",
+      {
         limit: 20,
         page: 1,
-      }, createSocketHandler<RugbullAPI.ResultEvent>((event) => {
-        console.log('RESULTS', event)
-        resultsHistory = event.rows.map(i => ({
+      },
+      createSocketHandler<RugbullAPI.ResultEvent>((event) => {
+        console.log("RESULTS", event);
+        resultsHistory = event.rows.map((i) => ({
           round: i.round,
-          encryption: i.encryption
-        }))
-      }))
+          encryption: i.encryption,
+        }));
+      }),
+    );
   }
 
   function getWebConfig(socket: Socket) {
-    socket
-      .timeout(5000)
-      .emit('/v1/index.php/webconfig', {},
-        createSocketHandler<RugbullAPI.WebConfigEvent>(event => {
-          clientSeed = event.clientSeed;
-        }))
+    socket.timeout(5000).emit(
+      "/v1/index.php/webconfig",
+      {},
+      createSocketHandler<RugbullAPI.WebConfigEvent>((event) => {
+        clientSeed = event.clientSeed;
+      }),
+    );
   }
 
   /// MOUNT
   onMount(() => {
-      socket = initSocketOnMount();
+    initSocketOnMount();
   });
 </script>
 
-<BottomModal bind:open
-             showCloseIcon={true}
-             allowScroll={true}
->
+<BottomModal bind:open showCloseIcon={true} allowScroll={true}>
   <div slot="body" class="pt-4">
-    <FairnessVerification
-        {clientSeed}
-        results={resultsHistory}
-    />
+    <FairnessVerification {clientSeed} results={resultsHistory} />
   </div>
 </BottomModal>
+
 <style>
 </style>

@@ -1,4 +1,4 @@
-import { createSocketHandler, socket } from "$lib/stores";
+import { createSocketHandler, socketStore } from "$lib/stores";
 
 export class GameAPI {
   /**
@@ -6,7 +6,7 @@ export class GameAPI {
    */
   static getGameResults() {
     return new Promise((resolve) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/games.php/result",
         {
           limit: 20,
@@ -25,7 +25,7 @@ export class GameAPI {
    */
   static getGameInfo() {
     return new Promise((resolve) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/games.php/info",
         {},
         createSocketHandler((data) => {
@@ -41,7 +41,7 @@ export class GameAPI {
    */
   static getHistory({ limit, page }) {
     return new Promise((resolve) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/games.php/history",
         { limit, page },
         createSocketHandler((data) => {

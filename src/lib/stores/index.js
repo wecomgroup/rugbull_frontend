@@ -1,4 +1,5 @@
-import {_socketConnected, createSocketHandler, socket, initSocket} from "./socket";
+import {socketStore, createSocketHandler} from "./socket";
 import {userStore} from "./_user";
 
-export {initSocket, _socketConnected, socket, userStore, createSocketHandler}
+
+export {userStore, socketStore, createSocketHandler}

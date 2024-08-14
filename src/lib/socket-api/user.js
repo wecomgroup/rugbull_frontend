@@ -1,4 +1,4 @@
-import { createSocketHandler, socket } from "$lib/stores";
+import { createSocketHandler, socketStore } from "$lib/stores";
 
 export class UserAPI {
   /**
@@ -7,7 +7,7 @@ export class UserAPI {
    */
   static getInit(){
     return new Promise((resolve, reject) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/users.php/init",
         {},
         createSocketHandler((/**@type {RugbullAPI.InitEvent}*/data) => {

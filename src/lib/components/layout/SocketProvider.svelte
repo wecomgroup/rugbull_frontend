@@ -1,28 +1,29 @@
 <script>
-  import { initSocket, _socketConnected, userStore } from "$lib/stores";
+  import { socketStore, userStore } from "$lib/stores";
   import { onMount } from "svelte";
   import AppLoader from "../loaders/AppLoader.svelte";
-    import { uiStore } from "$lib/stores/_ui";
+  import { uiStore } from "$lib/stores/_ui";
 
   const { user } = userStore;
+  const { socketConnected } = socketStore;
 
   onMount(() => {
-    initSocket();
+    socketStore.initSocket();
   });
 
   $: {
-    uiStore.toggleNavbar($_socketConnected);
+    uiStore.toggleNavbar($socketConnected);
   }
 </script>
 
-{#if $_socketConnected}
+{#if $socketConnected}
   <slot />
-{:else if !$user.login}
+{:else if $user.login}
   <div class="mx-auto w-fit grid h-screen items-center">
-    <AppLoader text="Login to play" />
+    <AppLoader text="Loading" />
   </div>
 {:else}
   <div class="mx-auto w-fit grid h-screen items-center">
-    <AppLoader text="Loading" />
+    <AppLoader text="Login you in" />
   </div>
 {/if}

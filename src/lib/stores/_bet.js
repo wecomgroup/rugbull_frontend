@@ -1,6 +1,6 @@
 import { log } from "$lib/utils/log";
 import { writable } from "svelte/store";
-import { socket } from "./socket";
+import { socketStore } from "./socket";
 import { UserAPI } from "$lib/socket-api/user";
 
 class BetStore {
@@ -17,7 +17,7 @@ class BetStore {
   }
 
   subscribe() {
-    socket.on("connect", () => {
+    socketStore.socket.on("connect", () => {
       UserAPI.getInit().then((event) => {
         this.updateFromInitEvent(event);
       })

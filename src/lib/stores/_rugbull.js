@@ -3,7 +3,7 @@ import { soundOn } from "$lib/stores/_settings.js";
 import { formatTime } from '$lib/utils/format';
 import { GameAPI } from '$lib/socket-api/game';
 import { log } from '$lib/utils/log';
-import { socket } from './socket';
+import { socketStore } from './socket';
 import { hashToNumber } from '$lib/games/Rugbull/decrypt';
 import { userStore } from './_user';
 
@@ -34,6 +34,8 @@ class RugbullStore {
   }
 
   subscribe() {
+    const {socket} = socketStore;
+
     socket.on('connect', () => {
       this.updateMultiplierHistory()
       GameAPI.getGameInfo().then((event) => {

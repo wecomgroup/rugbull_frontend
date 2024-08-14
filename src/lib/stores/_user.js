@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { createSocketHandler, socket } from "$lib/stores/socket.js";
+import { socketStore } from "$lib/stores/socket.js";
 import dayjs from "dayjs";
 import { UserAPI } from '$lib/socket-api/user';
 
@@ -33,6 +33,8 @@ class UserStore {
       return;
     }
     this.alreadySubscribed = true;
+
+    const { socket } = socketStore;
 
     socket.on("balanceEvent", (event) => {
       console.log("EVENT balance", event);

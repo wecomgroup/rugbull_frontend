@@ -14,7 +14,7 @@
   import IconToggleButton from "$lib/components/buttons/IconToggleButton.svelte";
   import SubHeader from "./components/SubHeader.svelte";
   import Rugbull2Canvas from "$lib/games/Rugbull2/components/Rugbull2Canvas.svelte";
-  import { _socketConnected, socket } from "$lib/stores/socket";
+  import { socketStore } from "$lib/stores/socket";
   import { userStore } from "$lib/stores/_user";
   import { loadSettings, soundOn } from "$lib/stores/_settings";
   import BetController from "./components/BetController.svelte";
@@ -26,6 +26,7 @@
   import AppLayout from "$lib/games/Rugbull2/AppLayout.svelte";
   import { BetAPI } from "$lib/socket-api/bet";
   import { betStore } from "$lib/stores/_bet";
+    import { browser } from "$app/environment";
 
   dayjs.extend(duration);
 
@@ -175,7 +176,7 @@
 
   /// SOCKET HANDLERS
   function initSocketOnMount() {
-    socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
+    socketStore.socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
       playSound(soundCashout);
       betStore.resetByRecordId(event.recordId);
@@ -265,13 +266,13 @@
 
   /// HANDLERS
   function onBetOrCashout(index: number) {
-    if (socket) {
+    if (socketStore.socket) {
       const record = $records[index];
       const setting = getSetting(`setting-${index}`);
       if (record.id !== -1) {
-        postCashOut(socket, index, { recordId: record.id });
+        postCashOut(socketStore.socket, index, { recordId: record.id });
       } else {
-        postMakeBet(socket, index, setting);
+        postMakeBet(socketStore.socket, index, setting);
       }
     }
   }

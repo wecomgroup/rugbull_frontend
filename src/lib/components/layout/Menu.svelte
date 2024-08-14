@@ -5,26 +5,34 @@
   import PeopleIcon from "$lib/icons/PeopleIcon.svelte";
   import CardsIcon from "$lib/icons/CardsIcon.svelte";
   import MenuItem from "$lib/components/layout/MenuItem.svelte";
+    import { goto } from "$app/navigation";
 
   export let open = false;
 
   const MENUS = [
-    {icon: GameIcon, label: "Game", href: "/",},
-    {icon: PeopleIcon, label: "Referral System", href: "/referral" },
-    {icon: CardsIcon, label: "Magic Cards", href: "/magic-cards"},
-  ]
+    { icon: GameIcon, label: "Game", href: "/" },
+    { icon: PeopleIcon, label: "Referral System", href: "/referral" },
+    { icon: CardsIcon, label: "Magic Cards", href: "/magic-cards" },
+  ];
 </script>
 
-<BottomModal bind:open
-             showCloseIcon={true}>
+<BottomModal bind:open showCloseIcon={true}>
   <div slot="body" class="grid justify-items-start gap-4 p-4">
-    <Logo/>
+    <Logo />
 
     <h2 class="mb-2">Menu</h2>
 
     <div class="grid gap-4 pl-2">
-      {#each MENUS as {icon, label, href}}
-        <MenuItem {icon} {label} {href}/>
+      {#each MENUS as { icon, label, href }}
+        <MenuItem
+          {icon}
+          {label}
+          {href}
+          on:click={() => {
+            open = false;
+            goto(href);
+          }}
+        />
       {/each}
     </div>
   </div>

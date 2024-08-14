@@ -1,17 +1,24 @@
 <script>
+  import { createEventDispatcher } from "svelte";
+
   export let href = undefined;
   export let icon = undefined;
   export let label = "Home page";
   export let selected = false;
+
+  const dispatch = createEventDispatcher();
 </script>
 
-<a class="flex gap-2 items-center" {href} data-selected={selected}>
+<button
+  class="flex gap-2 items-center"
+  data-selected={selected}
+  on:click={() => dispatch("click")}
+>
   <div class="icon">
-    <svelte:component this={icon}/>
+    <svelte:component this={icon} />
   </div>
   <span>{label}</span>
-</a>
-
+</button>
 
 <style lang="scss">
   a {
@@ -25,11 +32,11 @@
     padding: 2px;
   }
 
-  a[data-selected=true] {
+  a[data-selected="true"] {
     color: white;
 
     .icon {
-      color: #0994FE;
+      color: #0994fe;
     }
   }
 </style>

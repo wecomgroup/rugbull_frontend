@@ -1,4 +1,4 @@
-import { socket, createSocketHandler } from "$lib/stores";
+import { createSocketHandler, socketStore } from "$lib/stores";
 
 export class MagicCardAPI {
   /**
@@ -9,7 +9,7 @@ export class MagicCardAPI {
    */
   static list() {
     return new Promise((resolve, reject) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/magicCard.php/cards",
         {},
         createSocketHandler((event) => {
@@ -21,7 +21,7 @@ export class MagicCardAPI {
 
   static buy({ cardId }) {
     return new Promise((resolve, reject) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/magicCard.php/buy",
         {
           cardId,
@@ -39,7 +39,7 @@ export class MagicCardAPI {
    */
   static listActive() {
     return new Promise((resolve, reject) => {
-      socket.timeout(5000).emit(
+      socketStore.socket.timeout(5000).emit(
         "/v1/magicCard.php/user/activeBuffs",
         {},
         createSocketHandler((event) => {
