@@ -172,16 +172,11 @@
   }
 
   /// FUNCTIONS
-  function log(message: string) {
-    const formattedMessage = `${formatTimeMs(Date.now())} - ${message}`;
-    if (!debug) {
-      console.log(formattedMessage);
-      return;
-    }
 
-    messages = [formattedMessage, ...messages];
-    if (messages.length > 200) {
-      messages = messages.slice(0, 200);
+  function playSound(sound: HTMLAudioElement) {
+    if (sound != null && $soundOn) {
+      sound.currentTime = 0;
+      $soundOn && sound.play();
     }
   }
 
@@ -200,11 +195,8 @@
 
     socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
-      soundCashout.currentTime = 0;
-      $soundOn && soundCashout.play();
+      playSound(soundCashout);
       const found = betStore.resetByRecordId(event.recordId);
-      if (found) {
-      }
     });
   }
 
@@ -292,9 +284,9 @@
   /// HANDLERS
   function onBetOrCashout(index: number) {
     if (socket) {
-      const record = records[index];
+      const record = $records[index];
       const setting = getSetting(`setting-${index}`);
-      if (record) {
+      if (record.id !== -1) {
         postCashOut(socket, index, { recordId: record.id });
       } else {
         postMakeBet(socket, index, setting);
@@ -332,10 +324,7 @@
             number={formatDuration(secondsToStart * 1000)}
           />
         {:else if $round.state === "waitingNextGame"}
-          <SubHeader
-            label="Waiting for next game"
-            number={"Waiting"}
-          />
+          <SubHeader label="Waiting for next game" number={"Waiting"} />
         {:else if $round.state === "running"}
           <SubHeader
             label="Current multiplier"
@@ -384,8 +373,8 @@
     {#if $user.login}
       <BetController
         multiplier={$multiplier}
-        showCashout0={records[0] != null}
-        showCashout1={records[1] != null}
+        showCashout0={$records[0].id !== -1}
+        showCashout1={$records[1].id !== -1}
         coinType={useBonus ? 2 : 1}
         gameState={$round.state}
         on:action={(e) => {

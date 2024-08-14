@@ -3,6 +3,7 @@ import { soundOn } from "$lib/stores/_settings.js";
 import { formatTime } from '$lib/utils/format';
 import { GameAPI } from '$lib/socket-api/game';
 import { log } from '$lib/utils/log';
+import { socket } from './socket';
 
 
 const STATUS_BY_CODE = {
@@ -28,7 +29,7 @@ class RugbullStore {
     })
   }
 
-  subscribe(/**@type {import("socket.io-client").Socket}*/socket) {
+  subscribe() {
     socket.on('connect', () => {
       GameAPI.getGameInfo().then((event) => {
         if (event.status === "1") {

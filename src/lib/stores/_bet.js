@@ -1,4 +1,7 @@
+import { log } from "$lib/utils/log";
 import { writable } from "svelte/store";
+import { socket } from "./socket";
+import { UserAPI } from "$lib/socket-api/user";
 
 class BetStore {
   records = writable([
@@ -6,6 +9,20 @@ class BetStore {
     { id: -1, auto: false, amount: 0 },
   ])
 
+  constructor() {
+    this.records.subscribe(records => {
+      const [r1, r2] = records
+      log(`BET ${r1.id} ${r2.id}`);
+    })
+  }
+
+  subscribe() {
+    socket.on("connect", () => {
+      UserAPI.getInit().then((event) => {
+        this.updateFromInitEvent(event);
+      })
+    })
+  }
 
   updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/ event) {
     /// Load records when page reload

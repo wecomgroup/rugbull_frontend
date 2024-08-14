@@ -5,6 +5,7 @@ import {PUBLIC_SOCKET_URL} from "$env/static/public";
 import {browser} from "$app/environment";
 import {writable} from "svelte/store";
 import {rugbullStore} from "$lib/stores/_rugbull.js";
+import { betStore } from "./_bet";
 
 /** @type import("socket.io-client").Socket */
 export let socket
@@ -23,8 +24,9 @@ export function initSocket(){
     },
   });
 
-  userStore.subscribe(socket)
-  rugbullStore.subscribe(socket)
+  userStore.subscribe()
+  rugbullStore.subscribe()
+  betStore.subscribe()
 
   socket.on("connect", () => {
     _socketConnected.set(true);

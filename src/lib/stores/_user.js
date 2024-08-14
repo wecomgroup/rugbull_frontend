@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store';
-import { createSocketHandler } from "$lib/stores/socket.js";
+import { createSocketHandler, socket } from "$lib/stores/socket.js";
 import dayjs from "dayjs";
+import { UserAPI } from '$lib/socket-api/user';
 
 
 class UserStore {
@@ -18,7 +19,7 @@ class UserStore {
 
   alreadySubscribed = false;
 
-  subscribe(/**@type {import("socket.io-client").Socket}*/ socket) {
+  subscribe() {
     if (this.alreadySubscribed) {
       console.error("Already subscribed");
       return;
@@ -45,14 +46,9 @@ class UserStore {
     }, 1000);
 
     socket.on("connect", () => {
-      socket.timeout(5000).emit(
-        "/v1/users.php/init",
-        {},
-        createSocketHandler((/**@type {RugbullAPI.InitEvent}*/event) => {
-          console.log("INIT", event);
+      UserAPI.getInit().then((event) => {
           this.updateFromInitEvent(event);
-        }),
-      );
+      })
     })
 
     socket.on("disconnect", () => {
