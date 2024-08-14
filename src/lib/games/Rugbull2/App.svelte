@@ -37,7 +37,6 @@
   /// STATE
   let innerWidth = 0;
   let secondsToStart = 0;
-  let multiplierHistory = [];
   let betHistoryPage = 1;
   let messages: string[] = [];
   let errorMessage: string | undefined;
@@ -56,7 +55,7 @@
 
   const { energy, user } = userStore;
   const { records } = betStore;
-  const { round, multiplier } = rugbullStore;
+  const { round, multiplier, multiplierHistory } = rugbullStore;
 
   /// REACTIVE
   $: {
@@ -180,19 +179,8 @@
     }
   }
 
-  async function getGameResults() {
-    const event = await GameAPI.getGameResults();
-    const data = event.rows;
-    data.forEach((i) => {
-      i.multiplier = hashToNumber(i.encryption);
-    });
-    multiplierHistory = data.map((i) => i.multiplier);
-  }
-
   /// SOCKET HANDLERS
   function initSocketOnMount() {
-    getGameResults();
-
     socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
       playSound(soundCashout);
@@ -315,7 +303,7 @@
           iconTrue={SoundOnIcon}
           iconFalse={SoundOffIcon}
         />
-        <ResultsRow results={multiplierHistory} />
+        <ResultsRow results={$multiplierHistory} />
       </div>
       <div slot="sub-header">
         {#if $round.state === "waiting"}

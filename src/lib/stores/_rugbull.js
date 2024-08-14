@@ -4,6 +4,7 @@ import { formatTime } from '$lib/utils/format';
 import { GameAPI } from '$lib/socket-api/game';
 import { log } from '$lib/utils/log';
 import { socket } from './socket';
+import { hashToNumber } from '$lib/games/Rugbull/decrypt';
 
 
 const STATUS_BY_CODE = {
@@ -15,6 +16,8 @@ const STATUS_BY_CODE = {
 class RugbullStore {
   /**@type {import('svelte/store').Writable<Rugbull.UserEscape[]>}*/
   userEscapes = writable([])
+  multiplierHistory = writable([])
+
   multiplier = writable(1)
   state = "loading"
   round = writable({
@@ -31,6 +34,7 @@ class RugbullStore {
 
   subscribe() {
     socket.on('connect', () => {
+      this.updateMultiplierHistory()
       GameAPI.getGameInfo().then((event) => {
         if (event.status === "1") {
           this.round.set({
@@ -81,6 +85,7 @@ class RugbullStore {
 
             return r;
           })
+          this.updateMultiplierHistory()
         }
         this.multiplier.set(0);
         this.reset()
@@ -116,6 +121,15 @@ class RugbullStore {
 
   reset() {
     this.userEscapes.set([]);
+  }
+
+  async updateMultiplierHistory() {
+    const event = await GameAPI.getGameResults();
+    const data = event.rows;
+    data.forEach((i) => {
+      i.multiplier = hashToNumber(i.encryption);
+    });
+    this.multiplierHistory.set(data.map((i) => i.multiplier))
   }
 
   async updateCurrentRound() {
