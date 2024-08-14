@@ -12,12 +12,20 @@ class UserStore {
     energyPerSecond: 1,
   })
 
+  userId = -1;
   user = writable({
     login: false,
     userId: -1,
   })
 
   alreadySubscribed = false;
+
+  constructor() {
+    this.user.subscribe(user => {
+      this.userId = user.userId
+      console.log("USER", this.userId)
+    })
+  }
 
   subscribe() {
     if (this.alreadySubscribed) {

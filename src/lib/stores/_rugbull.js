@@ -5,6 +5,7 @@ import { GameAPI } from '$lib/socket-api/game';
 import { log } from '$lib/utils/log';
 import { socket } from './socket';
 import { hashToNumber } from '$lib/games/Rugbull/decrypt';
+import { userStore } from './_user';
 
 
 const STATUS_BY_CODE = {
@@ -106,8 +107,8 @@ class RugbullStore {
             userName: i.nickName,
             avatar: '/images/user/avatar.jpg',
             time: Date.now(),
-            userId: i.userId,
-            isUser: false,
+            userId: i.userId.toString(),
+            isUser: i.userId.toString() === userStore.userId.toString(),
           }
         })
 

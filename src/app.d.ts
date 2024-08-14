@@ -99,7 +99,7 @@ declare global {
         amount: string,
         multiplier: string,
         nickName: string,
-        userId: string,
+        userId: string | number,
       }[]
     }
   }

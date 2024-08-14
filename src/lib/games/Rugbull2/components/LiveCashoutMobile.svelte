@@ -23,6 +23,10 @@
   let x2 = spring(0);
 
   $: {
+    console.log(items)
+  }
+
+  $: {
     if (items.length > 0) {
       x = spring(200, {stiffness: 0.1});
       x.set(0)

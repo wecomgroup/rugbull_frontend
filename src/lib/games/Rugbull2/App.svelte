@@ -45,7 +45,6 @@
   let openFairness = false;
 
   const distance = spring(0, { stiffness: 0.02 });
-  const { userEscapes } = rugbullStore;
 
   // SOUND
   let soundCashout: HTMLAudioElement;
@@ -55,7 +54,7 @@
 
   const { energy, user } = userStore;
   const { records } = betStore;
-  const { round, multiplier, multiplierHistory } = rugbullStore;
+  const { userEscapes, round, multiplier, multiplierHistory } = rugbullStore;
 
   /// REACTIVE
   $: {
@@ -184,7 +183,7 @@
     socket.on("trumpetOfVictory", (event: RugbullAPI.VictoryEvent) => {
       console.log("EVENT trumpetOfVictory", event);
       playSound(soundCashout);
-      const found = betStore.resetByRecordId(event.recordId);
+      betStore.resetByRecordId(event.recordId);
     });
   }
 
@@ -341,10 +340,7 @@
       <div class="my-2">
         <LiveCashoutMobile
           items={[
-            ...$userEscapes.map((i) => ({
-              ...i,
-              isUser: $user.userId.toString() === i.userId,
-            })),
+            ...$userEscapes,
             ...(isDevMode
               ? [
                   randomUserEscape(),
