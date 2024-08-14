@@ -331,13 +331,16 @@
             label="Next game"
             number={formatDuration(secondsToStart * 1000)}
           />
+        {:else if $round.state === "waitingNextGame"}
+          <SubHeader
+            label="Waiting for next game"
+            number={"Waiting"}
+          />
         {:else if $round.state === "running"}
           <SubHeader
             label="Current multiplier"
             number={formatMultiplier($multiplier)}
           />
-        {:else if !$user.login}
-          <SubHeader label="Not login" number="Login to play" />
         {:else}
           <SubHeader label={$round.state} number={$round.state} />
         {/if}

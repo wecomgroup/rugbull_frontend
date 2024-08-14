@@ -5,24 +5,49 @@ import { GameAPI } from '$lib/socket-api/game';
 import { log } from '$lib/utils/log';
 
 
+const STATUS_BY_CODE = {
+  1: "waiting",
+  2: "running",
+  3: "stopped",
+}
+
 class RugbullStore {
   /**@type {import('svelte/store').Writable<Rugbull.UserEscape[]>}*/
   userEscapes = writable([])
   multiplier = writable(1)
-  state = "waiting"
+  state = "loading"
   round = writable({
     currentRound: '',
     startTime: 0,
-    state: "waiting"
+    state: this.state,
   })
 
   constructor() {
     this.round.subscribe((r) => {
-      console.log("ROUND", r)
+      log(`ROUND ${r.currentRound} ${r.state}`)
     })
   }
 
   subscribe(/**@type {import("socket.io-client").Socket}*/socket) {
+    socket.on('connect', () => {
+      GameAPI.getGameInfo().then((event) => {
+        if (event.status === "1") {
+          this.round.set({
+            startTime: parseInt(event.startTime),
+            state: STATUS_BY_CODE[event.status],
+            currentRound: event.round.toString()
+          })
+        }
+        else if (event.status === "3") {
+          this.round.set({
+            state: "waitingNextGame",
+            startTime: 0,
+            currentRound: "",
+          })
+        }
+      })
+    })
+
     socket.on("gameEvent", (/**@type {RugbullAPI.RoundEvent}*/event) => {
       if (event.status === 1) {
         this.state = "waiting"
@@ -33,10 +58,8 @@ class RugbullStore {
         })
         this.multiplier.set(1)
         rugbullStore.reset();
-        log(`[1] NEW ROUND [${event.round}] at ${formatTime(event.startTime)}`);
       } else if (event.status === 2) {
-        if (this.state === "waiting") {
-          log(`[2] START`);
+        if (this.state === "waiting" || this.state === "loading") {
           this.state = "running";
           this.round.update((r) => {
             r.state = this.state
@@ -60,7 +83,6 @@ class RugbullStore {
         }
         this.multiplier.set(0);
         this.reset()
-        log(`[3] STOPPED ${event.multiplier.toFixed(2)}`);
       }
     });
 
