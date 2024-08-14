@@ -3,6 +3,8 @@
   import {userStore} from "$lib/stores/_user.js";
   import {spring} from "svelte/motion";
 
+  export let walletHref = undefined;
+
   const coinSpring = spring(0, {stiffness: 0.1});
   const {coin, energy} = userStore
   $: {
@@ -15,9 +17,9 @@
       energyMax={$energy.maxEnergy}
       energyAmount={$energy.current}
       coinAmount={$coinSpring}/>
-  <button class="wallet-button">
+  <a href={walletHref} class="wallet-button">
     <img alt="wallet" src="/images/user/wallet.svg"/>
-  </button>
+  </a>
 </div>
 
 <style lang="scss">

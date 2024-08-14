@@ -13,8 +13,8 @@
 <div class="navbar" class:hide={!$showNavbar}>
   <Burger on:click={() => (open = !open)} />
   <div style="flex: 1" />
-  <WalletMobile />
-  <Avatar />
+  <WalletMobile walletHref="/magic-cards"/>
+  <Avatar href="/"/>
 </div>
 
 <Menu bind:open />

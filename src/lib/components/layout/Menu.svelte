@@ -5,7 +5,7 @@
   import PeopleIcon from "$lib/icons/PeopleIcon.svelte";
   import CardsIcon from "$lib/icons/CardsIcon.svelte";
   import MenuItem from "$lib/components/layout/MenuItem.svelte";
-    import { goto } from "$app/navigation";
+  import { goto } from "$app/navigation";
 
   export let open = false;
 

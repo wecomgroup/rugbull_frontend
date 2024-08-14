@@ -8,8 +8,8 @@
   import TitleH2 from "$lib/components/texts/TitleH2.svelte";
   import { MagicCardAPI } from "$lib/socket-api/magic-cards";
   import { createQuery } from "@tanstack/svelte-query";
-  import { onMount } from "svelte";
   import Countdown from "../texts/Countdown.svelte";
+    import { userStore } from "$lib/stores";
 
   dayjs.extend(duration);
   dayjs.extend(relativeTime);
@@ -26,6 +26,8 @@
     queryKey: ["magic-cards/active"],
     queryFn: MagicCardAPI.listActive,
   });
+
+  $: console.log("MAGIC CARDS", $magicCards.data);
 
   const TYPES = {
     "Speed up": {
@@ -74,28 +76,28 @@
           id: card.rowId,
           title: card.name,
           description: card.description,
-          tagLabel: "Duration",
-          tag: dayjs.duration(card.duration, "s").humanize(),
+          duration: card.duration,
           action: `Buy for ${card.price}`,
           active: buff != null,
-          expirationTime: buff == null ? -1 : dayjs(buff.expirationTime).valueOf() ,
+          expirationTime:
+            buff == null || !buff.expirationTime
+              ? -1
+              : dayjs(buff.expirationTime).valueOf(),
         };
       }) ?? [];
-      tmpCards.sort((a,b ) => {
-        if (a.active && !b.active) return -1;
-        if (!a.active && b.active) return 1;
-        return a.expirationTime - b.expirationTime;
-      })
+    tmpCards.sort((a, b) => {
+      if (a.active && !b.active) return -1;
+      if (!a.active && b.active) return 1;
+      return a.expirationTime - b.expirationTime;
+    });
 
     cards = tmpCards;
   }
 
-  function buyCard(id) {
-    MagicCardAPI.buy({ cardId: id });
-  }
-
-  $: {
-    console.log("ACTIVE BUFFS", $activeBuffs.data);
+  async function buyCard(id) {
+    await MagicCardAPI.buy({ cardId: id });
+    $activeBuffs.refetch();
+    await userStore.reload()
   }
 </script>
 
@@ -112,22 +114,24 @@
         <TitleH2>{i.title}</TitleH2>
         <p class="description">{i.description}</p>
         {#if i.active}
-          <div class="flex items-center w-full">
-            <p class="flex-1">Time Left</p>
-            <div class="Tag">
-            <Countdown targetTime={i.expirationTime} />
+          {#if i.expirationTime > 0}
+            <div class="flex items-center w-full">
+              <p class="flex-1">Time Left</p>
+              <div class="Tag mono">
+                <Countdown targetTime={i.expirationTime} />
+              </div>
             </div>
-          </div>
-          <div>Active</div>
-        {:else}
-          <div class="flex items-center w-full">
-            <p class="flex-1">{i.tagLabel}</p>
-            <div class="Tag">{i.tag}</div>
-          </div>
-          <button on:click={() => buyCard(i.id)}>
-            {i.action} <img class="icon" alt="icon" src={i.icon} />
-          </button>
+          {/if}
         {/if}
+        {#if i.duration > 0}
+          <div class="flex items-center w-full">
+            <p class="flex-1">Duration</p>
+            <div class="Tag">{dayjs.duration(i.duration, "s").humanize()}</div>
+          </div>
+        {/if}
+        <button on:click={() => buyCard(i.id)}>
+          {i.action} <img class="icon" alt="icon" src={i.icon} />
+        </button>
       </div>
     </Card>
   {/each}

@@ -56,9 +56,7 @@ class UserStore {
     }, 1000);
 
     socket.on("connect", () => {
-      UserAPI.getInit().then((event) => {
-          this.updateFromInitEvent(event);
-      })
+      this.reload()
     })
 
     socket.on("disconnect", () => {
@@ -67,7 +65,8 @@ class UserStore {
 
   }
 
-  updateFromInitEvent(/**@type {RugbullAPI.InitEvent}*/event) {
+  async reload() {
+    const event = await UserAPI.getInit()
     const energyPerSecond = event.users_energy.energyAccumulationRate
     const maxEnergy = event.users_energy.energyCapacity;
     const currentEnergy = Math.min(
