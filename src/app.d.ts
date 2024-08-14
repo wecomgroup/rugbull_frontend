@@ -163,6 +163,21 @@ declare global {
       cardName: string
       newBalance: number
     }
+
+    type ActiveBuffResponse = ActiveBuff[]
+
+    interface ActiveBuff {
+      rowId: number
+      cardId: number
+      purchaseTime: string
+      expirationTime?: string
+      card: {
+        name: string
+        type: string
+        effect_amount: number
+        description: string
+      }
+    }
   }
 
   interface Window {

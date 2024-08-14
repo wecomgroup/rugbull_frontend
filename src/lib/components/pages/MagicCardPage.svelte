@@ -8,16 +8,23 @@
   import TitleH2 from "$lib/components/texts/TitleH2.svelte";
   import { MagicCardAPI } from "$lib/socket-api/magic-cards";
   import { createQuery } from "@tanstack/svelte-query";
+  import { onMount } from "svelte";
+  import Countdown from "../texts/Countdown.svelte";
 
   dayjs.extend(duration);
-  dayjs.extend(relativeTime)
-
+  dayjs.extend(relativeTime);
 
   let pointsLimit = 2500;
+  let cards;
 
   const magicCards = createQuery({
-    queryKey: ["magic-cards"],
+    queryKey: ["magic-cards/list"],
     queryFn: MagicCardAPI.list,
+  });
+
+  const activeBuffs = createQuery({
+    queryKey: ["magic-cards/active"],
+    queryFn: MagicCardAPI.listActive,
   });
 
   const TYPES = {
@@ -54,22 +61,41 @@
       tagLabel: "TIME TO ACTION",
       tag: dayjs().format("hh:mm:ss"),
     },
+  };
+
+  $: {
+    const tmpCards =
+      $magicCards.data?.cards.map((card) => {
+        const buff = $activeBuffs.data?.find(
+          (buff) => buff.cardId === card.rowId,
+        );
+        return {
+          ...TYPES[card.type],
+          id: card.rowId,
+          title: card.name,
+          description: card.description,
+          tagLabel: "Duration",
+          tag: dayjs.duration(card.duration, "s").humanize(),
+          action: `Buy for ${card.price}`,
+          active: buff != null,
+          expirationTime: buff == null ? -1 : dayjs(buff.expirationTime).valueOf() ,
+        };
+      }) ?? [];
+      tmpCards.sort((a,b ) => {
+        if (a.active && !b.active) return -1;
+        if (!a.active && b.active) return 1;
+        return a.expirationTime - b.expirationTime;
+      })
+
+    cards = tmpCards;
   }
 
-  $: cards = $magicCards.data?.cards.map((card) => {
-    return {
-      ...TYPES[card.type],
-      id: card.rowId,
-      title: card.name,
-      description: card.description,
-      tagLabel: "DURATION",
-      tag: dayjs.duration(card.duration, "s").humanize(),
-      action: `Buy for ${card.price}`,
-    };
-  }) ?? [];
+  function buyCard(id) {
+    MagicCardAPI.buy({ cardId: id });
+  }
 
-  function buyCard(id){
-    MagicCardAPI.buy({cardId: id});
+  $: {
+    console.log("ACTIVE BUFFS", $activeBuffs.data);
   }
 </script>
 
@@ -85,13 +111,23 @@
         <img class="image" alt="icon" src={i.image} />
         <TitleH2>{i.title}</TitleH2>
         <p class="description">{i.description}</p>
-        <div class="flex items-center w-full">
-          <p class="flex-1">{i.tagLabel}</p>
-          <div class="Tag">{i.tag}</div>
-        </div>
-        <button on:click={() => buyCard(i.id)}>
-          {i.action} <img class="icon" alt="icon" src={i.icon} />
-        </button>
+        {#if i.active}
+          <div class="flex items-center w-full">
+            <p class="flex-1">Time Left</p>
+            <div class="Tag">
+            <Countdown targetTime={i.expirationTime} />
+            </div>
+          </div>
+          <div>Active</div>
+        {:else}
+          <div class="flex items-center w-full">
+            <p class="flex-1">{i.tagLabel}</p>
+            <div class="Tag">{i.tag}</div>
+          </div>
+          <button on:click={() => buyCard(i.id)}>
+            {i.action} <img class="icon" alt="icon" src={i.icon} />
+          </button>
+        {/if}
       </div>
     </Card>
   {/each}
@@ -127,7 +163,7 @@
     gap: 1rem;
 
     .image {
-      min-height: 8rem;
+      height: 6rem;
     }
   }
 

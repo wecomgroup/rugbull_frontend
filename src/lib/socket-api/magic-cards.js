@@ -27,10 +27,25 @@ export class MagicCardAPI {
           cardId,
         },
         createSocketHandler((/** @type {MagicCard.BuyResponse} */event) => {
-          console.log('BUY', event.cardId, event.newBalance);
+          console.log('CARD BUY', event.cardId, event.newBalance);
           resolve(event);
         }),
       );
     });
+  }
+
+  /**
+   * @returns {Promise<MagicCard.ActiveBuffResponse>}
+   */
+  static listActive() {
+    return new Promise((resolve, reject) => {
+      socket.timeout(5000).emit(
+        "/v1/magicCard.php/user/activeBuffs",
+        {},
+        createSocketHandler((event) => {
+          resolve(event);
+        }),
+      );
+    })
   }
 }

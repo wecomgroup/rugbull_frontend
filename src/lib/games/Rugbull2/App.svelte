@@ -7,7 +7,6 @@
   import duration from "dayjs/plugin/duration";
   import { getSetting } from "./components/BetModule.svelte";
   import { spring } from "svelte/motion";
-  import { hashToNumber } from "$lib/games/Rugbull/decrypt";
   import ResultsRow from "$lib/games/Rugbull2/components/ResultsRow.svelte";
   import ShieldIcon from "$lib/icons/ShieldIcon.svelte";
   import SoundOnIcon from "$lib/icons/SoundOnIcon.svelte";
@@ -27,8 +26,6 @@
   import AppLayout from "$lib/games/Rugbull2/AppLayout.svelte";
   import { BetAPI } from "$lib/socket-api/bet";
   import { betStore } from "$lib/stores/_bet";
-  import { GameAPI } from "$lib/socket-api/game";
-  import { formatTime, formatTimeMs } from "$lib/utils/format";
 
   dayjs.extend(duration);
 
@@ -37,8 +34,6 @@
   /// STATE
   let innerWidth = 0;
   let secondsToStart = 0;
-  let betHistoryPage = 1;
-  let messages: string[] = [];
   let errorMessage: string | undefined;
   let useBonus = false;
   let bullState = 0;
