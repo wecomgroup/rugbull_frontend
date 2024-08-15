@@ -2,16 +2,20 @@
   import CopyIcon from "$lib/icons/CopyIcon.svelte";
 
   export let text;
+  export let label = undefined;
 
   function copyToClipboard() {
     navigator.clipboard.writeText(text);
   }
 </script>
 
+{#if label}
+  <label>{label}</label>
+{/if}
 <div class="CopyableCode">
   <pre>{text}</pre>
   <button class="icon" on:click={copyToClipboard}>
-    <CopyIcon/>
+    <CopyIcon />
   </button>
 </div>
 
@@ -27,6 +31,9 @@
 
     align-items: center;
   }
+  label {
+    color: var(--gray)
+  }
 
   pre {
     font-size: 16px;
@@ -35,7 +42,6 @@
   }
 
   .icon {
-
     padding: 4px;
   }
 </style>

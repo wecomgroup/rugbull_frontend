@@ -9,7 +9,8 @@
   const MENUS = [
     "/components",
     "/dev/home",
-    "/"
+    {href: "/", label: "Home"},
+    "/login"
   ]
   const {user} = userStore
 
@@ -24,6 +25,11 @@
     w = window.innerWidth
     h = window.innerHeight
   }
+
+  function logout() {
+    localStorage.removeItem('token')
+    location.reload()
+  }
 </script>
 
 <main>
@@ -32,14 +38,14 @@
   <div class="grid gap-1">
     {#each MENUS as menu}
       {#if typeof menu === "object"}
-        <a href={menu.href}>{menu.name}</a>
+        <a href={menu.href}>{menu.label}</a>
       {:else}
         <a href={menu}>{menu}</a>
       {/if}
     {/each}
   </div>
-  <CopyablePre
-      text={token || "No token"}/>
+  <button on:click={logout}>Logout</button>
+  <CopyablePre label="token" text={token || "No token"}/>
   <CopyablePre text={JSON.stringify($user, null, 2)}/>
   <CopyablePre text={`${w} x ${h}`}/>
 </main>
@@ -49,6 +55,17 @@
     display: grid;
     gap: 1rem;
     padding: 1rem;
+    max-width: 600px;
+  }
+
+  button {
+    width: fit-content;
+    padding: 0.5rem 1rem;
+    background-color: var(--action);
+    color: black;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
   }
 </style>
 

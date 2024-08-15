@@ -249,7 +249,7 @@
     }, 100);
 
     return () => {
-      clearInterval(intervalId2);
+      clearInterval(intervalId2)
     };
   });
 

@@ -3,12 +3,20 @@
   import { onMount } from "svelte";
   import AppLoader from "../loaders/AppLoader.svelte";
   import { uiStore } from "$lib/stores/_ui";
+  import { browser } from "$app/environment";
+  import { goto } from "$app/navigation";
 
   const { user } = userStore;
   const { socketConnected } = socketStore;
 
   onMount(() => {
-    socketStore.initSocket();
+    if (browser) {
+      if (!localStorage.getItem("token")) {
+        goto("/login");
+      } else {
+        socketStore.initSocket();
+      }
+    }
   });
 
   $: {

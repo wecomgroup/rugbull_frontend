@@ -9,7 +9,7 @@
   import { MagicCardAPI } from "$lib/socket-api/magic-cards";
   import { createQuery } from "@tanstack/svelte-query";
   import Countdown from "../texts/Countdown.svelte";
-    import { userStore } from "$lib/stores";
+  import { userStore } from "$lib/stores";
 
   dayjs.extend(duration);
   dayjs.extend(relativeTime);
@@ -97,7 +97,7 @@
   async function buyCard(id) {
     await MagicCardAPI.buy({ cardId: id });
     $activeBuffs.refetch();
-    await userStore.reload()
+    await userStore.reload();
   }
 </script>
 

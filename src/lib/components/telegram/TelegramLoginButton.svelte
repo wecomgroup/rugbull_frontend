@@ -10,7 +10,7 @@
 
   export let botName = undefined;
   export let appName = undefined;
-  export let launchParams = undefined;
+  let notTelegramMiniApp = false;
 
 
   const dispatch = createEventDispatcher<{
@@ -35,35 +35,15 @@
   }
 
   onMount(() => {
-    console.log("Login Button mounted")
     if (browser) {
       try {
-
-        launchParams = window.Telegram?.WebApp.initDataUnsafe
         const initData = window.Telegram.WebApp.initData
-
-        console.log('Telegram detected', window.Telegram.WebApp)
-        console.log('launchParams',launchParams)
-        console.log('initData',initData)
-
-        // /**
-        //  * @type {Telegram.UserData}
-        //  */
-        // const userData = {
-        //   auth_date: launchParams.auth_date,
-        //   hash: launchParams.hash,
-        //   first_name: launchParams.user.firstName || undefined,
-        //   last_name: launchParams.user.lastName || undefined,
-        //   id: launchParams.user.id,
-        //   username: launchParams.user.username,
-        //   photo_url: launchParams.user.photoUrl || undefined,
-        // }
-        // dispatch('launchParams', userData)
+        console.log('Telegram detected')
 
         dispatch('initData', initData)
       } catch (e) {
         console.log('Telegram not detected.')
-        launchParams = null
+        notTelegramMiniApp = true
       }
     }
 
@@ -94,7 +74,7 @@
     ></iframe>
   </div>
   <div class="show-only-mobile">
-    {#if launchParams === null}
+    {#if notTelegramMiniApp}
       <a href={launchLink} class="btn-telegram">
         <i class="tgme_widget_login_button_icon"/>
         Launch in Telegram

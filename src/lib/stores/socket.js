@@ -14,11 +14,15 @@ class SocketStore {
   socketConnected = writable(false)
 
   initSocket() {
-    if (!browser) return null
+    if (!browser) throw new Error("Cannot init socket on server side")
 
-    if (this.socket != null) return this.socket
+    if (this.socket != null) {
+      console.log("Socket already initialized");
+      return;
+    }
+
     const token = localStorage.getItem("token");
-    if (!token) return null
+    if (!token) throw new Error("No token found in local storage")
 
     this.socket = io(PUBLIC_SOCKET_URL, {
       extraHeaders: {
