@@ -28,8 +28,6 @@
     queryFn: MagicCardAPI.listActive,
   });
 
-  $: console.log("MAGIC CARDS", $magicCards.data);
-
   const CARDS = [
     {
       type: "Speed up",
@@ -101,7 +99,6 @@
   }
 
   async function buyCard(e) {
-    console.log(e)
     const cardId = e.detail.rowId;
     await MagicCardAPI.buy({ cardId: cardId });
     $activeBuffs.refetch();
