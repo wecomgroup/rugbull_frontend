@@ -83,7 +83,7 @@
   <button slot="right" class="right p-1"
           class:disabled={!canBet}
           on:click={showSetting}>
-    <span>Amount<br/>${betAmount.toFixed(2)}</span>
+    <span>Amount<br/>${betAmount?.toFixed(2)}</span>
   </button>
   <button slot="bottom"
           class="cashout-text"

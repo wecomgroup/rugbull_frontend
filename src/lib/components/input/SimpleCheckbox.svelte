@@ -39,7 +39,7 @@
   }
 
   .checkbox-container .cbx:hover {
-    background: rgba(0,119,255,0.06);
+    background: rgba(0,119,255,0.16);
   }
 
   .checkbox-container .cbx span:first-child {
@@ -55,7 +55,7 @@
     height: 18px;
     border-radius: 4px;
     transform: scale(1);
-    border: 2px solid var(--label-color);
+    border: 2px solid var(--label);
     transition: all 0.2s ease;
     box-shadow: 0 1px 1px rgba(0,16,75,0.05);
   }
@@ -65,12 +65,6 @@
     top: 3px;
     left: 2px;
     fill: none;
-    stroke: #fff;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 16px;
-    stroke-dashoffset: 16px;
     transition: all 0.3s ease;
     transition-delay: 0.1s;
     transform: translate3d(0, 0, 0);
@@ -107,30 +101,6 @@
     .checkbox-container .cbx {
       width: 100%;
       display: inline-block;
-    }
-  }
-
-  @-moz-keyframes wave-4 {
-    50% {
-      transform: scale(0.9);
-    }
-  }
-
-  @-webkit-keyframes wave-4 {
-    50% {
-      transform: scale(0.9);
-    }
-  }
-
-  @-o-keyframes wave-4 {
-    50% {
-      transform: scale(0.9);
-    }
-  }
-
-  @keyframes wave-4 {
-    50% {
-      transform: scale(0.9);
     }
   }
 </style>

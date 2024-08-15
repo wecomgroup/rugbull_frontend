@@ -2,7 +2,7 @@
   import InputLayout from "$lib/components/input/InputLayout.svelte";
 
   export let id = "cashout";
-  export let label = "Bet amount";
+  export let label = "Bet amount (max. 150)";
   export let min = 10;
   export let max = 150;
   export let placeholder = "Enter amount"
