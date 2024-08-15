@@ -40,4 +40,4 @@ Design1:
 https://www.figma.com/file/gv5mljLSGarTG8hDOqGyNg/TG.BET?type=design&node-id=2826-3429&mode=design&t=CHlXRHXfsZBkxmHh-0
 
 Design2: 
-https://www.figma.com/file/gv5mljLSGarTG8hDOqGyNg/TG.BET?type=design&node-id=2826-3429&mode=design&t=qa1bFMM0UYcrNwej-0
+https://www.figma.com/design/g3zkb2XHEhw9t2NowLWQut/Rugbull?node-id=0-1&t=La6Pv8eyfaVGE8IZ-0

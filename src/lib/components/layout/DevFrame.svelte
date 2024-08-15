@@ -23,6 +23,12 @@
       scale: "scale-100"
     },
     {
+      label: "tg web 560",
+      width: "560px",
+      height: "726px",
+      scale: "scale-75"
+    },
+    {
       label: "fold 568",
       width: "568px",
       scale: "scale-75"

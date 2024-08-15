@@ -10,12 +10,13 @@
   import { createQuery } from "@tanstack/svelte-query";
   import Countdown from "../texts/Countdown.svelte";
   import { userStore } from "$lib/stores";
+  import MagicCard from "../display/MagicCard.svelte";
 
   dayjs.extend(duration);
   dayjs.extend(relativeTime);
 
   let pointsLimit = 2500;
-  let cards;
+  let cards = [];
 
   const magicCards = createQuery({
     queryKey: ["magic-cards/list"],
@@ -29,30 +30,31 @@
 
   $: console.log("MAGIC CARDS", $magicCards.data);
 
-  const TYPES = {
-    "Speed up": {
+  const CARDS = [
+    {
+      type: "Speed up",
       variant: "blue",
       title: "Speed up",
       description:
         "This kind of magic card is to speed up increment of Locked Point, that means increase 2 points per second",
       image: "/images/rugbull2/Lightning.svg",
-      action: "Buy for 150.0",
-      icon: "/images/user/coin.svg",
-      tagLabel: "TIME TO ACTION",
-      tag: dayjs().format("hh:mm:ss"),
+      expirationTime: -1,
+      options: [],
+      buffs: [],
     },
-    "Expand pool": {
+    {
+      type: "Expand pool",
       variant: "red",
       title: "Expand pool",
       description:
         "This kind of magic card is to expand the capacity of Locked Point Pool",
       image: "/images/rugbull2/Potion.svg",
-      action: "Buy for 150.0",
-      icon: "/images/user/coin.svg",
-      tagLabel: "POINTS LIMIT",
-      tag: pointsLimit,
+      expirationTime: -1,
+      options: [],
+      buffs: [],
     },
-    "Double winning": {
+    {
+      type: "Double winning",
       variant: "gray",
       title: "Double winning",
       description:
@@ -60,42 +62,48 @@
       image: "/images/rugbull2/Double.svg",
       action: "Buy for 200.0",
       icon: "/images/user/coin.svg",
-      tagLabel: "TIME TO ACTION",
-      tag: dayjs().format("hh:mm:ss"),
+      expirationTime: -1,
+      options: [],
+      buffs: [],
     },
-  };
+  ];
 
   $: {
-    const tmpCards =
-      $magicCards.data?.cards.map((card) => {
+    if ($magicCards.data) {
+      const tmpCards = CARDS.map((i) => ({ ...i, options: [], buffs: [] }));
+
+      $magicCards.data.cards.forEach((option) => {
+        const card = tmpCards.find((i) => i.type === option.type);
+
+        if (card.options.length === 0) {
+        }
         const buff = $activeBuffs.data?.find(
-          (buff) => buff.cardId === card.rowId,
+          (buff) => buff.cardId === option.rowId,
         );
-        return {
-          ...TYPES[card.type],
-          id: card.rowId,
-          title: card.name,
-          description: card.description,
-          duration: card.duration,
-          action: `Buy for ${card.price}`,
-          active: buff != null,
-          expirationTime:
+
+        card.options.push(option);
+        if (buff) card.buffs.push(buff);
+      });
+
+      tmpCards.forEach((card) => {
+        card.buffs.sort((a, b) => b.expirationTime - a.expirationTime);
+        if (card.buffs.length > 0) {
+          const buff = card.buffs[0];
+          card.expirationTime =
             buff == null || !buff.expirationTime
               ? -1
-              : dayjs(buff.expirationTime).valueOf(),
-        };
-      }) ?? [];
-    tmpCards.sort((a, b) => {
-      if (a.active && !b.active) return -1;
-      if (!a.active && b.active) return 1;
-      return a.expirationTime - b.expirationTime;
-    });
+              : dayjs(buff.expirationTime).valueOf();
+        }
+      });
 
-    cards = tmpCards;
+      cards = tmpCards;
+    }
   }
 
-  async function buyCard(id) {
-    await MagicCardAPI.buy({ cardId: id });
+  async function buyCard(e) {
+    console.log(e)
+    const cardId = e.detail.rowId;
+    await MagicCardAPI.buy({ cardId: cardId });
     $activeBuffs.refetch();
     await userStore.reload();
   }
@@ -108,32 +116,15 @@
 <main>
   <Title style="justify-content: center; margin: 1rem 0">Magic cards</Title>
   {#each cards as i}
-    <Card variant={i.variant}>
-      <div class="card-content">
-        <img class="image" alt="icon" src={i.image} />
-        <TitleH2>{i.title}</TitleH2>
-        <p class="description">{i.description}</p>
-        {#if i.active}
-          {#if i.expirationTime > 0}
-            <div class="flex items-center w-full">
-              <p class="flex-1">Time Left</p>
-              <div class="Tag mono">
-                <Countdown targetTime={i.expirationTime} />
-              </div>
-            </div>
-          {/if}
-        {/if}
-        {#if i.duration > 0}
-          <div class="flex items-center w-full">
-            <p class="flex-1">Duration</p>
-            <div class="Tag">{dayjs.duration(i.duration, "s").humanize()}</div>
-          </div>
-        {/if}
-        <button on:click={() => buyCard(i.id)}>
-          {i.action} <img class="icon" alt="icon" src={i.icon} />
-        </button>
-      </div>
-    </Card>
+    <MagicCard
+      variant={i.variant}
+      title={i.title}
+      description={i.description}
+      image={i.image}
+      expirationTime={i.expirationTime}
+      options={i.options}
+      on:buy={buyCard}
+    />
   {/each}
 </main>
 
