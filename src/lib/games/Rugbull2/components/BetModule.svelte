@@ -78,7 +78,7 @@
           class:auto={auto}
   >
         <span>{auto ? "Auto Cashout" : "Manual"}<br/>
-          {#if auto}x{cashoutMultiplier.toPrecision(3)}{/if}</span>
+          {#if auto}x{(cashoutMultiplier||0).toPrecision(3)}{/if}</span>
   </button>
   <button slot="right" class="right p-1"
           class:disabled={!canBet}
