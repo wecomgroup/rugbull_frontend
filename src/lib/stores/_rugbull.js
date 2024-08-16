@@ -102,10 +102,12 @@ class RugbullStore {
       this.userEscapes.update(u => {
         /** @type {Rugbull.UserEscape[]} */
         const list = event.userList.map((i) => {
+          const multiplier = parseFloat(i.multiplier)
+
           return {
             key: u.length.toString(),
-            multiplier: parseFloat(i.multiplier),
-            amount: parseFloat(i.amount) * parseFloat(i.multiplier),
+            multiplier,
+            amount: i.win,
             userName: i.nickName,
             avatar: '/images/user/avatar.jpg',
             time: Date.now(),

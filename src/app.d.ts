@@ -98,6 +98,8 @@ declare global {
       userList: {
         amount: string,
         multiplier: string,
+        win: number,
+        winMultiplier: number,
         nickName: string,
         userId: string | number,
       }[]

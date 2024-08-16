@@ -11,6 +11,7 @@
     }
   }
 </script>
+
 <script>
   import LiveCashoutMobileItem from "$lib/games/Rugbull2/components/LiveCashoutMobileItem.svelte";
   import {spring} from 'svelte/motion';
