@@ -11,6 +11,7 @@ export class UserAPI {
         "/v1/users.php/init",
         {},
         createSocketHandler((/**@type {RugbullAPI.InitEvent}*/data) => {
+          console.log("INIT", data)
           resolve(data);
         }),
       );

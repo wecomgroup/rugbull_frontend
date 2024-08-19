@@ -43,6 +43,7 @@ export class MagicCardAPI {
         "/v1/magicCard.php/user/activeBuffs",
         {},
         createSocketHandler((event) => {
+          console.log("ACTIVE BUFFS", event);
           resolve(event);
         }),
       );

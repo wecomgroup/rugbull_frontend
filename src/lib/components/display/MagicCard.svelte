@@ -11,6 +11,7 @@
   export let description = "Description";
   export let image = "/images/rugbull2/Lightning.svg";
   export let expirationTime = -1;
+  export let affectAmount = -1;
   export let coinIcon = "/images/user/coin.svg";
   export let options = [{ label: "Option 1", value: 1, price: 120 }];
 
@@ -29,6 +30,14 @@
         <p class="flex-1">Time Left</p>
         <div class="Tag mono">
           <Countdown targetTime={expirationTime} />
+        </div>
+      </div>
+    {/if}
+    {#if affectAmount > 0}
+      <div class="flex items-center w-full">
+        <p class="flex-1">Amount</p>
+        <div class="Tag mono">
+          <Countdown targetTime={affectAmount} />
         </div>
       </div>
     {/if}

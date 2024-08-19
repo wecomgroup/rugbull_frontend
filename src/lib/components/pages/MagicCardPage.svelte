@@ -37,8 +37,8 @@
         "This kind of magic card is to speed up increment of Locked Point, that means increase 2 points per second",
       image: "/images/rugbull2/Lightning.svg",
       expirationTime: -1,
+      affectAmount: -1,
       options: [],
-      buffs: [],
     },
     {
       type: "Expand pool",
@@ -48,8 +48,8 @@
         "This kind of magic card is to expand the capacity of Locked Point Pool",
       image: "/images/rugbull2/Potion.svg",
       expirationTime: -1,
+      affectAmount: -1,
       options: [],
-      buffs: [],
     },
     {
       type: "Double winning",
@@ -61,32 +61,32 @@
       action: "Buy for 200.0",
       icon: "/images/user/coin.svg",
       expirationTime: -1,
+      affectAmount: -1,
       options: [],
-      buffs: [],
     },
   ];
 
   $: {
     if ($magicCards.data) {
-      const tmpCards = CARDS.map((i) => ({ ...i, options: [], buffs: [] }));
+      const tmpCards = CARDS.map((i) => ({ ...i, options: [] }));
 
       $magicCards.data.cards.forEach((option) => {
         const card = tmpCards.find((i) => i.type === option.type);
 
-        if (card.options.length === 0) {
-        }
-        const buff = $activeBuffs.data?.find(
-          (buff) => buff.cardId === option.rowId,
-        );
-
         card.options.push(option);
-        if (buff) card.buffs.push(buff);
       });
 
       tmpCards.forEach((card) => {
-        card.buffs.sort((a, b) => b.expirationTime - a.expirationTime);
-        if (card.buffs.length > 0) {
-          const buff = card.buffs[0];
+        const buff = $activeBuffs.data?.find(
+          (buff) => buff.card.type === card.type,
+        );
+
+        if (card.type === "Expand pool") {
+          card.affectAmount =
+            buff == null || !buff.card.effect_amount
+              ? -1
+              : buff.card.effect_amount;
+        } else {
           card.expirationTime =
             buff == null || !buff.expirationTime
               ? -1
@@ -118,6 +118,7 @@
       title={i.title}
       description={i.description}
       image={i.image}
+      affectAmount={i.affectAmount}
       expirationTime={i.expirationTime}
       options={i.options}
       on:buy={buyCard}

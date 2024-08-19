@@ -169,15 +169,10 @@ declare global {
     type ActiveBuffResponse = ActiveBuff[]
 
     interface ActiveBuff {
-      rowId: number
-      cardId: number
-      purchaseTime: string
-      expirationTime?: string
+      expirationTime: string
       card: {
-        name: string
         type: string
         effect_amount: number
-        description: string
       }
     }
   }
