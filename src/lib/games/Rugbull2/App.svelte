@@ -27,6 +27,7 @@
   import { BetAPI } from "$lib/socket-api/bet";
   import { betStore } from "$lib/stores/_bet";
     import { browser } from "$app/environment";
+    import { GameAPI } from "$lib/socket-api/game";
 
   dayjs.extend(duration);
 
@@ -148,23 +149,6 @@
     return false;
   }
 
-  function createSocketHandler<T>(callback: (data: T) => void) {
-    return (err, event: any) => {
-      if (checkError(err, event)) {
-        return;
-      }
-      if (event.statusCode === 200) {
-        const data: T = event.data;
-        callback(data);
-      } else if (event.statusCode === 401) {
-        console.log("TOKEN EXPIRED");
-        localStorage.removeItem("token");
-      } else {
-        console.log("UNHANDLED EVENT", event);
-      }
-    };
-  }
-
   /// FUNCTIONS
 
   function playSound(sound: HTMLAudioElement) {
@@ -212,7 +196,7 @@
     }
   }
 
-  function postCashOut(
+  async function postCashOut(
     socket: Socket,
     index: number,
     params: {
@@ -224,15 +208,9 @@
     };
     console.log("CASHOUT", payload);
 
-    socket.timeout(5000).emit(
-      "/v1/games.php/cashout",
-      payload,
-      createSocketHandler<any>((data) => {
-        console.log("CASHOUT RESPONSE", data);
-        records[index] = undefined;
-        // postUserInit(socket);
-      }),
-    );
+    await GameAPI.cashout({
+      recordId: params.recordId,
+    });
   }
 
   onMount(() => {

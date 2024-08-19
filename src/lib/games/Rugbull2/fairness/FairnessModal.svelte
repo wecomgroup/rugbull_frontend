@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { type Socket } from "socket.io-client";
   import { onMount } from "svelte";
-  import { socketStore } from "$lib/stores/socket";
   import FairnessVerification from "./FairnessVerification.svelte";
   import BottomModal from "$lib/components/modals/BottomModal.svelte";
+  import { GameAPI } from "$lib/socket-api/game";
 
   export let open = false;
 
@@ -25,58 +24,18 @@
     return false;
   }
 
-  function createSocketHandler<T>(callback: (data: T) => void) {
-    return (err, event: any) => {
-      if (checkError(err, event)) {
-        return;
-      }
-      if (event.statusCode === 200) {
-        const data: T = event.data;
-        callback(data);
-      } else {
-        console.log("UNHANDLED EVENT", event);
-      }
-    };
-  }
-
   /// INIT
   function initSocketOnMount() {
-    const { socket } = socketStore;
-
-    socket.on("connect", () => {
-      getGameResults(socket);
-      getWebConfig(socket);
+    GameAPI.getGameResults().then((event) => {
+      resultsHistory = event.rows.map((i) => ({
+        round: i.round,
+        encryption: i.encryption,
+      }));
     });
 
-    return socket;
-  }
-
-  /// API
-  function getGameResults(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/games.php/result",
-      {
-        limit: 20,
-        page: 1,
-      },
-      createSocketHandler<RugbullAPI.ResultEvent>((event) => {
-        console.log("RESULTS", event);
-        resultsHistory = event.rows.map((i) => ({
-          round: i.round,
-          encryption: i.encryption,
-        }));
-      }),
-    );
-  }
-
-  function getWebConfig(socket: Socket) {
-    socket.timeout(5000).emit(
-      "/v1/index.php/webconfig",
-      {},
-      createSocketHandler<RugbullAPI.WebConfigEvent>((event) => {
-        clientSeed = event.clientSeed;
-      }),
-    );
+    GameAPI.getWebConfig().then((event) => {
+      clientSeed = event.clientSeed;
+    });
   }
 
   /// MOUNT

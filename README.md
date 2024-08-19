@@ -33,6 +33,9 @@ make deploy
 
 ## Documentations
 
+Miniapp:
+https://t.me/RugbullTestBot/testApp
+
 Postman: 
 https://documenter.getpostman.com/view/15533615/2sA35G2MDK
 

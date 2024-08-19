@@ -1,4 +1,4 @@
-import { createSocketHandler, socketStore } from "$lib/stores";
+import { socketStore } from "$lib/stores";
 
 export class MagicCardAPI {
   /**
@@ -8,45 +8,17 @@ export class MagicCardAPI {
    * }>}
    */
   static list() {
-    return new Promise((resolve, reject) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/magicCard.php/cards",
-        {},
-        createSocketHandler((event) => {
-          resolve(event);
-        }),
-      );
-    });
+    return socketStore.wrapEmit("/v1/magicCard.php/cards", {});
   }
 
   static buy({ cardId }) {
-    return new Promise((resolve, reject) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/magicCard.php/buy",
-        {
-          cardId,
-        },
-        createSocketHandler((/** @type {MagicCard.BuyResponse} */event) => {
-          console.log('CARD BUY', event.cardId, event.newBalance);
-          resolve(event);
-        }),
-      );
-    });
+    return socketStore.wrapEmit("/v1/magicCard.php/buy", { cardId });
   }
 
   /**
    * @returns {Promise<MagicCard.ActiveBuffResponse>}
    */
   static listActive() {
-    return new Promise((resolve, reject) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/magicCard.php/user/activeBuffs",
-        {},
-        createSocketHandler((event) => {
-          console.log("ACTIVE BUFFS", event);
-          resolve(event);
-        }),
-      );
-    })
+    return socketStore.wrapEmit("/v1/magicCard.php/user/activeBuffs", {});
   }
 }

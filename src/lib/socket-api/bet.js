@@ -1,4 +1,4 @@
-import { createSocketHandler, socketStore } from "$lib/stores";
+import { socketStore } from "$lib/stores";
 
 export class BetAPI {
   static bet({
@@ -8,15 +8,6 @@ export class BetAPI {
     multiplier,
     amount
   }) {
-    return new Promise((resolve) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/games.php/bet",
-        { round, coinType, auto, multiplier, amount },
-        createSocketHandler((data) => {
-          console.log("BET RESPONSE", data);
-          resolve(data);
-        }),
-      );
-    })
+    return socketStore.wrapEmit("/v1/games.php/bet", { round, coinType, auto, multiplier, amount });
   }
 }

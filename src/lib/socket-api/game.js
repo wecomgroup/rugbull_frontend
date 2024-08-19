@@ -1,54 +1,38 @@
-import { createSocketHandler, socketStore } from "$lib/stores";
+import { socketStore } from "$lib/stores";
 
 export class GameAPI {
   /**
    * @returns {Promise<RugbullAPI.ResultEvent>}
    */
   static getGameResults() {
-    return new Promise((resolve) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/games.php/result",
-        {
-          limit: 20,
-          page: 1,
-        },
-        createSocketHandler((event) => {
-          console.log("GAME RESULTS", event);
-          resolve(event);
-        }),
-      );
-    })
+    return socketStore.wrapEmit("/v1/games.php/result", {
+      limit: 20,
+      page: 1,
+    });
   }
 
   /**
    * @returns {Promise<RugbullAPI.GameEvent>}
    */
   static getGameInfo() {
-    return new Promise((resolve) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/games.php/info",
-        {},
-        createSocketHandler((data) => {
-          console.log("GAME INFO", data);
-          resolve(data);
-        }),
-      );
-    });
+    return socketStore.wrapEmit("/v1/games.php/info", {});
   }
 
   /**
    * @returns  {Promise<RugbullAPI.HistoryEvent>}
    */
   static getHistory({ limit, page }) {
-    return new Promise((resolve) => {
-      socketStore.socket.timeout(5000).emit(
-        "/v1/games.php/history",
-        { limit, page },
-        createSocketHandler((data) => {
-          console.log("GAME HISTORY", data);
-          resolve(data);
-        }),
-      );
-    });
+    return socketStore.wrapEmit("/v1/games.php/history", { limit, page });
+  }
+
+  /**
+   * @returns {Promise<RugbullAPI.WebConfigEvent>} 
+   */
+  static getWebConfig() {
+    return socketStore.wrapEmit("/v1/index.php/webconfig", {})
+  }
+
+  static cashout({recordId}){
+    return socketStore.wrapEmit("/v1/games.php/cashout", {recordId});
   }
 }

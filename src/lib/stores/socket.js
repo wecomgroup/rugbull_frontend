@@ -12,6 +12,7 @@ class SocketStore {
   socket
 
   socketConnected = writable(false)
+  error = writable(null)
 
   initSocket() {
     if (!browser) throw new Error("Cannot init socket on server side")
@@ -41,49 +42,48 @@ class SocketStore {
       this.socketConnected.set(false);
     })
   }
+
+  #checkError(err, response) {
+    if (err) {
+      this.error.set(err.toString());
+      return err.toString();
+    }
+    if (response.ok === 0) {
+      this.error.set(response.error.toString());
+      return response.error.toString();
+    }
+    if (response.output?.payload?.statusCode >= 300) {
+      this.error.set(response.output.payload.message);
+      return response.output.payload.message;
+    }
+    if (response.statusCode >= 300) {
+      this.error.set(response.message);
+      return response.message;
+    }
+  }
+
+  wrapEmit(path, payload) {
+    return new Promise((resolve, reject) => {
+      socketStore.socket
+      .timeout(5000)
+      .emit(path, payload, (err, response) => {
+        const hasError = this.#checkError(err, response);
+        if (hasError) {
+          reject(hasError);
+        }
+        if (response.statusCode === 200) {
+          const data = response.data;
+          resolve(data);
+        } else if (response.statusCode === 401) {
+          // localStorage.removeItem("token");
+          reject("Token expired");
+        } else {
+          console.error(`Unhandled response [${path}] `, response);
+          reject("Unhandled response")
+        }
+      })
+    })
+  }
 }
 
 export const socketStore = new SocketStore();
-
-function checkError(err, response) {
-  if (err) {
-    console.error(err);
-    return true;
-  }
-  if (response.ok === 0) {
-    _error.set(response.error);
-    return true;
-  }
-  if (response.output?.payload?.statusCode >= 300) {
-    _error.set(response.output.payload.message);
-    return true;
-  }
-  if (response.statusCode >= 300) {
-    console.log("ERROR", response);
-    _error.set(response.message);
-    return true;
-  }
-  return false;
-}
-
-
-/**
- *
- * @param callback {(function(*): void)}
- */
-export function createSocketHandler(callback) {
-  return (err, event) => {
-    if (checkError(err, event)) {
-      return;
-    }
-    if (event.statusCode === 200) {
-      const data = event.data;
-      callback(data);
-    } else if (event.statusCode === 401) {
-      console.log("TOKEN EXPIRED");
-      localStorage.removeItem("token");
-    } else {
-      console.log("UNHANDLED EVENT", event);
-    }
-  };
-}
